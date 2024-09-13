@@ -4,14 +4,26 @@
 
 Antes de comenzar, asegurate de tner lo siguiente instalado en tu maquina
 
-- **[Bun](https://bun.sh/)**: Gestor de paquetes y entorno de ejecucion.
-  - Linux & MacOS
+- **pnpm**: Gestor de paquetes.
     ```bash
-    curl -fsSL https://bun.sh/install | bash
+      npm install -g pnpm
     ```
-  - Windows
+- Biome: Herramienta para el formato y linting de codigo
     ```bash
-    powershell -c "irm bun.sh/install.ps1 | iex"
+      npm install -g pnpm
+    ```   
+    No olvidar instalar la extension de vsCode. Se recomienda activar en settings, formatOnSave.
+    Asimismo en el json de vscode colocar las siguientes lineas al final.
+    ```bash
+      "editor.codeActionsOnSave": {
+        "source.organizeImports.biome": "explicit"
+      },
+      "[javascript]": {
+        "editor.defaultFormatter": "biomejs.biome"
+      },
+      "[javascriptreact]": {
+        "editor.defaultFormatter": "biomejs.biome"
+      },
     ```
 - Git: Para clonar el repositorio
 - Un navegador compatible con ESModules, como Chrome o Firefox
@@ -20,7 +32,7 @@ Antes de comenzar, asegurate de tner lo siguiente instalado en tu maquina
 
 1. Clonar el repositorio
    ```bash
-   git clone https://github.com/vvisalot/2B-OdiRoute.git
+   git clone https://github.com/vvisalot/2B-ProSoft.git
    ```
 2. Navegar hasta el directorio del proyecto
 
@@ -30,29 +42,22 @@ Antes de comenzar, asegurate de tner lo siguiente instalado en tu maquina
 
 3. Instalar dependencias
    ```bash
-   bun install
+   pnpm install
    ```
 4. Iniciar el servidor de desarrollo
    ```bash
-   bun run dev
+   pnpm run dev
    ```
-5. Ejecutar ESLint
+5. Formatear codigo con Biome
    ```bash
-   bun run list
+   pnpm biome format
+   pnpm biome lint
    ```
-6. Construir el producto para produccion:
-   ```bash
-   bun run build
-   ```
-7. Prettier para formateo de codigo
-   ```bash
-   bun prettier --write
-   ```
+
 
 ## Estructura del Proyecto
 
 - src/: Contiene el código fuente de la aplicación.
 - public/: Archivos públicos estáticos, como imágenes y el archivo index.html.
-- .eslint.config.js: Archivo de configuración de ESLint para mantener el código limpio.
 - vite.config.js: Configuración de Vite para gestionar el entorno de desarrollo y compilación.
 - package.json: Scripts y dependencias del proyecto.
