@@ -1,35 +1,42 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { Layout, Tabs } from "antd";
+import { Content, Header } from "antd/es/layout/layout";
+import Analiticas from "./components/main-tabs/Analiticas";
+import Configuracion from "./components/main-tabs/Configuracion";
+import Planificador from "./components/main-tabs/Planificador";
+import Simulacion from "./components/main-tabs/Simulacion";
 
-function App() {
-  const [count, setCount] = useState(0)
+const { TabPane } = Tabs;
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+const App = () => {
+	return (
+		<Layout style={{ height: "100vh" }}>
+			<div className="min-h-screen flex flex-col">
+				<Header className="bg-gray-700 text-white pl-6 pr-6 pt-4 pb-4">
+					<h1 className="text-3xl">OdiparPack</h1>
+				</Header>
 
-export default App
+				<Content className="flex-grow flex bg-white">
+					<Tabs defaultActiveKey="1" className="ml-6 mr-6 w-full flex-grow">
+						<TabPane tab="Planificador" key="1">
+							<Planificador />
+						</TabPane>
+
+						<TabPane tab="Simulación" key="2">
+							<Simulacion />
+						</TabPane>
+
+						<TabPane tab="Analíticas" key="3">
+							<Analiticas />
+						</TabPane>
+
+						<TabPane tab="Configuración" key="4">
+							<Configuracion />
+						</TabPane>
+					</Tabs>
+				</Content>
+			</div>
+		</Layout>
+	);
+};
+
+export default App;
