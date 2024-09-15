@@ -1,11 +1,9 @@
 import { Layout, Tabs } from "antd";
 import { Content, Header } from "antd/es/layout/layout";
-import Analiticas from "./components/main-tabs/Analiticas";
-import Configuracion from "./components/main-tabs/Configuracion";
-import Planificador from "./components/main-tabs/Planificador";
-import Simulacion from "./components/main-tabs/Simulacion";
-
-const { TabPane } = Tabs;
+import Analiticas from "./pages/Analiticas";
+import Configuracion from "./pages/Configuracion";
+import Planificador from "./pages/Planificador";
+import Simulacion from "./pages/Simulacion";
 
 const App = () => {
 	return (
@@ -16,23 +14,32 @@ const App = () => {
 				</Header>
 
 				<Content className="flex-grow flex bg-white">
-					<Tabs defaultActiveKey="1" className="ml-6 mr-6 w-full flex-grow">
-						<TabPane tab="Planificador" key="1">
-							<Planificador />
-						</TabPane>
-
-						<TabPane tab="Simulación" key="2">
-							<Simulacion />
-						</TabPane>
-
-						<TabPane tab="Analíticas" key="3">
-							<Analiticas />
-						</TabPane>
-
-						<TabPane tab="Configuración" key="4">
-							<Configuracion />
-						</TabPane>
-					</Tabs>
+					<Tabs
+						defaultActiveKey="1"
+						className="ml-6 mr-6 w-full flex-grow"
+						items={[
+							{
+								label: "Planificador",
+								key: "1",
+								children: <Planificador />,
+							},
+							{
+								label: "Simulación",
+								key: "2",
+								children: <Simulacion />,
+							},
+							{
+								label: "Analíticas",
+								key: "3",
+								children: <Analiticas />,
+							},
+							{
+								label: "Configuración",
+								key: "4",
+								children: <Configuracion />,
+							},
+						]}
+					/>
 				</Content>
 			</div>
 		</Layout>
