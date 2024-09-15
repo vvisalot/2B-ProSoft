@@ -3,15 +3,11 @@ export default {
 	content: ["./src/**/*.{js,ts,jsx,tsx}", "./index.html"],
 	theme: {
 		extend: {
-			fontFamily: {
-				sans: [
-					"Inter",
-					"system-ui",
-					"Avenir",
-					"Helvetica",
-					"Arial",
-					"sans-serif",
-				],
+			fontSize: {
+				base: "16px",
+				lg: "20px",
+				sm: "14px",
+				xl: "24px",
 			},
 			colors: {
 				primary: "#646cff",

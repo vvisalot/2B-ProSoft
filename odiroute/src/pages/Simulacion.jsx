@@ -18,13 +18,16 @@ const Simulacion = () => {
 									<div className="flex">
 										<div>
 											Fecha Inicio
-											<DatePicker className="ml-4" placeholder="Seleccionar fecha" />
+											<DatePicker
+												className="ml-4"
+												placeholder="Seleccionar fecha"
+											/>
 										</div>
 										<div className="pl-4">
 											Fecha Fin
 											<DatePicker
 												className="ml-4"
-												placeholder="Selecciona fecha"
+												placeholder="Seleccionar fecha"
 											/>
 										</div>
 									</div>

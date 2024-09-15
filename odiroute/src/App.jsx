@@ -4,12 +4,18 @@ import Analiticas from "./pages/Analiticas";
 import Configuracion from "./pages/Configuracion";
 import Planificador from "./pages/Planificador";
 import Simulacion from "./pages/Simulacion";
+import logo from "./assets/odipark.svg";
 
 const App = () => {
 	return (
 		<Layout style={{ height: "100vh" }}>
 			<div className="min-h-screen flex flex-col">
-				<Header className="bg-gray-700 text-white pl-6 pr-6 pt-4 pb-4">
+				<Header className="bg-gray-700 text-white pl-6 pr-6 pt-4 pb-4 flex items-center">
+					<img
+						src={logo}
+						alt="OdiparPack Logo"
+						style={{ height: "40px", marginRight: "16px" }}
+					/>
 					<h1 className="text-3xl">OdiparPack</h1>
 				</Header>
 
