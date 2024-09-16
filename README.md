@@ -24,9 +24,15 @@ Antes de comenzar, asegurate de tner lo siguiente instalado en tu maquina
       "[javascriptreact]": {
         "editor.defaultFormatter": "biomejs.biome"
       },
+      "[json]": {
+        "editor.defaultFormatter": "biomejs.biome"
+      },
     ```
 - Git: Para clonar el repositorio
 - Un navegador compatible con ESModules, como Chrome o Firefox
+- Node.js
+  Para comprobar que lo tienes usas `node -v`
+  Si no lo esta, ir a la pagina web y descargalo. 
 
 ## Instalacion
 

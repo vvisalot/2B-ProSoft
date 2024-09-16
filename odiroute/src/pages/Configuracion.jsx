@@ -1,4 +1,6 @@
-import { Menu, Layout, Form, Input, Button } from "antd";
+import { Button, Form, Input, Layout, Menu } from "antd";
+import { Typography } from "antd";
+const { Title } = Typography;
 const { Content } = Layout;
 
 const Configuracion = () => {
@@ -19,8 +21,8 @@ const Configuracion = () => {
 					}}
 				>
 					<div className="ml-6">
-						<h1 className="mb-4 text-2xl">Configuración de cuenta</h1>
-						<h2 className="mb-4 text-lg">Información general</h2>
+						<Title>Configuración de cuenta</Title>
+						<Title level={2}>Información general</Title>
 
 						{/* Formulario de Información General */}
 						<Form layout="vertical" className="mb-6">
