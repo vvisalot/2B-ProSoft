@@ -10,7 +10,7 @@ Antes de comenzar, asegurate de tner lo siguiente instalado en tu maquina
     ```
 - Biome: Herramienta para el formato y linting de codigo
     ```bash
-      npm install -g pnpm
+      pnpm add --save-dev --save-exact @biomejs/biome
     ```   
     No olvidar instalar la extension de vsCode. Se recomienda activar en settings, formatOnSave.
     Asimismo en el json de vscode colocar las siguientes lineas al final.
