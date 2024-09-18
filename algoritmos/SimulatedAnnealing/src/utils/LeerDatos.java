@@ -6,7 +6,10 @@ import model.Tramo;
 import model.Venta;
 
 import java.io.IOException;
-import java.nio.file.*;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -15,44 +18,48 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LectorArchivos {
+public class LeerDatos {
 
     // Leer el archivo de oficinas y devolver una lista de objetos Oficina
     public static List<Oficina> leerOficinas(String archivo) throws IOException {
         List<Oficina> oficinas = new ArrayList<>();
         List<String> lineas = Files.readAllLines(Paths.get(archivo));
 
-        for (int i = 1; i < lineas.size(); i++) { // Ignorar encabezado
-            String[] datos = lineas.get(i).split(",");
+        for (String linea : lineas) {
+            // Parsear la línea: "UBIGEO,DEP,PROV,LATITUD,LONGITUD,REGION.NATURAL,ALMACEN"
+            String[] datos = linea.split(",");
             String ubigeo = datos[0].trim();
             String departamento = datos[1].trim();
             String provincia = datos[2].trim();
             double latitud = Double.parseDouble(datos[3].trim());
             double longitud = Double.parseDouble(datos[4].trim());
             String regionNatural = datos[5].trim();
-            int capacidadAlmacen = Integer.parseInt(datos[6].trim());
+            String almacen = datos[6].trim();
 
-            Oficina oficina = new Oficina(ubigeo, departamento, provincia, latitud, longitud, regionNatural, capacidadAlmacen);
+            // Crear el objeto Oficina y agregarlo a la lista
+            Oficina oficina = new Oficina(ubigeo, departamento, provincia, latitud, longitud, regionNatural, almacen);
             oficinas.add(oficina);
         }
         return oficinas;
     }
 
-    // Leer el archivo de tramos y devolver una lista de objetos Tramo
     public static List<Tramo> leerTramos(String archivo) throws IOException {
         List<Tramo> tramos = new ArrayList<>();
         List<String> lineas = Files.readAllLines(Paths.get(archivo));
 
         for (String linea : lineas) {
+            // Parsear la línea: "UBIGEO_ORIGEN => UBIGEO_DESTINO"
             String[] datos = linea.split("=>");
             String ubigeoOrigen = datos[0].trim();
             String ubigeoDestino = datos[1].trim();
 
+            // Crear el objeto Tramo y agregarlo a la lista
             Tramo tramo = new Tramo(ubigeoOrigen, ubigeoDestino);
             tramos.add(tramo);
         }
         return tramos;
     }
+
     // Leer todos los archivos de ventas en la carpeta y devolver una lista de ventas
     public static List<Venta> leerVentasEnCarpeta(String carpetaVentas) throws IOException {
         List<Venta> ventas = new ArrayList<>();
@@ -81,7 +88,6 @@ public class LectorArchivos {
         }
         return ventas;
     }
-
     // Leer un archivo de ventas específico
     public static List<Venta> leerVentas(String archivo, int anio, int mes) throws IOException {
         List<Venta> ventas = new ArrayList<>();
@@ -121,7 +127,6 @@ public class LectorArchivos {
 
         return ventas;
     }
-
     // Leer todos los archivos de bloqueos en la carpeta y devolver una lista de bloqueos
     public static List<Bloqueo> leerBloqueosEnCarpeta(String carpetaBloqueos) throws IOException {
         List<Bloqueo> bloqueos = new ArrayList<>();
@@ -188,4 +193,5 @@ public class LectorArchivos {
 
         return bloqueos;
     }
+
 }

@@ -33,4 +33,6 @@ public class Tramo {
                 ", ubigeoDestino='" + ubigeoDestino + '\'' +
                 '}';
     }
+
+
 }

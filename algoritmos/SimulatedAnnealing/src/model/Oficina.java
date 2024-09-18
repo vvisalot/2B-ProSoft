@@ -7,16 +7,16 @@ public class Oficina {
     private double latitud;
     private double longitud;
     private String regionNatural;
-    private int capacidadAlmacen;
+    private String almacen;
 
-    public Oficina(String ubigeo, String departamento, String provincia, double latitud, double longitud, String regionNatural, int capacidadAlmacen) {
+    public Oficina(String ubigeo, String departamento, String provincia, double latitud, double longitud, String regionNatural, String almacen) {
         this.ubigeo = ubigeo;
         this.departamento = departamento;
         this.provincia = provincia;
         this.latitud = latitud;
         this.longitud = longitud;
         this.regionNatural = regionNatural;
-        this.capacidadAlmacen = capacidadAlmacen;
+        this.almacen = almacen;
     }
 
     // Getters y Setters
@@ -68,12 +68,12 @@ public class Oficina {
         this.regionNatural = regionNatural;
     }
 
-    public int getCapacidadAlmacen() {
-        return capacidadAlmacen;
+    public String getAlmacen() {
+        return almacen;
     }
 
-    public void setCapacidadAlmacen(int capacidadAlmacen) {
-        this.capacidadAlmacen = capacidadAlmacen;
+    public void setAlmacen(String almacen) {
+        this.almacen = almacen;
     }
 
     @Override
@@ -85,7 +85,7 @@ public class Oficina {
                 ", latitud=" + latitud +
                 ", longitud=" + longitud +
                 ", regionNatural='" + regionNatural + '\'' +
-                ", capacidadAlmacen=" + capacidadAlmacen +
+                ", almacen='" + almacen + '\'' +
                 '}';
     }
 }
