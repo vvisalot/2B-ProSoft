@@ -4,7 +4,8 @@ const { Search } = Input;
 
 const BarraBusqueda = () => {
 	const handleSearch = (value) => {
-		console.log("Texto de búsqueda:", value);
+			console.log("Texto de búsqueda:", value)	;
+
 		// Aquí puedes agregar la lógica para realizar la búsqueda
 	};
 
