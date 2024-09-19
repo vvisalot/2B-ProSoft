@@ -77,3 +77,5 @@ bin/
 /.nb-gradle/
 
 
+/AlgoritmoGenetico2B/nbproject/private/
+/algoritmos/AlgoritmoGenetico/nbproject/private/
