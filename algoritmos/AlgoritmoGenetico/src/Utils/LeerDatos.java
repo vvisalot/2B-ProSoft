@@ -189,8 +189,8 @@ public class LeerDatos {
             LocalDateTime fechaHoraFin = LocalDateTime.of(fechaFinCompleta, horaFin);
 
             // Crear objeto Bloqueo y añadirlo a la lista
-            Bloqueo bloqueo = new Bloqueo(ubigeoOrigen, ubigeoDestino, fechaHoraInicio, fechaHoraFin);
-            bloqueos.add(bloqueo);
+            //Bloqueo bloqueo = new Bloqueo(ubigeoOrigen, ubigeoDestino, fechaHoraInicio, fechaHoraFin);
+            //bloqueos.add(bloqueo);
         }
 
         return bloqueos;
