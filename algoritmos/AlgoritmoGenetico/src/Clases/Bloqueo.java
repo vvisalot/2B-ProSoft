@@ -2,15 +2,12 @@ package Clases;
 import java.time.LocalDateTime;
 
 public class Bloqueo {
-    private String ubigeoOrigen;
-    private String ubigeoDestino;
+    private Tramo tramo;
     private LocalDateTime fechaHoraInicio;
     private LocalDateTime fechaHoraFin;
 
-    public Bloqueo(String ubigeoOrigen, String ubigeoDestino, LocalDateTime fechaHoraInicio, 
-            LocalDateTime fechaHoraFin) {
-        this.ubigeoOrigen = ubigeoOrigen;
-        this.ubigeoDestino = ubigeoDestino;
+    public Bloqueo(Tramo tramo, LocalDateTime fechaHoraInicio, LocalDateTime fechaHoraFin) {
+        this.tramo = tramo;
         this.fechaHoraInicio = fechaHoraInicio;
         this.fechaHoraFin = fechaHoraFin;
     }
@@ -18,8 +15,8 @@ public class Bloqueo {
     @Override
     public String toString() {
         return "Bloqueo{" +
-                "ubigeoOrigen='" + ubigeoOrigen + '\'' +
-                ", ubigeoDestino='" + ubigeoDestino + '\'' +
+                "ubigeoOrigen='" + tramo.getUbigeoOrigen()+ '\'' +
+                ", ubigeoDestino='" + tramo.getUbigeoDestino() + '\'' +
                 ", fechaHoraInicio=" + fechaHoraInicio +
                 ", fechaHoraFin=" + fechaHoraFin +
                 '}';
