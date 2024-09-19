@@ -1,8 +1,12 @@
 package Clases;
                            
+
 public class Tramo {
     private String ubigeoOrigen;
     private String ubigeoDestino;
+    private Double distanciaTramo;
+    private Double velocidadTramo;
+    private Double horasTramo;
 
     public Tramo(String ubigeoOrigen, String ubigeoDestino) {
         this.ubigeoOrigen = ubigeoOrigen;
@@ -25,6 +29,31 @@ public class Tramo {
     public void setUbigeoDestino(String ubigeoDestino) {
         this.ubigeoDestino = ubigeoDestino;
     }
+
+    public Double getVelocidadTramo() {
+        return velocidadTramo;
+    }
+
+    public void setVelocidadTramo(Double velocidadTramo) {
+        this.velocidadTramo = velocidadTramo;
+    }
+
+    public Double getHorasTramo() {
+        return horasTramo;
+    }
+
+    public void setHorasTramo(Double horasTramo){
+        this.horasTramo = horasTramo;
+    }
+
+    public Double getDistanciaTramo() {
+        return distanciaTramo;
+    }
+
+    public void setDistanciaTramo(Double distanciaTramo) {
+        this.distanciaTramo = distanciaTramo;
+    }
+
 
     @Override
     public String toString() {
