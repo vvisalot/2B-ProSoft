@@ -17,6 +17,7 @@ import java.time.MonthDay;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LeerDatos {
 
@@ -127,11 +128,11 @@ public class LeerDatos {
 
         return ventas;
     }
-    // Leer todos los archivos de bloqueos en la carpeta y devolver una lista de bloqueos
-    public static List<Bloqueo> leerBloqueosEnCarpeta(String carpetaBloqueos) throws IOException {
+
+    public static List<Bloqueo> leerBloqueosEnCarpeta(String carpetaBloqueos, Map<String, Tramo> tramosExistentes) throws IOException {
         List<Bloqueo> bloqueos = new ArrayList<>();
 
-        // Obtenemos todos los archivos en la carpeta de bloqueos
+        // Obtenemos todos los archivos en la carpeta de bloqueos con extensión .txt
         DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(carpetaBloqueos), "*.txt");
 
         for (Path archivo : stream) {
@@ -139,8 +140,8 @@ public class LeerDatos {
 
             // Validar que el nombre del archivo sigue el formato "bloqueoNN.txt"
             if (nombreArchivo.matches("bloqueo\\d{2}\\.txt")) {
-                // Leer los bloqueos en el archivo actual
-                List<Bloqueo> bloqueosEnArchivo = leerBloqueos(archivo.toString());
+                // Leer los bloqueos en el archivo actual y agregar al total
+                List<Bloqueo> bloqueosEnArchivo = leerBloqueos(archivo.toString(), tramosExistentes);
                 bloqueos.addAll(bloqueosEnArchivo);  // Agregar los bloqueos leídos a la lista total
             } else {
                 System.out.println("El archivo " + nombreArchivo + " no tiene el formato esperado y será ignorado.");
@@ -149,8 +150,8 @@ public class LeerDatos {
 
         return bloqueos;
     }
-    // Leer un archivo de bloqueos específico
-    public static List<Bloqueo> leerBloqueos(String archivo) throws IOException {
+
+    public static List<Bloqueo> leerBloqueos(String archivo, Map<String, Tramo> tramosExistentes) throws IOException {
         List<Bloqueo> bloqueos = new ArrayList<>();
         List<String> lineas = Files.readAllLines(Paths.get(archivo));
 
@@ -166,6 +167,15 @@ public class LeerDatos {
             String[] tramos = datos[0].split("=>");
             String ubigeoOrigen = tramos[0].trim();
             String ubigeoDestino = tramos[1].trim();
+
+            // Verificar si el tramo ya existe en el mapa de tramos
+            String claveTramo = ubigeoOrigen + "=>" + ubigeoDestino;
+            Tramo tramo = tramosExistentes.get(claveTramo);
+            if (tramo == null) {
+                // Si no existe, crear el tramo y añadirlo al mapa
+                tramo = new Tramo(ubigeoOrigen, ubigeoDestino);
+                tramosExistentes.put(claveTramo, tramo);
+            }
 
             // Parsear las fechas de inicio y fin: "0101,13:32==0119,10:39"
             String[] tiempos = datos[1].split("==");
@@ -186,8 +196,11 @@ public class LeerDatos {
             LocalDate fechaFinCompleta = mesDiaFin.atYear(anioActual); // Añadir el año actual
             LocalDateTime fechaHoraFin = LocalDateTime.of(fechaFinCompleta, horaFin);
 
-            // Crear objeto Bloqueo y añadirlo a la lista
-            Bloqueo bloqueo = new Bloqueo(ubigeoOrigen, ubigeoDestino, fechaHoraInicio, fechaHoraFin);
+            // Crear el objeto Bloqueo y asignarlo al Tramo
+            Bloqueo bloqueo = new Bloqueo(tramo, fechaHoraInicio, fechaHoraFin);
+            tramo.asignarBloqueo(bloqueo); // Asignar el bloqueo al tramo
+
+            // Añadir el bloqueo a la lista de bloqueos
             bloqueos.add(bloqueo);
         }
 
