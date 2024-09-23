@@ -1,6 +1,7 @@
 package Utils;
 
 import Clases.Bloqueo;
+import Clases.Mantenimiento;
 import Clases.Oficina;
 import Clases.Tramo;
 import Clases.Venta;
@@ -44,6 +45,30 @@ public class LeerDatos {
         return oficinas;
     }
 
+ // Método para leer el archivo de mantenimientos y devolver una lista de objetos Mantenimiento
+    public static List<Mantenimiento> leerMantenimientos(String archivo) throws IOException {
+        List<Mantenimiento> mantenimientos = new ArrayList<>();
+        List<String> lineas = Files.readAllLines(Paths.get(archivo));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+
+        for (String linea : lineas) {
+            // Parsear la línea: "aaaammdd:TTNN"
+            String[] datos = linea.split(":");
+            if (datos.length == 2) {
+                String fechaStr = datos[0].trim();
+                String camion = datos[1].trim();
+
+                // Convertir la fecha de formato aaaammdd a LocalDateTime
+                LocalDateTime fechaHoraInicio = LocalDateTime.parse(fechaStr + "T00:00:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+
+                // Crear el objeto Mantenimiento y agregarlo a la lista
+                Mantenimiento mantenimiento = new Mantenimiento(camion, fechaHoraInicio);
+                mantenimientos.add(mantenimiento);
+            }
+        }
+        return mantenimientos;
+    }
+    
     public static List<Tramo> leerTramos(String archivo) throws IOException {
         List<Tramo> tramos = new ArrayList<>();
         List<String> lineas = Files.readAllLines(Paths.get(archivo));
@@ -166,8 +191,7 @@ public class LeerDatos {
 
             // Parsear el tramo: "250301 => 220501"
             String[] tramos = datos[0].split("=>");
-            String ubigeoOrigen = tramos[0].trim();
-            String ubigeoDestino = tramos[1].trim();
+            Tramo tramoBloqueo = new Tramo(tramos[0].trim(),tramos[1].trim());
 
             // Parsear las fechas de inicio y fin: "0101,13:32==0119,10:39"
             String[] tiempos = datos[1].split("==");
@@ -188,9 +212,9 @@ public class LeerDatos {
             LocalDate fechaFinCompleta = mesDiaFin.atYear(anioActual); // Añadir el año actual
             LocalDateTime fechaHoraFin = LocalDateTime.of(fechaFinCompleta, horaFin);
 
-            // Crear objeto Bloqueo y añadirlo a la lista
-            //Bloqueo bloqueo = new Bloqueo(ubigeoOrigen, ubigeoDestino, fechaHoraInicio, fechaHoraFin);
-            //bloqueos.add(bloqueo);
+            //Crear objeto Bloqueo y añadirlo a la lista
+            Bloqueo bloqueo = new Bloqueo(tramoBloqueo, fechaHoraInicio, fechaHoraFin);
+            bloqueos.add(bloqueo);
         }
 
         return bloqueos;
