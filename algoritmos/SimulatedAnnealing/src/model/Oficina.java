@@ -1,7 +1,7 @@
 package model;
 
 public class Oficina {
-    private String ubigeo;
+    private String codigoUbigeo;
     private String departamento;
     private String provincia;
     private double latitud;
@@ -9,8 +9,8 @@ public class Oficina {
     private String regionNatural;
     private int capacidad;
 
-    public Oficina(String ubigeo, String departamento, String provincia, double latitud, double longitud, String regionNatural, int capacidad) {
-        this.ubigeo = ubigeo;
+    public Oficina(String codigoUbigeo, String departamento, String provincia, double latitud, double longitud, String regionNatural, int capacidad) {
+        this.codigoUbigeo = codigoUbigeo;
         this.departamento = departamento;
         this.provincia = provincia;
         this.latitud = latitud;
@@ -20,12 +20,12 @@ public class Oficina {
     }
 
     // Getters y Setters
-    public String getUbigeo() {
-        return ubigeo;
+    public String getCodigoUbigeo() {
+        return codigoUbigeo;
     }
 
-    public void setUbigeo(String ubigeo) {
-        this.ubigeo = ubigeo;
+    public void setCodigoUbigeo(String codigoUbigeo) {
+        this.codigoUbigeo = codigoUbigeo;
     }
 
     public String getDepartamento() {
@@ -79,7 +79,7 @@ public class Oficina {
     @Override
     public String toString() {
         return "Oficina{" +
-                "ubigeo='" + ubigeo + '\'' +
+                "ubigeo='" + codigoUbigeo + '\'' +
                 ", departamento='" + departamento + '\'' +
                 ", provincia='" + provincia + '\'' +
                 ", latitud=" + latitud +

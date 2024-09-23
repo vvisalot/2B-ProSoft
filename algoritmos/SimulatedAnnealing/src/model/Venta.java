@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 
 public class Venta {
     private LocalDateTime fechaHora;
-    private Ubigeo ubigeoOrigen;
-    private Ubigeo ubigeoDestino;
+    private Oficina origen;
+    private Oficina destino;
     private int cantidad;
     private String idCliente;
 
@@ -35,28 +35,28 @@ public class Venta {
         this.idCliente = idCliente;
     }
 
-    public Ubigeo getUbigeoOrigen() {
-        return ubigeoOrigen;
+    public Oficina getOrigen() {
+        return origen;
     }
 
-    public void setUbigeoOrigen(Ubigeo ubigeoOrigen) {
-        this.ubigeoOrigen = ubigeoOrigen;
+    public void setOrigen(Oficina origen) {
+        this.origen = origen;
     }
 
-    public Ubigeo getUbigeoDestino() {
-        return ubigeoDestino;
+    public Oficina getDestino() {
+        return destino;
     }
 
-    public void setUbigeoDestino(Ubigeo ubigeoDestino) {
-        this.ubigeoDestino = ubigeoDestino;
+    public void setDestino(Oficina destino) {
+        this.destino = destino;
     }
 
     @Override
     public String toString() {
         return "Venta{" +
                 "fechaHora=" + fechaHora +
-                ", ubigeoOrigen='" + ubigeoOrigen.getCiudad() + '\'' +
-                ", ubigeoDestino='" + ubigeoDestino.getCiudad() + '\'' +
+                ", ubigeoOrigen='" + origen.getCodigoUbigeo() + '\'' +
+                ", ubigeoDestino='" + destino.getCodigoUbigeo() + '\'' +
                 ", cantidad=" + cantidad +
                 ", idCliente='" + idCliente + '\'' +
                 '}';
