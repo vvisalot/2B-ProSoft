@@ -3,6 +3,8 @@ package model;
 public class Ubigeo {
     //NODO
     private String codigo;
+    private String latitud;
+    private String longitud;
     private String ciudad;
     private String regionNatural;
 
@@ -29,5 +31,21 @@ public class Ubigeo {
 
     public void setRegionNatural(String regionNatural) {
         this.regionNatural = regionNatural;
+    }
+
+    public String getLatitud() {
+        return latitud;
+    }
+
+    public void setLatitud(String latitud) {
+        this.latitud = latitud;
+    }
+
+    public String getLongitud() {
+        return longitud;
+    }
+
+    public void setLongitud(String longitud) {
+        this.longitud = longitud;
     }
 }

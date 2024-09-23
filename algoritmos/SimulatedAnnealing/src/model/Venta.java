@@ -9,6 +9,7 @@ public class Venta {
     private int cantidad;
     private String idCliente;
 
+
     // Getters y Setters
     public LocalDateTime getFechaHora() {
         return fechaHora;

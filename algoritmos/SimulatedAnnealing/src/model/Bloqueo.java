@@ -3,23 +3,14 @@ package model;
 import java.time.LocalDateTime;
 
 public class Bloqueo {
-    private Tramo tramo;
     private LocalDateTime fechaHoraInicio;
     private LocalDateTime fechaHoraFin;
 
-    public Bloqueo(Tramo tramo, LocalDateTime fechaHoraInicio, LocalDateTime fechaHoraFin) {
-        this.tramo= tramo;
+    public Bloqueo(LocalDateTime fechaHoraInicio, LocalDateTime fechaHoraFin) {
         this.fechaHoraInicio = fechaHoraInicio;
         this.fechaHoraFin = fechaHoraFin;
     }
 
-    public Tramo getTramo() {
-        return tramo;
-    }
-
-    public void setTramo(Tramo tramo) {
-        this.tramo = tramo;
-    }
 
     public LocalDateTime getFechaHoraInicio() {
         return fechaHoraInicio;
