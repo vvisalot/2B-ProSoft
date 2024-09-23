@@ -4,18 +4,10 @@ import java.time.LocalDateTime;
 
 public class Venta {
     private LocalDateTime fechaHora;
-    private String ubigeoOrigen;
-    private String ubigeoDestino;
+    private Ubigeo ubigeoOrigen;
+    private Ubigeo ubigeoDestino;
     private int cantidad;
     private String idCliente;
-
-    public Venta(LocalDateTime fechaHora, String ubigeoOrigen, String ubigeoDestino, int cantidad, String idCliente) {
-        this.fechaHora = fechaHora;
-        this.ubigeoOrigen = ubigeoOrigen;
-        this.ubigeoDestino = ubigeoDestino;
-        this.cantidad = cantidad;
-        this.idCliente = idCliente;
-    }
 
     // Getters y Setters
     public LocalDateTime getFechaHora() {
@@ -24,22 +16,6 @@ public class Venta {
 
     public void setFechaHora(LocalDateTime fechaHora) {
         this.fechaHora = fechaHora;
-    }
-
-    public String getUbigeoOrigen() {
-        return ubigeoOrigen;
-    }
-
-    public void setUbigeoOrigen(String ubigeoOrigen) {
-        this.ubigeoOrigen = ubigeoOrigen;
-    }
-
-    public String getUbigeoDestino() {
-        return ubigeoDestino;
-    }
-
-    public void setUbigeoDestino(String ubigeoDestino) {
-        this.ubigeoDestino = ubigeoDestino;
     }
 
     public int getCantidad() {
@@ -58,12 +34,28 @@ public class Venta {
         this.idCliente = idCliente;
     }
 
+    public Ubigeo getUbigeoOrigen() {
+        return ubigeoOrigen;
+    }
+
+    public void setUbigeoOrigen(Ubigeo ubigeoOrigen) {
+        this.ubigeoOrigen = ubigeoOrigen;
+    }
+
+    public Ubigeo getUbigeoDestino() {
+        return ubigeoDestino;
+    }
+
+    public void setUbigeoDestino(Ubigeo ubigeoDestino) {
+        this.ubigeoDestino = ubigeoDestino;
+    }
+
     @Override
     public String toString() {
         return "Venta{" +
                 "fechaHora=" + fechaHora +
-                ", ubigeoOrigen='" + ubigeoOrigen + '\'' +
-                ", ubigeoDestino='" + ubigeoDestino + '\'' +
+                ", ubigeoOrigen='" + ubigeoOrigen.getCiudad() + '\'' +
+                ", ubigeoDestino='" + ubigeoDestino.getCiudad() + '\'' +
                 ", cantidad=" + cantidad +
                 ", idCliente='" + idCliente + '\'' +
                 '}';

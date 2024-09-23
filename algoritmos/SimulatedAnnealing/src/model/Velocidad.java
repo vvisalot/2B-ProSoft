@@ -1,5 +1,7 @@
 package model;
 
+//OPTIMIZAR ESTA WBD, SON DATOS FIJOS.
+
 public class Velocidad {
     private String regionOrigen;
     private String regionDestino;

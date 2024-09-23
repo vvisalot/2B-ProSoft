@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Random;
 
 public class SimulatedAnnealing {
-
     private double initialTemperature;  // Temperatura inicial
     private double coolingRate;         // Tasa de enfriamiento
     private double[][] distanceMatrix;  // Matriz de distancias entre ciudades

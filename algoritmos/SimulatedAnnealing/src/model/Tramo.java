@@ -1,33 +1,23 @@
 package model;
 
 public class Tramo {
-    private String ubigeoOrigen;
-    private String ubigeoDestino;
     private Bloqueo bloqueo;
     private int distancia;
 
+    private Ubigeo origen;
+    private Ubigeo destino;
+
     public Tramo(String ubigeoOrigen, String ubigeoDestino) {
-        this.ubigeoOrigen = ubigeoOrigen;
-        this.ubigeoDestino = ubigeoDestino;
+        //ESTO SE LLENA Y SE LIMPIA DEPENDIENDO DEL ARCHIVO
         this.bloqueo = null;
     }
 
-
-    // Getters y Setters
-    public String getUbigeoOrigen() {
-        return ubigeoOrigen;
+    public Bloqueo getBloqueo() {
+        return bloqueo;
     }
 
-    public void setUbigeoOrigen(String ubigeoOrigen) {
-        this.ubigeoOrigen = ubigeoOrigen;
-    }
-
-    public String getUbigeoDestino() {
-        return ubigeoDestino;
-    }
-
-    public void setUbigeoDestino(String ubigeoDestino) {
-        this.ubigeoDestino = ubigeoDestino;
+    public void setBloqueo(Bloqueo bloqueo) {
+        this.bloqueo = bloqueo;
     }
 
     public int getDistancia() {
@@ -38,11 +28,29 @@ public class Tramo {
         this.distancia = distancia;
     }
 
+    public Ubigeo getOrigen() {
+        return origen;
+    }
+
+    public void setOrigen(Ubigeo origen) {
+        this.origen = origen;
+    }
+
+    public Ubigeo getDestino() {
+        return destino;
+    }
+
+    public void setDestino(Ubigeo destino) {
+        this.destino = destino;
+    }
+
     @Override
     public String toString() {
         return "Tramo{" +
-                "ubigeoOrigen='" + ubigeoOrigen + '\'' +
-                ", ubigeoDestino='" + ubigeoDestino + '\'' +
+                "Duracion del bloqueo=" + bloqueo.getFechaHoraInicio() + "=>" + bloqueo.getFechaHoraFin() +
+                ", distancia=" + distancia +
+                ", origen=" + origen.getCiudad() +
+                ", destino=" + destino.getCiudad() +
                 '}';
     }
 }
