@@ -12,6 +12,7 @@ public class Tramo {
         this.bloqueo = null;
     }
 
+
     // Getters y Setters
     public String getUbigeoOrigen() {
         return ubigeoOrigen;
