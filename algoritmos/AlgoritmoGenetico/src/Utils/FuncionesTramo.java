@@ -33,7 +33,7 @@ public class FuncionesTramo {
             return -1;
         }
 
-    public static double calcularHoras(double distanciaTramo, int velocidadTramo) {
+    public static double calcularHoras(double distanciaTramo, double velocidadTramo) {
         return distanciaTramo/velocidadTramo; 
     }
 }
