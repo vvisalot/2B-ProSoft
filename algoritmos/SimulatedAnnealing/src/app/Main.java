@@ -23,17 +23,17 @@ public class Main {
             List<Venta> ventas = LeerDatos.leerVentasEnCarpeta(carpetaVentas);
             List<Bloqueo> bloqueos = LeerDatos.leerBloqueosEnCarpeta(carpetaBloqueos, tramosExistentes);
             System.out.println("Se leyeron todos los bloqueos");
-
-//            for (Bloqueo bloqueo : bloqueos) {
-//                System.out.println("Tramo: " + bloqueo.getTramo().getUbigeoOrigen() + "=>" + bloqueo.getTramo().getUbigeoDestino());
-//                System.out.println("Inicio y fin del bloqueo" + bloqueo.getFechaHoraInicio() + "=>" + bloqueo.getFechaHoraFin());
-//                System.out.println("======");
-//            }
-            //Imprimir las ventas y bloqueos cargados
-            System.out.println("Ventas cargadas: " + ventas.size());
-            for (Venta venta : ventas) {
-                System.out.println(venta);
+            //Imprimir bloqueos
+            for (Bloqueo bloqueo : bloqueos) {
+                System.out.println("Tramo: " + bloqueo.getTramo().getUbigeoOrigen() + "=>" + bloqueo.getTramo().getUbigeoDestino());
+                System.out.println("Inicio y fin del bloqueo" + bloqueo.getFechaHoraInicio() + "=>" + bloqueo.getFechaHoraFin());
+                System.out.println("======");
             }
+            //Imprimir las ventas
+//            System.out.println("Ventas cargadas: " + ventas.size());
+//            for (Venta venta : ventas) {
+//                System.out.println(venta);
+//            }
         } catch (IOException e) {
             System.out.println("Error al leer los archivos: " + e.getMessage());
         }
