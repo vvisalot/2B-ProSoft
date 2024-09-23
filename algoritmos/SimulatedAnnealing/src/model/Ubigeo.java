@@ -2,16 +2,16 @@ package model;
 
 public class Ubigeo {
     //NODO
-    private int codigo;
+    private String codigo;
     private String ciudad;
     private String regionNatural;
 
 
-    public int getCodigo() {
+    public String getCodigo() {
         return codigo;
     }
 
-    public void setCodigo(int codigo) {
+    public void setCodigo(String codigo) {
         this.codigo = codigo;
     }
 
