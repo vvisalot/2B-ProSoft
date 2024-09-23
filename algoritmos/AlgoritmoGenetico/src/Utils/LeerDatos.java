@@ -4,6 +4,7 @@ import Clases.Bloqueo;
 import Clases.Mantenimiento;
 import Clases.Oficina;
 import Clases.Tramo;
+import Clases.Velocidad;
 import Clases.Venta;
 
 import java.io.IOException;
@@ -59,7 +60,8 @@ public class LeerDatos {
                 String camion = datos[1].trim();
 
                 // Convertir la fecha de formato aaaammdd a LocalDateTime
-                LocalDateTime fechaHoraInicio = LocalDateTime.parse(fechaStr + "T00:00:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                String fechaFormateada = fechaStr.substring(0, 4) + "-" + fechaStr.substring(4, 6) + "-" + fechaStr.substring(6, 8);
+                LocalDateTime fechaHoraInicio = LocalDateTime.parse(fechaFormateada + "T00:00:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME);
 
                 // Crear el objeto Mantenimiento y agregarlo a la lista
                 Mantenimiento mantenimiento = new Mantenimiento(camion, fechaHoraInicio);
@@ -93,7 +95,9 @@ public class LeerDatos {
         DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(carpetaVentas), "*.txt");
 
         for (Path archivo : stream) {
-            String nombreArchivo = archivo.getFileName().toString();
+            String nombreArch = archivo.getFileName().toString();
+            // Eliminar el prefijo "c.1inf54." del nombre del archivo, si existe
+            String nombreArchivo = nombreArch.replaceFirst("^c\\.1inf54\\.", "");
 
             // Validar que el nombre del archivo sigue el formato "ventasAAAAmm.txt"
             if (nombreArchivo.matches("ventas\\d{6}\\.txt")) {
@@ -162,10 +166,12 @@ public class LeerDatos {
         DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(carpetaBloqueos), "*.txt");
 
         for (Path archivo : stream) {
-            String nombreArchivo = archivo.getFileName().toString();
+            String nombreArch = archivo.getFileName().toString();
+            // Eliminar el prefijo "c.1inf54." del nombre del archivo, si existe
+            String nombreArchivo = nombreArch.replaceFirst("^c\\.1inf54\\.24\\-2\\.", "");
 
             // Validar que el nombre del archivo sigue el formato "bloqueoNN.txt"
-            if (nombreArchivo.matches("bloqueo\\d{2}\\.txt")) {
+            if (nombreArchivo.matches("bloqueo\\.\\d{2}\\.txt")) {
                 // Leer los bloqueos en el archivo actual
                 List<Bloqueo> bloqueosEnArchivo = leerBloqueos(archivo.toString());
                 bloqueos.addAll(bloqueosEnArchivo);  // Agregar los bloqueos leídos a la lista total
@@ -218,6 +224,30 @@ public class LeerDatos {
         }
 
         return bloqueos;
+    }
+
+        
+    public static List<Velocidad> leerVelocidades(String archivo) throws IOException {
+        List<Velocidad> listaVelocidades = new ArrayList<>();
+        List<String> lineas = Files.readAllLines(Paths.get(archivo));
+
+        for (String linea : lineas) {
+            if (linea.contains("=")) {
+                // Parsear la línea, formato: "Origen - Destino = velocidad Km/h"
+                String[] partes = linea.split("=");
+                String[] regiones = partes[0].trim().split("-");
+
+                String regionOrigen = regiones[0].trim();
+                String regionDestino = regiones[1].trim();
+                double velocidadKmh = Double.parseDouble(partes[1].replace("Km/h", "").trim());
+
+                // Crear el objeto Velocidad y agregarlo a la lista
+                Velocidad velocidad = new Velocidad(regionOrigen, regionDestino, velocidadKmh);
+                listaVelocidades.add(velocidad);
+            }
+        }
+
+        return listaVelocidades;
     }
 
 }

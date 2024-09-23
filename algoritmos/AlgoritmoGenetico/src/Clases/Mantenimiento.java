@@ -28,4 +28,12 @@ public class Mantenimiento {
         this.fechaHoraInicio = fechaHoraInicio;
     }
     
+    
+    @Override
+    public String toString() {
+        return "Mantenimiento{" +
+                "Camion=" + camion +
+                ", fechaHora=" + fechaHoraInicio +
+                '}';
+    }
 }
