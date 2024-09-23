@@ -33,8 +33,11 @@ public class Main {
             //Leer Tramos
             List<Tramo> tramos = LeerDatos.leerTramos("archivos/tramos.txt");
             int i=1;
+            System.out.println("TRAMOS");
             for(Tramo tram: tramos){
-                System.out.println(i+") Ubigeo Origen:"+tram.getUbigeoOrigen()+"  Ubigeo Destino: "+tram.getUbigeoDestino()+"   Distancia: "+tram.getDistanciaTramo()+"   Velocidad:"+tram.getVelocidadTramo());
+                System.out.println(i+") Ubigeo Origen:"+tram.getUbigeoOrigen()+"  Ubigeo Destino: "+tram.getUbigeoDestino()
+                        +"   Distancia: "+tram.getDistanciaTramo()+"   Velocidad:"+tram.getVelocidadTramo()
+                        +"   Hora: "+tram.getHorasTramo());
                 i++;
                 if(i==20) break;
             }

@@ -98,6 +98,16 @@ public class Oficina {
         return -1;
     }
 
+    public String retornaRegion(List<Oficina> oficinas,String ubigeo){
+        for (Oficina oficina : oficinas) {
+            if (oficina.getUbigeo().equalsIgnoreCase(ubigeo)) {
+                return oficina.regionNatural;
+            }
+        }
+        return null;
+    }
+
+
     @Override
     public String toString() {
         return "Oficina{" +

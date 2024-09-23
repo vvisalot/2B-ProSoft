@@ -1,6 +1,7 @@
 package Clases;
 
 import Clases.Oficina;
+import Clases.Velocidad;
 import Utils.LeerDatos;
 import Utils.FuncionesTramo;
 import java.util.List;
@@ -36,28 +37,41 @@ public class Tramo {
         this.ubigeoDestino = ubigeoDestino;
     }
 
+    public void setVelocidadTramo(String ubigeoOrigen, String ubigeoDestino) throws IOException {
+        List<Oficina> oficinas = LeerDatos.leerOficinas("archivos/oficinas.txt");
+        Oficina ofi = new Oficina();
+
+        String regionOrigen =ofi.retornaRegion(oficinas,ubigeoOrigen);
+        String regionDestino =ofi.retornaRegion(oficinas,ubigeoDestino);
+
+        FuncionesTramo funcTramo = new FuncionesTramo();
+        List<Velocidad> velocidades = LeerDatos.leerVelocidades("archivos/velocidades.txt");
+        this.velocidadTramo = funcTramo.calcularVelocidad(regionOrigen,regionDestino,velocidades);
+    }
+
     public Double getVelocidadTramo() {
         return velocidadTramo;
     }
 
-    public void setVelocidadTramo(Double velocidadTramo) {
-        this.velocidadTramo = velocidadTramo;
+    // public void setHorasTramo(Double horasTramo){
+    //     this.horasTramo = horasTramo;
+    // }
+    public void setHorasTramo(Double distancia, Double velocidad){
+        this.horasTramo = distancia/velocidad;
     }
-
-    public Double getHorasTramo() {
+    public Double getHorasTramo(){
         return horasTramo;
-    }
-
-    public void setHorasTramo(Double horasTramo){
-        this.horasTramo = horasTramo;
     }
 
     public Double getDistanciaTramo() {
         return distanciaTramo;
     }
 
+    
+    //tramo.setDistanciaTramo(ubigeoOrigen, ubigeoDestino);
+    //tramo.setVelocidadTramo(ubigeoOrigen, ubigeoDestino);
+
     public void setDistanciaTramo(String ubigeoOrigen, String ubigeoDestino) throws IOException {
-        //buscar coordenadaas de ubigeo origen
         List<Oficina> oficinas = LeerDatos.leerOficinas("archivos/oficinas.txt");
         Oficina ofi = new Oficina();
         double latitud1 = ofi.retornaLatitud(oficinas,ubigeoOrigen);

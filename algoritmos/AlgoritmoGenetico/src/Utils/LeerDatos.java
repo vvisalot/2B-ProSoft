@@ -84,6 +84,10 @@ public class LeerDatos {
                 String ubigeoDestino = datos[1].trim();
                 // Crear el objeto Tramo y agregarlo a la lista
                 Tramo tramo = new Tramo(ubigeoOrigen, ubigeoDestino);
+                //aqui crear calcular distancia y velocidad
+                tramo.setDistanciaTramo(ubigeoOrigen, ubigeoDestino);
+                tramo.setVelocidadTramo(ubigeoOrigen, ubigeoDestino);
+                tramo.setHorasTramo(tramo.getDistanciaTramo(),tramo.getVelocidadTramo());
                 tramos.add(tramo);
             }
         }

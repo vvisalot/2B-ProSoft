@@ -18,7 +18,7 @@ public class FuncionesTramo {
         return RADIO_TIERRA_KM * c; // Distancia en kilómetros
     }
     
-    public static double calcularVelocidad(String regionOrigen, String regionDestino, List<Velocidad> velocidades) {
+    public double calcularVelocidad(String regionOrigen, String regionDestino, List<Velocidad> velocidades) {
             // Busca la velocidad de la región origen-destino
             for (Velocidad vel : velocidades) {
                 if (vel.getRegionOrigen().equals(regionOrigen) && vel.getRegionDestino().equals(regionDestino)) {
