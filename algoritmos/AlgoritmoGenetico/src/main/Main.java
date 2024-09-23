@@ -24,9 +24,20 @@ public class Main {
             
             //Leer oficinas
             List<Oficina> oficinas = LeerDatos.leerOficinas("archivos/oficinas.txt");
+            //int i=1;
+            // for(Oficina of: oficinas){
+            //     System.out.println(i+") Ubigeo:"+of.getUbigeo()+"  Dep: "+of.getDepartamento()+"   Prov: "+of.getProvincia()+"   Capac:"+of.getAlmacen());
+            //     i++;
+            // }
             
             //Leer Tramos
             List<Tramo> tramos = LeerDatos.leerTramos("archivos/tramos.txt");
+            int i=1;
+            for(Tramo tram: tramos){
+                System.out.println(i+") Ubigeo Origen:"+tram.getUbigeoOrigen()+"  Ubigeo Destino: "+tram.getUbigeoDestino()+"   Distancia: "+tram.getDistanciaTramo()+"   Velocidad:"+tram.getVelocidadTramo());
+                i++;
+                if(i==20) break;
+            }
             
             //Leer Velocidades
             List<Velocidad> velocidades = LeerDatos.leerVelocidades("archivos/velocidades.txt");

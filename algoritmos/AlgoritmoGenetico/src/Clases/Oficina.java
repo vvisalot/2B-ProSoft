@@ -1,5 +1,7 @@
 package Clases;
 
+import java.util.List;
+
 public class Oficina {
     private String ubigeo;          //030101
     private String departamento;    //APURIMAC
@@ -18,6 +20,8 @@ public class Oficina {
         this.regionNatural = regionNatural;
         this.almacen = almacen;
     }
+
+    public Oficina (){};
 
     // Getters y Setters
     public String getUbigeo() {
@@ -74,6 +78,24 @@ public class Oficina {
 
     public void setAlmacen(int almacen) {
         this.almacen = almacen;
+    }
+
+    public double retornaLatitud(List<Oficina> oficinas, String ubigeo){
+        for (Oficina oficina : oficinas) {
+            if (oficina.getUbigeo().equalsIgnoreCase(ubigeo)) {
+                return oficina.latitud;
+            }
+        }
+        return -1;
+    }
+
+    public double retornaLongitud(List<Oficina> oficinas, String ubigeo){
+        for (Oficina oficina : oficinas) {
+            if (oficina.getUbigeo().equalsIgnoreCase(ubigeo)) {
+                return oficina.longitud;
+            }
+        }
+        return -1;
     }
 
     @Override

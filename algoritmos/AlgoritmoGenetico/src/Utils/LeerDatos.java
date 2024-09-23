@@ -37,7 +37,8 @@ public class LeerDatos {
                 double latitud = Double.parseDouble(datos[3].trim());
                 double longitud = Double.parseDouble(datos[4].trim());
                 String regionNatural = datos[5].trim();
-                String almacen = datos[6].trim();
+                String alm = datos[6].trim();
+                int almacen = Integer.parseInt(String.valueOf(alm));
                 // Crear el objeto Oficina y agregarlo a la lista
                 Oficina oficina = new Oficina(ubigeo, departamento, provincia, latitud, longitud, regionNatural, almacen);
                 oficinas.add(oficina);

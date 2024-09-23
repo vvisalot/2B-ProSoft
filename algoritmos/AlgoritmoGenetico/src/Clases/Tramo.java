@@ -1,5 +1,11 @@
 package Clases;
-                           
+
+import Clases.Oficina;
+import Utils.LeerDatos;
+import Utils.FuncionesTramo;
+import java.util.List;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class Tramo {
     private String ubigeoOrigen;
@@ -50,8 +56,16 @@ public class Tramo {
         return distanciaTramo;
     }
 
-    public void setDistanciaTramo(Double distanciaTramo) {
-        this.distanciaTramo = distanciaTramo;
+    public void setDistanciaTramo(String ubigeoOrigen, String ubigeoDestino) throws IOException {
+        //buscar coordenadaas de ubigeo origen
+        List<Oficina> oficinas = LeerDatos.leerOficinas("archivos/oficinas.txt");
+        Oficina ofi = new Oficina();
+        double latitud1 = ofi.retornaLatitud(oficinas,ubigeoOrigen);
+        double longitud1 = ofi.retornaLongitud(oficinas,ubigeoOrigen);
+        double latitud2 = ofi.retornaLatitud(oficinas,ubigeoDestino);
+        double longitud2 = ofi.retornaLongitud(oficinas,ubigeoDestino);
+        FuncionesTramo funcTramo = new FuncionesTramo();
+        this.distanciaTramo = funcTramo.calcularDistancia(latitud1,longitud1,latitud2,longitud2);
     }
 
 
