@@ -4,11 +4,12 @@ package Clases;
 // CódigoPUCP: 20181897 
 
 public class Camion {
-    private char tipo;
-    private String idCamion;
-    private double capacidad;
-    private String ubigeo;
-    private double carga;
+    private char tipo; //A, B, C
+    private String idCamion; //la placa
+    private double capacidad; //dato, de la mano de tipo camion
+    private String ubigeo; //
+    private double carga; 
+    private int cantPedidos; //numero pedidos
     
     public Camion(String idCamion,double capacidad, String ubigeo) {
         this.tipo = idCamion.charAt(0);
@@ -16,6 +17,7 @@ public class Camion {
         this.capacidad = capacidad;
         this.ubigeo = ubigeo;
         this.carga = 0.0;
+        this.cantPedidos = 0;
     }
 
     public char getTipo() {
@@ -56,6 +58,14 @@ public class Camion {
 
     public void setUbigeo(String ubigeo) {
         this.ubigeo = ubigeo;
+    }
+
+    public int getCantPeidos() {
+        return cantPedidos;
+    }
+
+    public void setCantPedidos(int cantPedidos) {
+        this.cantPedidos = cantPedidos;
     }
 
  
