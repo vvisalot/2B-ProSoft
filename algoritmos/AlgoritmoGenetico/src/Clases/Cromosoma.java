@@ -1,13 +1,14 @@
 package Clases;
 
+import Clases.Tramo;
+import java.util.List;
 public class Cromosoma {
     private String idCamion; //solo necesario id (contiene tipo y con eso se ve capacidad)
-    private String[] ruta; //el plan de transporte?
-    private double fitness;  //suma de todas las horas de tramos
+    private List<Tramo> ruta; //el plan de transporte?
+    private double tiempototal;  //suma de todas las horas de tramos
     
-    public Cromosoma(String idCamion, String[] rutaIndices) {
+    public Cromosoma(String idCamion) {
         this.idCamion = idCamion;
-        this.ruta = rutaIndices;
     }
 
     public String getIdCamion() {
@@ -16,13 +17,5 @@ public class Cromosoma {
 
     public void setIdCamion(String idCamion) {
         this.idCamion = idCamion;
-    }
-
-    public String[] getRuta() {
-        return ruta;
-    }
-
-    public void setRuta(String[] ruta) {
-        this.ruta = ruta;
     }
 }

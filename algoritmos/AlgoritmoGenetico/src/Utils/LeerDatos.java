@@ -95,6 +95,7 @@ public class LeerDatos {
     }
 
     // Leer todos los archivos de ventas en la carpeta y devolver una lista de ventas
+                    //lee todos los txt de la carpeta
     public static List<Venta> leerVentasEnCarpeta(String carpetaVentas) throws IOException {
         List<Venta> ventas = new ArrayList<>();
         DirectoryStream<Path> stream = Files.newDirectoryStream(Paths.get(carpetaVentas), "*.txt");

@@ -17,6 +17,16 @@ public class Main {
             // Leer todas las ventas en la carpeta "ventas.historico.proyectado"
             String carpetaVentas = "archivos/ventas.historico.proyectado";
             List<Venta> ventas = LeerDatos.leerVentasEnCarpeta(carpetaVentas);
+            int i=1;
+            System.out.println("VENTAS");
+            for(Venta venta: ventas){
+                System.out.println(i+") Ubigeo Origen:"+venta.getUbigeoOrigen()+"  Ubigeo Destino: "+venta.getUbigeoDestino()
+                         +"   Cantidad: "+venta.getCantidad()+"   IdCliente: "+venta.getIdCliente()
+                         +"   Fecha y Hora: "+venta.getFechaHora());
+                i++;
+                if(i==20) break;
+            }
+
 
             // Leer todos los bloqueos en la carpeta "bloqueos"
             String carpetaBloqueos = "archivos/bloqueos";
@@ -32,15 +42,15 @@ public class Main {
             
             //Leer Tramos
             List<Tramo> tramos = LeerDatos.leerTramos("archivos/tramos.txt");
-            int i=1;
-            System.out.println("TRAMOS");
-            for(Tramo tram: tramos){
-                System.out.println(i+") Ubigeo Origen:"+tram.getUbigeoOrigen()+"  Ubigeo Destino: "+tram.getUbigeoDestino()
-                        +"   Distancia: "+tram.getDistanciaTramo()+"   Velocidad:"+tram.getVelocidadTramo()
-                        +"   Hora: "+tram.getHorasTramo());
-                i++;
-                if(i==20) break;
-            }
+            // int i=1;
+            // System.out.println("TRAMOS");
+            // for(Tramo tram: tramos){
+            //     System.out.println(i+") Ubigeo Origen:"+tram.getUbigeoOrigen()+"  Ubigeo Destino: "+tram.getUbigeoDestino()
+            //             +"   Distancia: "+tram.getDistanciaTramo()+"   Velocidad:"+tram.getVelocidadTramo()
+            //             +"   Hora: "+tram.getHorasTramo());
+            //     i++;
+            //     if(i==20) break;
+            // }
             
             //Leer Velocidades
             List<Velocidad> velocidades = LeerDatos.leerVelocidades("archivos/velocidades.txt");
