@@ -3,6 +3,7 @@ package main;
 import Clases.*;
 import Utils.LeerDatos;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
@@ -10,10 +11,10 @@ import java.util.Random;
 
 public class AlgoritmoGenetico {
     static final int TAMANO_POBLACION = 10;
-    static final int NUM_GENERACIONES = 5; //antes era 100
+    static final int NUM_GENERACIONES = 10; //antes era 100
     static Random random = new Random();
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         // Generar población inicial
             //probar con solamente un pedido
@@ -92,21 +93,23 @@ public class AlgoritmoGenetico {
     }
 
     public static Cromosoma cruzar(Cromosoma padre1, Cromosoma padre2) {
-        ArrayList<Integer> nuevaRuta = new ArrayList<>(padre1.ruta.subList(0, 3)); // Mitad del padre1
-        for (int gen : padre2.ruta) {
-            if (!nuevaRuta.contains(gen)) nuevaRuta.add(gen); // Mitad del padre2 sin duplicados
+        ArrayList<Tramo> nuevaRuta = new ArrayList<>(padre1.getRuta().subList(0, padre1.getRuta().size() / 2)); // Mitad del padre1
+        for (Tramo tramo : padre2.getRuta()) {
+            if (!nuevaRuta.contains(tramo)) {
+                nuevaRuta.add(tramo);           //Mitad de ruta2 sin duplicados
+            }
         }
-        return new Cromosoma(nuevaRuta);
+        return new Cromosoma(nuevaRuta, new Camion(padre1.getIdCamion()));
     }
 
     public static void mutar(Cromosoma individuo) {
-        int i = random.nextInt(individuo.ruta.size());
-        int j = random.nextInt(individuo.ruta.size());
-        Collections.swap(individuo.ruta, i, j); // Mutar dos ciudades
+        int i = random.nextInt(individuo.getRuta().size());
+        int j = random.nextInt(individuo.getRuta().size());
+        Collections.swap(individuo.getRuta(), i, j); // Mutar dos ciudades
     }
 
     public static Cromosoma seleccionarMejor(ArrayList<Cromosoma> poblacion) {
-        return poblacion.stream().min((a, b) -> Double.compare(a.tiempo, b.fitness)).get(); // Mejor fitness
+        return poblacion.stream().min((a, b) -> Double.compare(a.getTiempoTotal(), b.getTiempoTotal())).get(); // Mejor fitness
     }
 
 }

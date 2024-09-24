@@ -22,6 +22,10 @@ public class Camion {
 
     public Camion() {};
 
+    public Camion(String idCamion){
+        this.idCamion = idCamion;
+    }
+
     public char getTipo() {
         return tipo;
     }

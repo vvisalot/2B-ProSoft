@@ -34,4 +34,9 @@ public class Cromosoma {
             sum+=tram.getHorasTramo();
         this.tiempototal = sum;
     }
+
+    public List<Tramo> getRuta() {
+        return ruta;
+    }
+    
 }
