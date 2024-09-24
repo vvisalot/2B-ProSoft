@@ -1,4 +1,4 @@
-package main;
+/*package main;
 
 import Clases.Bloqueo;
 import Clases.Mantenimiento;
@@ -9,7 +9,7 @@ import Clases.Venta;
 import Utils.LeerDatos;
 import java.io.IOException;
 import java.util.List;
-
+import java.util.HashMap;
 
 public class Main {
     public static void main(String[] args) {
@@ -17,15 +17,15 @@ public class Main {
             // Leer todas las ventas en la carpeta "ventas.historico.proyectado"
             String carpetaVentas = "archivos/ventas.historico.proyectado";
             List<Venta> ventas = LeerDatos.leerVentasEnCarpeta(carpetaVentas);
-            int i=1;
-            System.out.println("VENTAS");
-            for(Venta venta: ventas){
-                System.out.println(i+") Ubigeo Origen:"+venta.getUbigeoOrigen()+"  Ubigeo Destino: "+venta.getUbigeoDestino()
-                         +"   Cantidad: "+venta.getCantidad()+"   IdCliente: "+venta.getIdCliente()
-                         +"   Fecha y Hora: "+venta.getFechaHora());
-                i++;
-                if(i==20) break;
-            }
+            // int i=1;
+            // System.out.println("VENTAS");
+            // for(Venta venta: ventas){
+            //     System.out.println(i+") Ubigeo Origen:"+venta.getUbigeoOrigen()+"  Ubigeo Destino: "+venta.getUbigeoDestino()
+            //              +"   Cantidad: "+venta.getCantidad()+"   IdCliente: "+venta.getIdCliente()
+            //              +"   Fecha y Hora: "+venta.getFechaHora());
+            //     i++;
+            //     if(i==20) break;
+            // }
 
 
             // Leer todos los bloqueos en la carpeta "bloqueos"
@@ -40,17 +40,24 @@ public class Main {
             //     i++;
             // }
             
+
+
             //Leer Tramos
             List<Tramo> tramos = LeerDatos.leerTramos("archivos/tramos.txt");
-            // int i=1;
-            // System.out.println("TRAMOS");
-            // for(Tramo tram: tramos){
-            //     System.out.println(i+") Ubigeo Origen:"+tram.getUbigeoOrigen()+"  Ubigeo Destino: "+tram.getUbigeoDestino()
-            //             +"   Distancia: "+tram.getDistanciaTramo()+"   Velocidad:"+tram.getVelocidadTramo()
-            //             +"   Hora: "+tram.getHorasTramo());
-            //     i++;
-            //     if(i==20) break;
-            // }
+            //almacenar tramos en mapa hash --> clave es ubigeo origen
+            HashMap<String, Tramo> mapaTramos = new HashMap<>();
+            for (Tramo tram : tramos) {
+                mapaTramos.put(tram.getUbigeoOrigen(), tram);
+            }
+            int i=1;
+            System.out.println("TRAMOS");
+            for(Tramo tram : mapaTramos.values()){
+                System.out.println(i+") Ubigeo Origen:"+tram.getUbigeoOrigen()+"  Ubigeo Destino: "+tram.getUbigeoDestino()
+                        +"   Distancia: "+tram.getDistanciaTramo()+"   Velocidad:"+tram.getVelocidadTramo()
+                        +"   Hora: "+tram.getHorasTramo());
+                i++;
+                if(i==20) break;
+            }
             
             //Leer Velocidades
             List<Velocidad> velocidades = LeerDatos.leerVelocidades("archivos/velocidades.txt");

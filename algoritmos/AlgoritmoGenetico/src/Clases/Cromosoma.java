@@ -1,9 +1,10 @@
 package Clases;
 
 import java.util.List;
+import java.util.HashMap;
 public class Cromosoma {
     private String idCamion; //solo necesario id (contiene tipo y con eso se ve capacidad)
-    private List<Tramo> ruta; //todas las posibles tutas de un pedido
+    private HashMap<String, Tramo> rutaMap; //todas las posibles tutas de un pedido
     private double tiempototal;  //suma de todas las horas de tramos --> fitness
     
     public Cromosoma(String idCamion) {
@@ -11,9 +12,9 @@ public class Cromosoma {
     }
 
     //Constructor para generar las rutas
-    public Cromosoma(List<Tramo> ruta2, Camion camion) {
+    public Cromosoma(HashMap<String, Tramo> rutaMap, Camion camion) {
         this.idCamion = camion.getIdCamion();
-        this.ruta = ruta2;
+        this.rutaMap = rutaMap;
     }
 
     public String getIdCamion() {
@@ -30,13 +31,13 @@ public class Cromosoma {
 
     public void setTiempoTotal(){
         double sum=0.0;
-        for(Tramo tram: this.ruta)
-            sum+=tram.getHorasTramo();
+        for(Tramo tramo : rutaMap.values())
+            sum+=tramo.getHorasTramo();
         this.tiempototal = sum;
     }
 
-    public List<Tramo> getRuta() {
-        return ruta;
+    public HashMap<String, Tramo> getRutaMap() {
+        return rutaMap;
     }
     
 }
