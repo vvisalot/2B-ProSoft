@@ -31,5 +31,19 @@ public class GrafoOficinas {
     public Set<Oficina> obtenerVecinos(Oficina origen) {
         return grafo.get(origen);
     }
+
+    public void imprimirVecinosPorCodigo(Oficina oficina) {
+        Set<Oficina> vecinos = obtenerVecinos(oficina);
+
+        if (vecinos != null && !vecinos.isEmpty()) {
+            System.out.print("Vecinos de " + oficina.getCodigo() + ": ");
+            for (Oficina vecino : vecinos) {
+                System.out.print(vecino.getCodigo() + ",");
+            }
+            System.out.println();
+        } else {
+            System.out.println("Sin vecinos");
+        }
+    }
 }
 

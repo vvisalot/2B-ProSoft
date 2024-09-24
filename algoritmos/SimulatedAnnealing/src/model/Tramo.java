@@ -1,16 +1,15 @@
 package model;
 
 public class Tramo {
-    private Bloqueo bloqueo;
-    private int distancia;
+    private Bloqueo bloqueo = null;
+    private int distancia= 0;
 
     private Oficina origen;
     private Oficina destino;
-    private int velocidad;
 
-    public Tramo(String ubigeoOrigen, String ubigeoDestino) {
-        //ESTO SE LLENA Y SE LIMPIA DEPENDIENDO DEL ARCHIVO
-        this.bloqueo = null;
+    public Tramo(Oficina origen, Oficina destino) {
+        this.origen = origen;
+        this.destino = destino;
     }
 
     public Bloqueo getBloqueo() {
@@ -47,11 +46,6 @@ public class Tramo {
 
     @Override
     public String toString() {
-        return "Tramo{" +
-                "Duracion del bloqueo=" + bloqueo.getFechaHoraInicio() + "=>" + bloqueo.getFechaHoraFin() +
-                ", distancia=" + distancia +
-                ", origen=" + origen.getCodigo() +
-                ", destino=" + destino.getCodigo() +
-                '}';
+        return "Tramo{" + "origen=" + origen.getCodigo() + ", destino=" + destino.getCodigo() + '}';
     }
 }
