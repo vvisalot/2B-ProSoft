@@ -16,6 +16,8 @@ public class Venta {
         this.idCliente = idCliente;
     }
 
+    public Venta(){};
+
     // Getters y Setters
     public LocalDateTime getFechaHora() {
         return fechaHora;

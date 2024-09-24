@@ -20,6 +20,8 @@ public class Camion {
         this.cantPedidos = 0;
     }
 
+    public Camion() {};
+
     public char getTipo() {
         return tipo;
     }
