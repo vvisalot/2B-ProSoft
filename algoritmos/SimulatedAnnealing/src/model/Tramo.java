@@ -1,15 +1,12 @@
 package model;
 
-import java.util.Map;
-
 public class Tramo {
     private Bloqueo bloqueo;
     private int distancia;
 
     private Oficina origen;
     private Oficina destino;
-
-    private Map<String, Oficina> vecinos;
+    private int velocidad;
 
     public Tramo(String ubigeoOrigen, String ubigeoDestino) {
         //ESTO SE LLENA Y SE LIMPIA DEPENDIENDO DEL ARCHIVO
@@ -32,15 +29,29 @@ public class Tramo {
         this.distancia = distancia;
     }
 
+    public Oficina getOrigen() {
+        return origen;
+    }
 
+    public void setOrigen(Oficina origen) {
+        this.origen = origen;
+    }
+
+    public Oficina getDestino() {
+        return destino;
+    }
+
+    public void setDestino(Oficina destino) {
+        this.destino = destino;
+    }
 
     @Override
     public String toString() {
         return "Tramo{" +
                 "Duracion del bloqueo=" + bloqueo.getFechaHoraInicio() + "=>" + bloqueo.getFechaHoraFin() +
                 ", distancia=" + distancia +
-                ", origen=" + origen.getCodigoUbigeo() +
-                ", destino=" + destino.getCodigoUbigeo() +
+                ", origen=" + origen.getCodigo() +
+                ", destino=" + destino.getCodigo() +
                 '}';
     }
 }

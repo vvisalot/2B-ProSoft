@@ -1,7 +1,11 @@
 package model;
 
+import java.util.Objects;
+
+// Una oficina representa un nodo en nuestro grafo. Cada una tiene un ID unico y atributos extra y una
+// lista de vecinos que son otras instancias de Oficina
 public class Oficina {
-    private String codigoUbigeo;
+    private String codigo;
     private String departamento;
     private String provincia;
     private double latitud;
@@ -9,8 +13,8 @@ public class Oficina {
     private String regionNatural;
     private int capacidad;
 
-    public Oficina(String codigoUbigeo, String departamento, String provincia, double latitud, double longitud, String regionNatural, int capacidad) {
-        this.codigoUbigeo = codigoUbigeo;
+    public Oficina(String codigo, String departamento, String provincia, double latitud, double longitud, String regionNatural, int capacidad) {
+        this.codigo = codigo;
         this.departamento = departamento;
         this.provincia = provincia;
         this.latitud = latitud;
@@ -20,12 +24,12 @@ public class Oficina {
     }
 
     // Getters y Setters
-    public String getCodigoUbigeo() {
-        return codigoUbigeo;
+    public String getCodigo() {
+        return codigo;
     }
 
-    public void setCodigoUbigeo(String codigoUbigeo) {
-        this.codigoUbigeo = codigoUbigeo;
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
     }
 
     public String getDepartamento() {
@@ -79,7 +83,7 @@ public class Oficina {
     @Override
     public String toString() {
         return "Oficina{" +
-                "ubigeo='" + codigoUbigeo + '\'' +
+                "ubigeo='" + codigo + '\'' +
                 ", departamento='" + departamento + '\'' +
                 ", provincia='" + provincia + '\'' +
                 ", latitud=" + latitud +
@@ -88,4 +92,22 @@ public class Oficina {
                 ", almacen='" + capacidad + '\'' +
                 '}';
     }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true; // Check if both are the same object
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false; // Check if obj is null or a different class
+        }
+        Oficina other = (Oficina) obj;
+        return Objects.equals(codigo, other.codigo);
+    }
+
+    @Override
+    public int hashCode() {
+        return codigo != null ? codigo.hashCode() : 0;
+    }
+
+
 }

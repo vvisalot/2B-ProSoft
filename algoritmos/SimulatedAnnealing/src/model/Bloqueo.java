@@ -11,7 +11,6 @@ public class Bloqueo {
         this.fechaHoraFin = fechaHoraFin;
     }
 
-
     public LocalDateTime getFechaHoraInicio() {
         return fechaHoraInicio;
     }

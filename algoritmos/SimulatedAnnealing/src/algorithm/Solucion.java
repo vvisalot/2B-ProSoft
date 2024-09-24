@@ -1,4 +1,6 @@
-package model;
+package algorithm;
+
+import model.Ruta;
 
 import java.util.List;
 
