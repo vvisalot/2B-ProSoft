@@ -36,6 +36,21 @@ public class Main {
             grafoOficinas.agregarArista(tramo, true);
         }
 
+        // Ejemplo: Obtener la ruta más corta entre dos oficinas
+        Oficina origen = mapaOficinas.get("030101"); //APURIMAC ABANCAY
+        Oficina destino = mapaOficinas.get("240301"); //TUMBES ZARUMILLA
+
+        List<Oficina> rutaMasCorta = grafoOficinas.obtenerRutaMasCorta(origen, destino);
+
+        if (rutaMasCorta != null) {
+            System.out.println("Ruta más corta entre " + origen.getCodigo() + " y " + destino.getCodigo() + ":");
+            for (Oficina oficina : rutaMasCorta) {
+                System.out.println(oficina.getCodigo());
+            }
+        } else {
+            System.out.println("No se encontró ruta.");
+        }
+
         for (Oficina oficina : mapaOficinas.values()) {
             grafoOficinas.imprimirVecinosPorCodigo(oficina);
         }
