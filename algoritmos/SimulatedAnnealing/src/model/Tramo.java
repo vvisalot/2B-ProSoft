@@ -1,5 +1,7 @@
 package model;
 
+import utils.CalculaDistancia;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -35,6 +37,13 @@ public class Tramo {
     }
 
     public double getDistancia() {
+        double lat1 = this.origen.getLatitud();
+        double lat2 = this.destino.getLatitud();
+        double lon1 = this.origen.getLongitud();
+        double lon2 = this.destino.getLongitud();
+
+        distancia = CalculaDistancia.calcular(lat1, lon1, lat2, lon2);
+
         return distancia;
     }
 
@@ -54,9 +63,6 @@ public class Tramo {
         return destino;
     }
 
-    public void setDestino(Oficina destino) {
-        this.destino = destino;
-    }
 
     @Override
     public boolean equals(Object obj) {

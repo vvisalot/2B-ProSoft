@@ -27,10 +27,11 @@ public class Main {
         var datosTramos = LeerDatos.leerTramosDesdeArchivo(filePathTramos, mapaOficinas);
         var listaTramos = datosTramos.first();
         var mapaTramos = datosTramos.second();
-//        System.out.println("\nTramos leídos:");
-//        for (Tramo tramo : tramos) {
-//            System.out.println(tramo);
-//        }
+
+        System.out.println("\nTramos leídos:");
+        for (Tramo tramo : listaTramos) {
+            System.out.println(tramo.getDistancia());
+        }
         // Agregar los tramos al grafo
         for (Tramo tramo : listaTramos) {
             // Agregar la arista al grafo, suponiendo que quieres que sea bidireccional
@@ -39,10 +40,11 @@ public class Main {
 
         //grafoTramos.imprimirGrafo();
 
-        for (int i = 1; i <= 12; i++) {
-            String filePathBloqueos = String.format("resources/bloqueos/bloqueo%02d.txt", i);
-            LeerDatos.leerBloqueos(filePathBloqueos, grafoTramos);
-        }
-        grafoTramos.imprimirBloqueos();
+//        for (int i = 1; i <= 12; i++) {
+//            String filePathBloqueos = String.format("resources/bloqueos/bloqueo%02d.txt", i);
+//            LeerDatos.leerBloqueos(filePathBloqueos, grafoTramos);
+//        }
+//        grafoTramos.imprimirBloqueos();
+
     }
 }
