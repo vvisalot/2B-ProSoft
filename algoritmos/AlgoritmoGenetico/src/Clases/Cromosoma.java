@@ -31,9 +31,13 @@ public class Cromosoma {
 
     public void setTiempoTotal(){
         double sum=0.0;
-        for(Tramo tramo : rutaMap.values())
+        for(Tramo tramo : rutaMap.values()){
             sum+=tramo.getHorasTramo();
+            //System.out.println("Tiempo del tramo " + tramo.getUbigeoOrigen() + "-" + tramo.getUbigeoDestino() + ": " + tramo.getHorasTramo());
+    
+        }
         this.tiempototal = sum;
+        //System.out.println("Tiempo total: " + sum);
     }
 
     public HashMap<String, Tramo> getRutaMap() {

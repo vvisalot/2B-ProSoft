@@ -13,14 +13,14 @@ import java.util.Collections;
 import java.util.Random;
 
 public class AlgoritmoGenetico {
-    static final int TAMANO_POBLACION = 10;
-    static final int NUM_GENERACIONES = 100; //antes era 100
+    //static final int TAMANO_POBLACION = 10;
+    static final int NUM_GENERACIONES = 3; //antes era 100
     static Random random = new Random();
 
     public static void main(String[] args) throws IOException {
 
         // Generar población inicial
-            //probar con solamente un pedido                     //arequipa
+            //probar con solamente un pedido                     //arequipa               tacna
         Venta pedido = new Venta(LocalDateTime.now(), "040101", "230101", 4, "000786");
         
         List<Tramo> tramos = LeerDatos.leerTramos("archivos/tramos.txt");
@@ -35,8 +35,15 @@ public class AlgoritmoGenetico {
         // Evolucionar por generaciones
         for (int gen = 0; gen < NUM_GENERACIONES; gen++) {
             poblacion = evolucionarPoblacion(poblacion);
+            //Cromosoma mejorIndividuo = seleccionarMejor(poblacion);
+            //System.out.println("Generación " + gen + ": Mejor tiempo = " + mejorIndividuo.getTiempoTotal());
+            
+            System.out.println("Generación " + gen + ":");
+            for (Cromosoma cromosoma : poblacion) {
+                System.out.println("  Tiempo total: " + cromosoma.getTiempoTotal());
+            }
             Cromosoma mejorIndividuo = seleccionarMejor(poblacion);
-            System.out.println("Generación " + gen + ": Mejor tiempo = " + mejorIndividuo.getTiempoTotal());
+            System.out.println("  Mejor tiempo: " + mejorIndividuo.getTiempoTotal());
         }
     }
 
@@ -104,13 +111,32 @@ public class AlgoritmoGenetico {
 
 
 
+    // public static ArrayList<Cromosoma> evolucionarPoblacion(ArrayList<Cromosoma> poblacion) {
+    //     ArrayList<Cromosoma> nuevaPoblacion = new ArrayList<>();
+    //     for (Cromosoma cromosoma : poblacion) {
+    //         cromosoma.setTiempoTotal(); // Llamar al método setTiempoTotal() para cada cromosoma
+    //     }
+    //     for (int i = 0; i < poblacion.size(); i++) {
+    //         Cromosoma padre1 = seleccionarMejor(poblacion);
+    //         Cromosoma padre2 = seleccionarMejor(poblacion);
+    //         Cromosoma hijo = cruzar(padre1, padre2);
+    //         mutar(hijo);
+    //         hijo.setTiempoTotal(); //actualizar tiempo total de cromosoma
+    //         nuevaPoblacion.add(hijo);
+    //     }
+    //     return nuevaPoblacion;
+    // }
     public static ArrayList<Cromosoma> evolucionarPoblacion(ArrayList<Cromosoma> poblacion) {
         ArrayList<Cromosoma> nuevaPoblacion = new ArrayList<>();
+        for (Cromosoma cromosoma : poblacion) {
+            cromosoma.setTiempoTotal(); // Llamar al método setTiempoTotal() para cada cromosoma
+        }
         for (int i = 0; i < poblacion.size(); i++) {
-            Cromosoma padre1 = seleccionarMejor(poblacion);
-            Cromosoma padre2 = seleccionarMejor(poblacion);
+            Cromosoma padre1 = seleccionarAleatorio(poblacion);
+            Cromosoma padre2 = seleccionarAleatorio(poblacion);
             Cromosoma hijo = cruzar(padre1, padre2);
             mutar(hijo);
+            hijo.setTiempoTotal(); //actualizar tiempo total de cromosoma
             nuevaPoblacion.add(hijo);
         }
         return nuevaPoblacion;
@@ -151,6 +177,11 @@ public class AlgoritmoGenetico {
             }
         }
         return mejorIndividuo;
+    }
+
+    public static Cromosoma seleccionarAleatorio(ArrayList<Cromosoma> poblacion) {
+        int indice = random.nextInt(poblacion.size());
+        return poblacion.get(indice);
     }
 
 }
