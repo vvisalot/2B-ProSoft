@@ -92,22 +92,7 @@ public class Oficina {
                 ", almacen='" + capacidad + '\'' +
                 '}';
     }
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true; // Check if both are the same object
-        }
-        if (obj == null || getClass() != obj.getClass()) {
-            return false; // Check if obj is null or a different class
-        }
-        Oficina other = (Oficina) obj;
-        return Objects.equals(codigo, other.codigo);
-    }
 
-    @Override
-    public int hashCode() {
-        return codigo != null ? codigo.hashCode() : 0;
-    }
 
 
 }

@@ -1,5 +1,6 @@
 package model;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Bloqueo {
     private LocalDateTime fechaHoraInicio;
@@ -25,6 +26,7 @@ public class Bloqueo {
     public void setFechaHoraFin(LocalDateTime fechaHoraFin) {
         this.fechaHoraFin = fechaHoraFin;
     }
+
 
     @Override
     public String toString() {
