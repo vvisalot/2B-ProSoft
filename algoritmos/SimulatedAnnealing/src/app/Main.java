@@ -1,15 +1,15 @@
 package app;
 
-import algorithm.GrafoOficinas;
+import algorithm.GrafoTramos;
 import model.Oficina;
 import model.Tramo;
 import utils.LeerDatos;
 
-import java.util.List;
+import java.io.IOException;
 import java.util.Map;
 
 public class Main {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         //Lectura de datos
         String archivoOficinas = "resources/oficinas.txt";
         Map<String, Oficina> mapaOficinas = LeerDatos.leerOficinasDesdeArchivo(archivoOficinas);
@@ -22,18 +22,20 @@ public class Main {
 //            System.out.println("Ubigeo: " + ubigeo + " -> " + oficina);
 //        }
 
-        GrafoOficinas grafoOficinas = new GrafoOficinas();
+        GrafoTramos grafoTramos = new GrafoTramos();
         String filePathTramos = "resources/tramos.txt";  // Cambia esta ruta por la correcta
-        List<Tramo> tramos = LeerDatos.leerTramosDesdeArchivo(filePathTramos, mapaOficinas);
+        var datosTramos = LeerDatos.leerTramosDesdeArchivo(filePathTramos, mapaOficinas);
+        var listaTramos = datosTramos.first();
+        var mapaTramos = datosTramos.second();
 
-//        System.out.println("\nTramos leídos:");
-//        for (Tramo tramo : tramos) {
-//            System.out.println(tramo);
-//        }
+        System.out.println("\nTramos leídos:");
+        for (Tramo tramo : listaTramos) {
+            System.out.println(tramo.getDistancia());
+        }
         // Agregar los tramos al grafo
-        for (Tramo tramo : tramos) {
+        for (Tramo tramo : listaTramos) {
             // Agregar la arista al grafo, suponiendo que quieres que sea bidireccional
-            grafoOficinas.agregarArista(tramo, true);
+            grafoTramos.agregarArista(tramo, mapaTramos.get(tramo.getDestino().getCodigo()));
         }
 
         // Ejemplo: Obtener la ruta más corta entre dos oficinas
@@ -54,5 +56,13 @@ public class Main {
         for (Oficina oficina : mapaOficinas.values()) {
             grafoOficinas.imprimirVecinosPorCodigo(oficina);
         }
+        //grafoTramos.imprimirGrafo();
+
+//        for (int i = 1; i <= 12; i++) {
+//            String filePathBloqueos = String.format("resources/bloqueos/bloqueo%02d.txt", i);
+//            LeerDatos.leerBloqueos(filePathBloqueos, grafoTramos);
+//        }
+//        grafoTramos.imprimirBloqueos();
+
     }
 }
