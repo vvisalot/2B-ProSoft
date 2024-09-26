@@ -54,7 +54,6 @@ public class Venta {
     public String toString() {
         return "Venta{" +
                 "fechaHora=" + fechaHora +
-                ", ubigeoOrigen='" + origen.getCodigo() + '\'' +
                 ", ubigeoDestino='" + destino.getCodigo() + '\'' +
                 ", cantidad=" + cantidad +
                 ", idCliente='" + idCliente + '\'' +

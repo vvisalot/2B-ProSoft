@@ -13,11 +13,31 @@ public class Tramo {
     private Oficina origen;
     private Oficina destino;
 
+    private double costoReal;
+    private double costoTotal;
+
     public Tramo(Oficina origen, Oficina destino, double distancia) {
         this.origen = origen;
         this.destino = destino;
         this.distancia = distancia;
         this.bloqueos= new ArrayList<>();
+    }
+
+    public double getCostoTotal(double heuristica){
+        return costoReal + heuristica;
+    }
+
+
+    public void setCostoReal(double costoReal) {
+        this.costoReal = costoReal;
+    }
+
+    public double getCostoReal() {
+        return costoReal;
+    }
+
+    public void setCostoTotal(double costoTotal) {
+        this.costoTotal = costoTotal;
     }
 
     public void agregarBloqueo(Bloqueo bloqueo) {

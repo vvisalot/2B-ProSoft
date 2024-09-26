@@ -8,11 +8,14 @@ public class Camion {
     private char tipo;
     private int capacidad;
     private int cargaActual;
+    private List<Venta> ventas;
 
     //Falta posicion actual
     public Camion(String codigo, char tipo) {
         this.codigo = codigo;
         this.tipo = tipo;
+        this.ventas = new ArrayList<>();
+
         switch (tipo) {
             case 'A':
                 this.capacidad = 90;
@@ -59,11 +62,22 @@ public class Camion {
         this.cargaActual = cargaActual;
     }
 
-    @Override
-    public String toString() {
-        return "Camion [Código: " + codigo + ", Tipo: " + tipo + ", Capacidad: " + capacidad + ", Carga Actual: " + cargaActual + ", Ubicación Actual: ]";
+    public List<Venta> getVentas() {
+        return ventas;
     }
 
+    public void agregarVenta(Venta venta) {
+        this.ventas.add(venta);
+    }
+
+    @Override
+    public String toString() {
+        return "Camion [Código: " + codigo +
+                ", Tipo: " + tipo +
+                ", Capacidad: " + capacidad +
+                ", Carga Actual: " + cargaActual +
+                ", Ventas asignadas: " + ventas.size() + "]";
+    }
     public static List<Camion> inicializarCamiones() {
         List<Camion> camiones = new ArrayList<>();
         //Tipo A

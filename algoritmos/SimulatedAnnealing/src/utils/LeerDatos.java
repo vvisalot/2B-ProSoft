@@ -4,6 +4,7 @@ import algorithm.GrafoTramos;
 import model.Bloqueo;
 import model.Oficina;
 import model.Tramo;
+import model.Venta;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -53,7 +54,7 @@ public class LeerDatos {
         return new Oficina(codigo, departamento, provincia, latitud, longitud, regionNatural, capacidad);
     }
 
-    public static Pair<List<Tramo>,Map<String, Set<Tramo>>> leerTramosDesdeArchivo(String filePath, Map<String, Oficina> mapaOficinas) {
+    public static Pair<List<Tramo>, Map<String, Set<Tramo>>> leerTramosDesdeArchivo(String filePath, Map<String, Oficina> mapaOficinas) {
         List<Tramo> tramos = new ArrayList<>();
         Map<String, Set<Tramo>> mapaTramos = new HashMap<>();
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
@@ -73,9 +74,9 @@ public class LeerDatos {
                     //TODO: Revisar si es necesario agregar la distancia
                     Tramo tramo = new Tramo(oficinaOrigen, oficinaDestino, 0);
                     tramos.add(tramo);
-                    if(mapaTramos.containsKey(ubigeoOrigen)){
+                    if (mapaTramos.containsKey(ubigeoOrigen)) {
                         mapaTramos.get(ubigeoOrigen).add(tramo);
-                    }else {
+                    } else {
                         Set<Tramo> tramosOrigen = new HashSet<>();
                         tramosOrigen.add(tramo);
                         mapaTramos.put(ubigeoOrigen, tramosOrigen);
@@ -129,8 +130,64 @@ public class LeerDatos {
             String ubigeoOrigen = tramos[0].trim();
             String ubigeoDestino = tramos[1].trim();
 
-            grafoTramos.agregarBloqueo(bloqueo,ubigeoOrigen,ubigeoDestino);
+            grafoTramos.agregarBloqueo(bloqueo, ubigeoOrigen, ubigeoDestino);
         }
     }
 
+    public static List<Venta> leerVentasDesdeArchivo(String archivo, Map<String, Oficina> mapaOficinas) {
+        List<Venta> ventas = new ArrayList<>();
+
+        String nombreArchivo = archivo.substring(archivo.lastIndexOf("/") + 1);
+        int anio = Integer.parseInt(nombreArchivo.substring(6, 10));
+        int mes = Integer.parseInt(nombreArchivo.substring(10, 12));
+
+//        System.out.println("Año: " + anio + ", Mes: " + mes);
+        try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
+            String linea;
+            while ((linea = br.readLine()) != null) {
+                String[] partes = linea.split(",\\s+");
+
+                // Día y hora
+                String[] fechaHoraPartes = partes[0].split(" ");
+                int dia = Integer.parseInt(fechaHoraPartes[0]);
+                String[] horaMinutos = fechaHoraPartes[1].split(":");
+                int hora = Integer.parseInt(horaMinutos[0]);
+                int minutos = Integer.parseInt(horaMinutos[1]);
+
+                // Construimos el LocalDateTime usando el año, mes, día, hora y minutos
+                LocalDateTime fechaHora = LocalDateTime.of(anio, mes, dia, hora, minutos);
+
+                // Origen y destino
+                String[] ubicaciones = partes[1].split("=>");
+                String origen = ubicaciones[0].trim();  // Ubigeo de origen (ignorado por ahora)
+                String destino = ubicaciones[1].trim(); // Ubigeo de destino
+
+                // Cantidad
+                int cantidad = Integer.parseInt(partes[2].trim());
+
+                // ID del cliente
+                String idCliente = partes[3].trim();
+
+                // Buscar la oficina de destino en el mapa de oficinas
+                Oficina oficinaDestino = mapaOficinas.get(destino);
+                if (oficinaDestino == null) {
+                    System.out.println("No se encontró la oficina con ubigeo: " + destino);
+                    continue; // Si no se encuentra la oficina, saltamos esta línea
+                }
+
+                // Crear la venta
+                Venta venta = new Venta();
+                venta.setFechaHora(fechaHora);
+                venta.setDestino(oficinaDestino); // Asignamos la oficina del destino
+                venta.setCantidad(cantidad);
+                venta.setIdCliente(idCliente);
+
+                ventas.add(venta);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return ventas;
+    }
 }
