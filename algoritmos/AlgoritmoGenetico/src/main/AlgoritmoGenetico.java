@@ -14,13 +14,13 @@ import java.util.Random;
 
 public class AlgoritmoGenetico {
     //static final int TAMANO_POBLACION = 10;
-    static final int NUM_GENERACIONES = 3; //antes era 100
+    static final int NUM_GENERACIONES = 100; //antes era 100
     static Random random = new Random();
 
     public static void main(String[] args) throws IOException {
 
-        // Generar población inicial
-            //probar con solamente un pedido                     //arequipa               tacna
+        // Generar población inicial 
+        //probar con solamente un pedido                     //arequipa               tacna
         Venta pedido = new Venta(LocalDateTime.now(), "040101", "230101", 4, "000786");
         
         List<Tramo> tramos = LeerDatos.leerTramos("archivos/tramos.txt");
@@ -109,8 +109,6 @@ public class AlgoritmoGenetico {
     }
 
 
-
-
     // public static ArrayList<Cromosoma> evolucionarPoblacion(ArrayList<Cromosoma> poblacion) {
     //     ArrayList<Cromosoma> nuevaPoblacion = new ArrayList<>();
     //     for (Cromosoma cromosoma : poblacion) {
@@ -132,8 +130,8 @@ public class AlgoritmoGenetico {
             cromosoma.setTiempoTotal(); // Llamar al método setTiempoTotal() para cada cromosoma
         }
         for (int i = 0; i < poblacion.size(); i++) {
-            Cromosoma padre1 = seleccionarAleatorio(poblacion);
-            Cromosoma padre2 = seleccionarAleatorio(poblacion);
+            Cromosoma padre1 = seleccionarPorRuleta(poblacion);
+            Cromosoma padre2 = seleccionarPorRuleta(poblacion);
             Cromosoma hijo = cruzar(padre1, padre2);
             mutar(hijo);
             hijo.setTiempoTotal(); //actualizar tiempo total de cromosoma
@@ -184,4 +182,35 @@ public class AlgoritmoGenetico {
         return poblacion.get(indice);
     }
 
+
+    public static Cromosoma seleccionarPorRuleta(ArrayList<Cromosoma> poblacion) {
+
+        // Paso 1: Encontrar el tiempo máximo en la población
+        double maxTiempo = Double.MIN_VALUE;
+        for (Cromosoma cromosoma : poblacion) {
+            maxTiempo = Math.max(maxTiempo, cromosoma.getTiempoTotal());
+        }
+
+        // Paso 2: Calcular la suma total de aptitudes ajustadas (inversa basada en el tiempo máximo)
+        double sumaTotalFitness = 0.0;
+        for (Cromosoma cromosoma : poblacion) {
+            // Aptitud ajustada: maxTiempo - tiempoTotal (de modo que los tiempos menores tengan más probabilidad)
+            sumaTotalFitness += (maxTiempo - cromosoma.getTiempoTotal());
+        }
+
+        // Paso 3: Generar un número aleatorio entre 0 y la suma total de aptitudes
+        double randomValue = random.nextDouble() * sumaTotalFitness;
+
+        // Paso 4: Seleccionar el cromosoma correspondiente
+        double sumaParcial = 0.0;
+        for (Cromosoma cromosoma : poblacion) {
+            sumaParcial += (maxTiempo - cromosoma.getTiempoTotal());
+            if (sumaParcial >= randomValue) {
+                return cromosoma;  // Seleccionar este cromosoma
+            }
+        }
+
+        // En caso de error numérico, retorna el último cromosoma
+        return poblacion.get(poblacion.size() - 1);
+    }
 }

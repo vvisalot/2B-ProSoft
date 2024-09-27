@@ -2,9 +2,9 @@ package Clases;
 
 import java.util.List;
 import java.util.HashMap;
-public class Cromosoma {
+public class Cromosoma { //un pedido
     private String idCamion; //solo necesario id (contiene tipo y con eso se ve capacidad)
-    private HashMap<String, Tramo> rutaMap; //todas las posibles tutas de un pedido
+    private HashMap<String, Tramo> rutaMap; //la ruta de un pedido
     private double tiempototal;  //suma de todas las horas de tramos --> fitness
     
     public Cromosoma(String idCamion) {
