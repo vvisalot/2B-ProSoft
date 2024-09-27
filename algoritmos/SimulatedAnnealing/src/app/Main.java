@@ -57,6 +57,21 @@ public class Main {
             // Agregar la arista al grafo, suponiendo que quieres que sea bidireccional
             grafoTramos.agregarArista(tramo, mapaTramos.get(tramo.getDestino().getCodigo()));
         }
+        grafoTramos.imprimirTodosLosTramos();
+
+        Oficina origen = mapaOficinas.get("010501");
+        Oficina destino = mapaOficinas.get("010301");
+
+        List<Tramo> rutaMasCorta = grafoTramos.obtenerRutaMasCorta(origen, destino);
+
+        if (rutaMasCorta != null) {
+            System.out.println("Ruta más corta encontrada:");
+            for (Tramo tramo : rutaMasCorta) {
+                System.out.println(tramo);
+            }
+        } else {
+            System.out.println("No se encontró ruta.");
+        }
 
         //grafoTramos.imprimirGrafo();
 
