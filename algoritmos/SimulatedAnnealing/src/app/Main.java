@@ -13,14 +13,29 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+
 public class Main {
     public static void main(String[] args) throws IOException {
         //Lectura de datos
         String archivoOficinas = "resources/oficinas.txt";
         Map<String, Oficina> mapaOficinas = LeerDatos.leerOficinasDesdeArchivo(archivoOficinas);
 
+        // Filtrar almacenes principales
+        List<Oficina> almacenesPrincipales = mapaOficinas.values().stream()
+                .filter(oficina -> oficina.getCodigo().equals("150101")  // Lima
+                        || oficina.getCodigo().equals("130101")  // Trujillo
+                        || oficina.getCodigo().equals("040101")) // Arequipa
+                .toList();
+
+        // Imprimir almacenes principales
+//        System.out.println("Almacenes principales:");
+//        for (Oficina almacen : almacenesPrincipales) {
+//            System.out.println("Ubigeo: " + almacen.getCodigo() + " -> " + almacen.getDepartamento());
+//        }
+
+
         // Imprimir las oficinas leídas
-        System.out.println("Oficinas leídas:");
+//        System.out.println("Oficinas leídas:");
 //        for (Map.Entry<String, Oficina> entry : mapaOficinas.entrySet()) {
 //            String ubigeo = entry.getKey();
 //            Oficina oficina = entry.getValue();
@@ -57,39 +72,25 @@ public class Main {
 
         //Inicialización de camiones
         List<Camion> camiones = Camion.inicializarCamiones();
-        AsignadorVentas.asignarVentas(camiones, ventas);
+        AsignadorVentas.asignarVentas(camiones, ventas); //ALEATORIO CON CONDICIONES
 
 //        //Imprimir carga actual de los camiones
 //        for (Camion camion: camiones){
 //            System.out.println("Carga actual del camión " + camion.getCodigo() + ": " + camion.getCargaActual());
 //        }
-// Seleccionar un camión y planificar su ruta
-//        if (!camiones.isEmpty()) {
-//            Camion camion = camiones.getFirst();  // Seleccionamos el primer camión para el ejemplo
-//
-//            // Obtener la oficina de origen y destino de las ventas del camión
-//            if (!camion.getVentas().isEmpty()) {
-//                Oficina origen = camion.getVentas().getFirst().getOrigen();
-//                Oficina destino = camion.getVentas().getLast().getDestino();
-//
-//                System.out.println(origen.getCodigo());
-//                // Encontrar la mejor ruta usando A*
-//                List<Tramo> rutaOptima = PlanificadorRutas.encontrarRutaOptima(destino, grafoTramos);
-//
-//                // Imprimir la ruta recorrida
-//                if (rutaOptima != null) {
-//                    System.out.println("Ruta óptima encontrada para el camión " + camion.getCodigo() + ":");
-//                    for (Tramo tramo : rutaOptima) {
-//                        System.out.println(tramo.getOrigen().getCodigo() + " -> " + tramo.getDestino().getCodigo() + " (Distancia: " + tramo.getDistancia() + ")");
-//                    }
-//                } else {
-//                    System.out.println("No se encontró una ruta para el camión " + camion.getCodigo());
-//                }
-//            } else {
-//                System.out.println("No hay ventas asignadas al camión.");
-//            }
-//        } else {
-//            System.out.println("No hay camiones disponibles.");
-//        }
+
+//        // Planificamos una ruta para cada camión
+        for (Camion camion : camiones) {
+            List<Tramo> rutaRecorrida = null;
+            if (!camiones.isEmpty()) {
+                rutaRecorrida = PlanificadorRutas.planificarRuta(camion, grafoTramos, almacenesPrincipales);
+            }
+            System.out.println("Ruta recorrida por el camión " + camion.getCodigo() + ":");
+            if (rutaRecorrida != null) {
+                for (Tramo tramo : rutaRecorrida) {
+                    System.out.println(tramo.getOrigen().getCodigo() + " -> " + tramo.getDestino().getCodigo() + " (" + tramo.getDistancia() + " km)");
+                }
+            }
+        }
     }
 }
