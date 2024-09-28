@@ -52,11 +52,13 @@ public class Venta {
 
     @Override
     public String toString() {
-        return "Venta{" +
-                "fechaHora=" + fechaHora +
+        return "Venta: {" +
+//                "fechaHora=" + fechaHora +
+                " Departamento= " + destino.getDepartamento() +
+                ", Provincia= " + destino.getProvincia() +
                 ", ubigeoDestino='" + destino.getCodigo() + '\'' +
                 ", cantidad=" + cantidad +
-                ", idCliente='" + idCliente + '\'' +
+//                ", idCliente='" + idCliente + '\'' +
                 '}';
     }
 }

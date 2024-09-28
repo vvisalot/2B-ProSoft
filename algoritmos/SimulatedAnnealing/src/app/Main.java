@@ -33,7 +33,6 @@ public class Main {
 //            System.out.println("Ubigeo: " + almacen.getCodigo() + " -> " + almacen.getDepartamento());
 //        }
 
-
         // Imprimir las oficinas leídas
 //        System.out.println("Oficinas leídas:");
 //        for (Map.Entry<String, Oficina> entry : mapaOficinas.entrySet()) {
@@ -57,21 +56,21 @@ public class Main {
             // Agregar la arista al grafo, suponiendo que quieres que sea bidireccional
             grafoTramos.agregarArista(tramo, mapaTramos.get(tramo.getDestino().getCodigo()));
         }
-        grafoTramos.imprimirTodosLosTramos();
+        //grafoTramos.imprimirTodosLosTramos();
 
-        Oficina origen = mapaOficinas.get("010501");
-        Oficina destino = mapaOficinas.get("010301");
-
-        List<Tramo> rutaMasCorta = grafoTramos.obtenerRutaMasCorta(origen, destino);
-
-        if (rutaMasCorta != null) {
-            System.out.println("Ruta más corta encontrada:");
-            for (Tramo tramo : rutaMasCorta) {
-                System.out.println(tramo);
-            }
-        } else {
-            System.out.println("No se encontró ruta.");
-        }
+//        Oficina origen = mapaOficinas.get("010201");
+//        Oficina destino = mapaOficinas.get("010601");
+//
+//        List<Tramo> rutaMasCorta = grafoTramos.obtenerRutaMasCorta(origen, destino);
+//
+//        if (rutaMasCorta != null) {
+//            System.out.println("Ruta más corta encontrada:");
+//            for (Tramo tramo : rutaMasCorta) {
+//                System.out.println(tramo);
+//            }
+//        } else {
+//            System.out.println("No se encontró ruta.");
+//        }
 
         //grafoTramos.imprimirGrafo();
 
@@ -89,13 +88,10 @@ public class Main {
         List<Camion> camiones = Camion.inicializarCamiones();
         AsignadorVentas.asignarVentas(camiones, ventas); //ALEATORIO CON CONDICIONES
 
-//        //Imprimir carga actual de los camiones
-//        for (Camion camion: camiones){
-//            System.out.println("Carga actual del camión " + camion.getCodigo() + ": " + camion.getCargaActual());
-//        }
-
-//        // Planificamos una ruta para cada camión
+        // Planificamos una ruta para cada camión
         for (Camion camion : camiones) {
+            System.out.println("Carga actual del camión " + camion.getCodigo() + ": " + camion.getCargaActual());
+            camion.imprimirVentas();
             List<Tramo> rutaRecorrida = null;
             if (!camiones.isEmpty()) {
                 rutaRecorrida = PlanificadorRutas.planificarRuta(camion, grafoTramos, almacenesPrincipales);
@@ -103,7 +99,9 @@ public class Main {
             System.out.println("Ruta recorrida por el camión " + camion.getCodigo() + ":");
             if (rutaRecorrida != null) {
                 for (Tramo tramo : rutaRecorrida) {
-                    System.out.println(tramo.getOrigen().getCodigo() + " -> " + tramo.getDestino().getCodigo() + " (" + tramo.getDistancia() + " km)");
+                    System.out.println("[" + tramo.getOrigen().getCodigo() + "] " +tramo.getOrigen().getDepartamento()+" - " + tramo.getOrigen().getProvincia()+ " -> "
+                            + "[" +tramo.getDestino().getCodigo()+ "] "
+                            + tramo.getDestino().getDepartamento() + " - "+ tramo.getDestino().getProvincia()+ " (" + tramo.getDistancia() + " km)");
                 }
             }
         }

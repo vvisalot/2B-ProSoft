@@ -17,10 +17,15 @@ public class PlanificadorRutas {
             oficinasPorVisitar.add(venta.getDestino());
         }
 
-        Oficina oficinaActual = obtenerAlmacenPrincipalAleatorio(almacenesPrincipales);
+        Oficina oficinaInicial = obtenerAlmacenPrincipalAleatorio(almacenesPrincipales);
         List<Tramo> rutaRecorrida = new ArrayList<>();
 
         //LOOP DE OFICINAS A VISITAR
+        for (Oficina oficinaPorVisitar : oficinasPorVisitar) {
+            List<Tramo> ruta = grafoTramos.obtenerRutaMasCorta(oficinaInicial, oficinaPorVisitar);
+            rutaRecorrida.addAll(ruta);
+            oficinaInicial = oficinaPorVisitar;
+        }
         return rutaRecorrida;
     }
 

@@ -66,6 +66,13 @@ public class Camion {
         return ventas;
     }
 
+    //Imprimir ventas
+    public void imprimirVentas() {
+        for (Venta venta : ventas) {
+            System.out.println(venta);
+        }
+    }
+
     public void agregarVenta(Venta venta) {
         this.ventas.add(venta);
     }

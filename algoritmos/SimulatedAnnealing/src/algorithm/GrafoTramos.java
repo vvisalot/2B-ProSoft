@@ -40,7 +40,7 @@ public class GrafoTramos {
         return grafo.get(origen);
     }
 
-    public List<Tramo> obtenerRutaMasCorta(Oficina origen, Oficina destino) {
+        public List<Tramo> obtenerRutaMasCorta(Oficina origen, Oficina destino) {
         PriorityQueue<Tramo> frontera = new PriorityQueue<>(Comparator.comparingDouble(tramo -> calcularHeuristica(tramo, destino)));
 
         Map<Tramo, Tramo> cameFrom = new HashMap<>();

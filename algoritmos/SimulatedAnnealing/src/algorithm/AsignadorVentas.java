@@ -9,6 +9,7 @@ import java.util.Random;
 
 public class AsignadorVentas {
 
+    //Se asignaran las ventas segun la cercania a los almacenes principales en Lima, Arequipa y Trujillo
     public static void asignarVentas(List<Camion> camiones, List<Venta> ventas) {
         Random random = new Random();
 
@@ -28,8 +29,8 @@ public class AsignadorVentas {
                     cantidadRestante -= cantidadAsignada;
 
                     camionSeleccionado.agregarVenta(venta);  // Agregar la venta al camión
-                    System.out.println("Asignado " + cantidadAsignada + " unidades de la venta al camión " + camionSeleccionado.getCodigo() +
-                            " (Carga actual: " + camionSeleccionado.getCargaActual() + "/" + camionSeleccionado.getCapacidad() + ")");
+//                    System.out.println("Asignado " + cantidadAsignada + " unidades de la venta al camión " + camionSeleccionado.getCodigo() +
+//                            " (Carga actual: " + camionSeleccionado.getCargaActual() + "/" + camionSeleccionado.getCapacidad() + ")");
 
                     if (capacidadDisponible < cantidadRestante) {
                         camionesDisponibles.remove(camionSeleccionado);  // Quitar el camión si ya no tiene capacidad disponible
