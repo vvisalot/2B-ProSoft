@@ -8,13 +8,13 @@ public class Camion {
     private char tipo;
     private int capacidad;
     private int cargaActual;
-    private List<Venta> ventas;
+    private List<Paquete> paquetes;
+    private Oficina posicionActual;
 
-    //Falta posicion actual
-    public Camion(String codigo, char tipo) {
+    public Camion(String codigo, char tipo, Oficina posicionActual) {
         this.codigo = codigo;
         this.tipo = tipo;
-        this.ventas = new ArrayList<>();
+        this.paquetes = new ArrayList<>();
 
         switch (tipo) {
             case 'A':
@@ -28,6 +28,40 @@ public class Camion {
                 break;
         }
         this.cargaActual = 0;
+        this.posicionActual = posicionActual;
+    }
+
+    public static List<Camion> inicializarCamiones(Oficina lima, Oficina trujillo, Oficina arequipa) {
+        List<Camion> camiones = new ArrayList<>();
+
+        //Tipo A
+        for (int i = 0; i < 4; i++)
+            camiones.add(new Camion(String.format("A%03d", i + 1), 'A', lima));
+        camiones.add(new Camion("A005", 'A', trujillo));
+        camiones.add(new Camion("A006", 'A', arequipa));
+
+        //Tipo B
+        for (int i = 0; i < 7; i++)
+            camiones.add(new Camion(String.format("B%03d", i + 1), 'B', lima));
+        for (int i = 7; i < 10; i++)
+            camiones.add(new Camion(String.format("B%03d", i + 1), 'B', trujillo));
+        for (int i = 10; i < 15; i++)
+            camiones.add(new Camion(String.format("B%03d", i + 1), 'B', arequipa));
+
+        //Tipo C
+        for (int i = 0; i < 10; i++)
+            camiones.add(new Camion(String.format("C%03d", i + 1), 'C', lima));
+        for (int i = 10; i < 16; i++)
+            camiones.add(new Camion(String.format("C%03d", i + 1), 'C', trujillo));
+        for (int i = 16; i < 24; i++)
+            camiones.add(new Camion(String.format("B%03d", i + 1), 'C', arequipa));
+
+        int cap = 0;
+        for (Camion c : camiones) {
+            cap += c.getCapacidad();
+        }
+        System.out.println("Capacidad total: " + cap + "\n");
+        return camiones;
     }
 
     public String getCodigo() {
@@ -62,19 +96,26 @@ public class Camion {
         this.cargaActual = cargaActual;
     }
 
-    public List<Venta> getVentas() {
-        return ventas;
+    public List<Paquete> getPaquetes() {
+        return paquetes;
     }
 
+    public void setPaquetes(List<Paquete> paquetes) {
+        this.paquetes = paquetes;
+    }
+
+    public Oficina getPosicionActual() {
+        return posicionActual;
+    }
     //Imprimir ventas
-    public void imprimirVentas() {
-        for (Venta venta : ventas) {
-            System.out.println(venta);
+    public void imprimirPaquetes() {
+        for (Paquete p : paquetes) {
+            System.out.println(p);
         }
     }
 
-    public void agregarVenta(Venta venta) {
-        this.ventas.add(venta);
+    public void agregarPaquete(Paquete paquete) {
+        this.paquetes.add(paquete);
     }
 
     @Override
@@ -83,37 +124,6 @@ public class Camion {
                 ", Tipo: " + tipo +
                 ", Capacidad: " + capacidad +
                 ", Carga Actual: " + cargaActual +
-                ", Ventas asignadas: " + ventas.size() + "]";
-    }
-    public static List<Camion> inicializarCamiones() {
-        List<Camion> camiones = new ArrayList<>();
-        //Tipo A
-        for (int i = 0; i < 4; i++)
-            camiones.add(new Camion(String.format("A%03d", i + 1), 'A'));
-        camiones.add(new Camion("A005", 'A'));
-        camiones.add(new Camion("A006", 'A'));
-
-        //Tipo B
-        for (int i = 0; i < 7; i++)
-            camiones.add(new Camion(String.format("B%03d", i + 1), 'B'));
-        for (int i = 7; i < 10; i++)
-            camiones.add(new Camion(String.format("B%03d", i + 1), 'B'));
-        for (int i = 10; i < 15; i++)
-            camiones.add(new Camion(String.format("B%03d", i + 1), 'B'));
-
-        //Tipo C
-        for (int i = 0; i < 10; i++)
-            camiones.add(new Camion(String.format("C%03d", i + 1), 'C'));
-        for (int i = 10; i < 16; i++)
-            camiones.add(new Camion(String.format("C%03d", i + 1), 'C'));
-        for (int i = 16; i < 24; i++)
-            camiones.add(new Camion(String.format("B%03d", i + 1), 'C'));
-
-        int cap = 0;
-        for (Camion c : camiones) {
-            cap += c.getCapacidad();
-        }
-        System.out.println("Capacidad total: " + cap + "\n");
-        return camiones;
+                ", Paquetes asignadas: " + paquetes.size() + "]";
     }
 }

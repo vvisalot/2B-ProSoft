@@ -106,6 +106,7 @@ public class Tramo {
         var codigo = origen.getCodigo() + destino.getCodigo();
         return codigo.hashCode();
     }
+
     @Override
     public String toString() {
         return "Tramo{" + "origen=" + origen.getCodigo() + ", destino=" + destino.getCodigo() + '}';

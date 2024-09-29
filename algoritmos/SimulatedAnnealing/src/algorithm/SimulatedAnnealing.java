@@ -1,81 +1,90 @@
 package algorithm;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import model.Camion;
+import model.Paquete;
+import model.Ruta;
+import model.RutaManager;
+
+import java.util.List;
 import java.util.Random;
 
 public class SimulatedAnnealing {
-    private double initialTemperature;  // Temperatura inicial
-    private double coolingRate;         // Tasa de enfriamiento
-    private double[][] distanceMatrix;  // Matriz de distancias entre ciudades
-
-    public SimulatedAnnealing(double[][] distanceMatrix, double initialTemperature, double coolingRate) {
-        this.distanceMatrix = distanceMatrix;
-        this.initialTemperature = initialTemperature;
-        this.coolingRate = coolingRate;
-    }
-
-    // Calcula el costo (distancia total) de un tour
-    private double calculateCost(ArrayList<Integer> tour) {
-        double cost = 0;
-        for (int i = 0; i < tour.size() - 1; i++) {
-            cost += distanceMatrix[tour.get(i)][tour.get(i + 1)];
+    public static void calcular(List<Paquete> paquetes, Camion camion) {
+        RutaManager.limpiarPaquetes();
+        for (var paquete : paquetes) {
+            RutaManager.agregarPaquete(paquete);
         }
-        cost += distanceMatrix[tour.get(tour.size() - 1)][tour.get(0)]; // Volver al punto de partida
-        return cost;
-    }
 
-    // Genera una nueva solución (vecino) intercambiando dos ciudades al azar
-    private ArrayList<Integer> getNeighbour(ArrayList<Integer> currentSolution) {
-        ArrayList<Integer> newSolution = new ArrayList<>(currentSolution);
-        Random rand = new Random();
-        int idx1 = rand.nextInt(newSolution.size());
-        int idx2 = rand.nextInt(newSolution.size());
-        Collections.swap(newSolution, idx1, idx2); // Intercambia dos ciudades
-        return newSolution;
-    }
+        double temp = 100000;
+        double coolingRate = 0.003;
+        Ruta currentSolution = new Ruta(camion.getPosicionActual());
+        currentSolution.generateIndividual();
+        System.out.println("Total time of initial solution: " + currentSolution.getTiempoTotal());
+        System.out.println("Ruta: " + currentSolution);
 
-    // Ejecuta el algoritmo de Simulated Annealing
-    public ArrayList<Integer> run(ArrayList<Integer> initialSolution) {
-        ArrayList<Integer> currentSolution = new ArrayList<>(initialSolution);
-        ArrayList<Integer> bestSolution = new ArrayList<>(initialSolution);
-        double bestCost = calculateCost(currentSolution);
-        double temperature = initialTemperature;
+        Ruta best = new Ruta(currentSolution.getPaquetesEntregados(), camion.getPosicionActual());
+        while (temp > 1) {
+            // Crea una nueva solución vecina
+            Ruta newSolution = new Ruta(currentSolution.getPaquetesEntregados(), camion.getPosicionActual());
+            if(newSolution.cantidadPaquetes() == 1){
+                break;
+            }
+            // Escoge dos posiciones aleatorias en la ruta, excluyendo la posicion inicial del camion
+            int rutaPos1 = randomInt(1, newSolution.cantidadPaquetes());
+            int rutaPos2 = randomInt(1, newSolution.cantidadPaquetes());
 
-        System.out.println("Temperatura inicial: " + temperature);
-        System.out.println("Solución inicial: " + currentSolution + " | Costo: " + bestCost);
-
-        while (temperature > 1) {
-            ArrayList<Integer> newSolution = getNeighbour(currentSolution);
-            double currentCost = calculateCost(currentSolution);
-            double newCost = calculateCost(newSolution);
-
-            // Decidir si se acepta la nueva solución
-            if (acceptanceProbability(currentCost, newCost, temperature) > Math.random()) {
-                currentSolution = newSolution;
+            // Nos aseguramos de que las posiciones sean diferentes
+            while (rutaPos1 == rutaPos2) {
+                rutaPos2 = randomInt(1, newSolution.cantidadPaquetes());
             }
 
-            // Actualizar la mejor solución encontrada
-            if (calculateCost(currentSolution) < bestCost) {
-                bestSolution = new ArrayList<>(currentSolution);
-                bestCost = calculateCost(bestSolution);
-                System.out.println("Nueva mejor solución: " + bestSolution + " | Costo: " + bestCost);
+            // Consigue los paquetes en las posiciones seleccionadas
+            Paquete paqueteACambiar1 = newSolution.getPaquete(rutaPos1);
+            Paquete paqueteACambiar2 = newSolution.getPaquete(rutaPos2);
+
+            // Intercambia los paquetes
+            newSolution.setPaquete(rutaPos2, paqueteACambiar1);
+            newSolution.setPaquete(rutaPos1, paqueteACambiar2);
+
+            // Consigue la energía de las soluciones actuales y nuevas
+            double currentDistance = currentSolution.getTiempoTotal();
+            double neighbourDistance = newSolution.getTiempoTotal();
+
+            // Decidimos si aceptamos la nueva solución
+            double rand = randomDouble();
+            if (acceptanceProbability(currentDistance, neighbourDistance, temp) > rand) {
+                currentSolution = new Ruta(newSolution.getPaquetesEntregados(), camion.getPosicionActual());
             }
 
-            // Enfriar el sistema
-            temperature *= (1 - coolingRate);
+            //  Guardamos la mejor solución
+            if (currentSolution.getTiempoTotal() < best.getTiempoTotal()) {
+                best = new Ruta(currentSolution.getPaquetesEntregados(), camion.getPosicionActual());
+            }
+
+            // Enfriamos el sistema
+            temp *= 1 - coolingRate;
         }
 
-        System.out.println("Temperatura final: " + temperature);
-        System.out.println("Mejor solución encontrada: " + bestSolution + " | Costo: " + bestCost);
-        return bestSolution;
+        System.out.println("Tiempo Final solución: " + best.getTiempoTotal());
+        System.out.println("Ruta: " + best);
+        System.out.println("\n");
     }
 
-    // Calcula la probabilidad de aceptar una solución peor
-    private double acceptanceProbability(double currentCost, double newCost, double temperature) {
-        if (newCost < currentCost) {
-            return 1.0; // Si la nueva solución es mejor, siempre se acepta
+    public static double acceptanceProbability(double currentDistance, double newDistance, double temperature) {
+        if (newDistance < currentDistance) {
+            return 1.0;
         }
-        return Math.exp((currentCost - newCost) / temperature); // Probabilidad basada en la temperatura
+        return Math.exp((currentDistance - newDistance) / temperature);
+    }
+
+    public static double randomDouble() {
+        Random r = new Random();
+        return r.nextInt(1000) / 1000.0;
+    }
+
+    public static int randomInt(int min, int max) {
+        Random r = new Random();
+        double d = min + r.nextDouble() * (max - min);
+        return (int) d;
     }
 }

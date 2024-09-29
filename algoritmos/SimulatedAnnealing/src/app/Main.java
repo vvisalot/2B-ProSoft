@@ -3,10 +3,8 @@ package app;
 import algorithm.AsignadorVentas;
 import algorithm.GrafoTramos;
 import algorithm.PlanificadorRutas;
-import model.Camion;
-import model.Oficina;
-import model.Tramo;
-import model.Venta;
+import algorithm.SimulatedAnnealing;
+import model.*;
 import utils.LeerDatos;
 
 import java.io.IOException;
@@ -41,7 +39,7 @@ public class Main {
 //            System.out.println("Ubigeo: " + ubigeo + " -> " + oficina);
 //        }
 
-        GrafoTramos grafoTramos = new GrafoTramos();
+        GrafoTramos grafoTramos = GrafoTramos.getInstance();
         String filePathTramos = "resources/tramos.txt";  // Cambia esta ruta por la correcta
         var datosTramos = LeerDatos.leerTramosDesdeArchivo(filePathTramos, mapaOficinas);
         var listaTramos = datosTramos.first();
@@ -53,7 +51,6 @@ public class Main {
 //        }
         // Agregar los tramos al grafo
         for (Tramo tramo : listaTramos) {
-            // Agregar la arista al grafo, suponiendo que quieres que sea bidireccional
             grafoTramos.agregarArista(tramo, mapaTramos.get(tramo.getDestino().getCodigo()));
         }
         //grafoTramos.imprimirTodosLosTramos();
@@ -81,29 +78,51 @@ public class Main {
 //        grafoTramos.imprimirBloqueos();
 
         //Lectura de ventas
-        String archivoVentas = "resources/ventas.historico.proyectado/ventas202403.txt";
+        String archivoVentas = "resources/ventas.historico.proyectado/ventas200001.txt";
         List<Venta> ventas = LeerDatos.leerVentasDesdeArchivo(archivoVentas, mapaOficinas);
 
         //Inicialización de camiones
-        List<Camion> camiones = Camion.inicializarCamiones();
-        AsignadorVentas.asignarVentas(camiones, ventas); //ALEATORIO CON CONDICIONES
-
-        // Planificamos una ruta para cada camión
-        for (Camion camion : camiones) {
-            System.out.println("Carga actual del camión " + camion.getCodigo() + ": " + camion.getCargaActual());
-            camion.imprimirVentas();
-            List<Tramo> rutaRecorrida = null;
-            if (!camiones.isEmpty()) {
-                rutaRecorrida = PlanificadorRutas.planificarRuta(camion, grafoTramos, almacenesPrincipales);
-            }
-            System.out.println("Ruta recorrida por el camión " + camion.getCodigo() + ":");
-            if (rutaRecorrida != null) {
-                for (Tramo tramo : rutaRecorrida) {
-                    System.out.println("[" + tramo.getOrigen().getCodigo() + "] " +tramo.getOrigen().getDepartamento()+" - " + tramo.getOrigen().getProvincia()+ " -> "
-                            + "[" +tramo.getDestino().getCodigo()+ "] "
-                            + tramo.getDestino().getDepartamento() + " - "+ tramo.getDestino().getProvincia()+ " (" + tramo.getDistancia() + " km)");
-                }
+        List<Camion> camiones = Camion.inicializarCamiones(almacenesPrincipales.get(2), almacenesPrincipales.get(0), almacenesPrincipales.get(1));
+        var mapaCamionesPorCentral = AsignadorVentas.asignarVentasGreedy(camiones, ventas,almacenesPrincipales, grafoTramos); //ALEATORIO CON CONDICIONES
+        for(var entry : mapaCamionesPorCentral.entrySet()){
+            System.out.println("Central: " + entry.getKey());
+            for(var camion: entry.getValue()){
+                System.out.println("Camion: " + camion.getCodigo());
+                camion.imprimirPaquetes();
+                System.out.println("\n");
             }
         }
+
+        // Empezamos a tomar el tiempo desde la asignacion de ventas a camiones
+        long tiempoInicio = System.currentTimeMillis();
+
+        // Planificamos una ruta para cada camión
+        for(var entry : mapaCamionesPorCentral.entrySet()){
+//            System.out.println("Central: " + entry.getKey());
+            for(var camion: entry.getValue()){
+                SimulatedAnnealing.calcular(camion.getPaquetes(),camion);
+            }
+        }
+//        // Planificamos una ruta para cada camión
+//        for (Camion camion : camiones) {
+//            System.out.println("Carga actual del camión " + camion.getCodigo() + ": " + camion.getCargaActual());
+//            camion.imprimirVentas();
+//            List<Tramo> rutaRecorrida = null;
+//            if (!camiones.isEmpty()) {
+//                rutaRecorrida = PlanificadorRutas.planificarRuta(camion, grafoTramos, almacenesPrincipales);
+//            }
+//            System.out.println("Ruta recorrida por el camión " + camion.getCodigo() + ":");
+//            if (rutaRecorrida != null) {
+//                for (Tramo tramo : rutaRecorrida) {
+//                    System.out.println("[" + tramo.getOrigen().getCodigo() + "] " +tramo.getOrigen().getDepartamento()+" - " + tramo.getOrigen().getProvincia()+ " -> "
+//                            + "[" +tramo.getDestino().getCodigo()+ "] "
+//                            + tramo.getDestino().getDepartamento() + " - "+ tramo.getDestino().getProvincia()+ " (" + tramo.getDistancia() + " km)");
+//                }
+//            }
+//        }
+
+        // Obtenemos el tiempo de ejecucion del programa
+        long tiempoFin = System.currentTimeMillis();
+        System.out.println("Tiempo de ejecución: " + (tiempoFin - tiempoInicio) + " ms");
     }
 }

@@ -10,7 +10,7 @@ import java.util.*;
 
 public class GrafoTramos {
     private final HashMap<Tramo, Set<Tramo>> grafo = new HashMap<Tramo, Set<Tramo>>();
-
+    private static GrafoTramos instance;
     public void agregarArista(Tramo tramoOrigen, Set<Tramo> tramosSiguientes) {
         grafo.put(tramoOrigen, tramosSiguientes);
     }
@@ -21,13 +21,20 @@ public class GrafoTramos {
         }
     }
 
-    public void imprimirTramosVecinos(Tramo origen){
+    public static GrafoTramos getInstance() {
+        if (instance == null) {
+            instance = new GrafoTramos();
+        }
+        return instance;
+    }
+
+    public void imprimirTramosVecinos(Tramo origen) {
         var vecinos = obtenerVecinos(origen);
         if (vecinos != null && !vecinos.isEmpty()) {
             var tramoString = "(" + origen.getOrigen().getCodigo() + " - " + origen.getDestino().getCodigo() + ")";
             System.out.print("Vecinos de " + tramoString + ": ");
             for (Tramo vecino : vecinos) {
-                tramoString = "(" + vecino.getOrigen().getCodigo() + " - " + vecino.getDestino().getCodigo() +")";
+                tramoString = "(" + vecino.getOrigen().getCodigo() + " - " + vecino.getDestino().getCodigo() + ")";
                 System.out.print(tramoString + " | ");
             }
             System.out.println();
@@ -40,9 +47,8 @@ public class GrafoTramos {
         return grafo.get(origen);
     }
 
-        public List<Tramo> obtenerRutaMasCorta(Oficina origen, Oficina destino) {
+    public List<Tramo> obtenerRutaMasCorta(Oficina origen, Oficina destino) {
         PriorityQueue<Tramo> frontera = new PriorityQueue<>(Comparator.comparingDouble(tramo -> calcularHeuristica(tramo, destino)));
-
         Map<Tramo, Tramo> cameFrom = new HashMap<>();
         Map<Tramo, Double> costeActual = new HashMap<>();
 
@@ -62,7 +68,6 @@ public class GrafoTramos {
 
         while (!frontera.isEmpty()) {
             Tramo actual = frontera.poll();
-
             // Condición de parada mejorada: si ya encontramos el destino
             if (actual.getDestino().equals(destino)) {
                 return reconstruirRuta(cameFrom, actual);
@@ -95,7 +100,6 @@ public class GrafoTramos {
     }
 
 
-
     private Tramo buscarTramoConOrigen(Oficina origen) {
         // Busca el tramo que sale de la oficina de origen en el grafo
         for (Tramo tramo : grafo.keySet()) {
@@ -124,22 +128,22 @@ public class GrafoTramos {
     }
 
     public void agregarBloqueo(Bloqueo bloqueo, String codigoOrigen, String codigoDestino) {
-        for(var tramo : grafo.keySet()){
-            if(tramo.getOrigen().getCodigo().equals(codigoOrigen) && tramo.getDestino().getCodigo().equals(codigoDestino)){
+        for (var tramo : grafo.keySet()) {
+            if (tramo.getOrigen().getCodigo().equals(codigoOrigen) && tramo.getDestino().getCodigo().equals(codigoDestino)) {
                 tramo.getBloqueos().add(bloqueo);
                 break;
             }
         }
     }
 
-    public void imprimirBloqueos(){
-        for(var tramo : grafo.keySet()){
+    public void imprimirBloqueos() {
+        for (var tramo : grafo.keySet()) {
             var bloqueos = tramo.getBloqueos();
-            if(!bloqueos.isEmpty()){
+            if (!bloqueos.isEmpty()) {
                 var tramoString = "(" + tramo.getOrigen().getCodigo() + " - " + tramo.getDestino().getCodigo() + ")";
                 System.out.print("Bloqueos de " + tramoString + ": ");
                 for (Bloqueo bloqueo : tramo.getBloqueos()) {
-                    var tiempoBloqueo = "(" + bloqueo.getFechaHoraInicio() + " - " + bloqueo.getFechaHoraFin() +")";
+                    var tiempoBloqueo = "(" + bloqueo.getFechaHoraInicio() + " - " + bloqueo.getFechaHoraFin() + ")";
                     System.out.print(tiempoBloqueo + " | ");
                 }
                 System.out.println();

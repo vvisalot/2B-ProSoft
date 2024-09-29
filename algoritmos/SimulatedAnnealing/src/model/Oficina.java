@@ -1,7 +1,5 @@
 package model;
 
-import java.util.Objects;
-
 // Una oficina representa un nodo en nuestro grafo. Cada una tiene un ID unico y atributos extra y una
 // lista de vecinos que son otras instancias de Oficina
 public class Oficina {
@@ -10,16 +8,16 @@ public class Oficina {
     private String provincia;
     private double latitud;
     private double longitud;
-    private String regionNatural;
+    private String region;
     private int capacidad;
 
-    public Oficina(String codigo, String departamento, String provincia, double latitud, double longitud, String regionNatural, int capacidad) {
+    public Oficina(String codigo, String departamento, String provincia, double latitud, double longitud, String region, int capacidad) {
         this.codigo = codigo;
         this.departamento = departamento;
         this.provincia = provincia;
         this.latitud = latitud;
         this.longitud = longitud;
-        this.regionNatural = regionNatural;
+        this.region = region;
         this.capacidad = capacidad;
     }
 
@@ -64,12 +62,12 @@ public class Oficina {
         this.longitud = longitud;
     }
 
-    public String getRegionNatural() {
-        return regionNatural;
+    public String getRegion() {
+        return region;
     }
 
-    public void setRegionNatural(String regionNatural) {
-        this.regionNatural = regionNatural;
+    public void setRegion(String region) {
+        this.region = region;
     }
 
     public int getAlmacen() {
@@ -88,7 +86,7 @@ public class Oficina {
                 ", provincia='" + provincia + '\'' +
                 ", latitud=" + latitud +
                 ", longitud=" + longitud +
-                ", regionNatural='" + regionNatural + '\'' +
+                ", regionNatural='" + region + '\'' +
                 ", almacen='" + capacidad + '\'' +
                 '}';
     }

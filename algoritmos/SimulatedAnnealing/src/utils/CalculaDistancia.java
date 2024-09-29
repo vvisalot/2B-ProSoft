@@ -1,5 +1,7 @@
 package utils;
 
+import model.Oficina;
+
 public class CalculaDistancia {
 
     private static final int RADIO_TIERRA_KM = 6371; // Radio de la Tierra en kilómetros
@@ -14,6 +16,4 @@ public class CalculaDistancia {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return RADIO_TIERRA_KM * c; // Distancia en kilómetros
     }
-
-    // Para calcular la distancia entre dos puntos dados por latitud y longitud
 }

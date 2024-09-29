@@ -1,21 +1,18 @@
 package algorithm;
 
-import model.Camion;
-import model.Oficina;
-import model.Tramo;
-import model.Venta;
+import model.*;
 
 import java.util.*;
 
 public class PlanificadorRutas {
 
     public static List<Tramo> planificarRuta(Camion camion, GrafoTramos grafoTramos, List<Oficina> almacenesPrincipales) {
-        List<Venta> ventas = camion.getVentas();  // Obtener las ventas asignadas al camión
+        List<Paquete> ventas = camion.getPaquetes();  // Obtener las ventas asignadas al camión
         Set<Oficina> oficinasPorVisitar = new HashSet<>();  // Oficinas donde el camión debe entregar
 
-        for (Venta venta : ventas) {
-            oficinasPorVisitar.add(venta.getDestino());
-        }
+//        for (Venta venta : ventas) {
+//            oficinasPorVisitar.add(venta.getDestino());
+//        }
 
         Oficina oficinaInicial = obtenerAlmacenPrincipalAleatorio(almacenesPrincipales);
         List<Tramo> rutaRecorrida = new ArrayList<>();
@@ -29,6 +26,15 @@ public class PlanificadorRutas {
         return rutaRecorrida;
     }
 
+    private static Map<Camion,List<Tramo>> planificarRutas(Map<Oficina, List<Camion>> mapaCamionesPorCentral){
+        Map<Camion,List<Tramo>> mapaRutasPorCamion = new HashMap<>();
+        for(var entry : mapaCamionesPorCentral.entrySet()){
+            for(var camion: entry.getValue()){
+                var paquetes = camion.getPaquetes();
+            }
+        }
+        return mapaRutasPorCamion;
+    }
     // Método para obtener un almacén principal al azar
     private static Oficina obtenerAlmacenPrincipalAleatorio(List<Oficina> almacenesPrincipales) {
         Random random = new Random();
