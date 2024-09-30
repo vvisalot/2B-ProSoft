@@ -164,6 +164,7 @@ public class AlgoritmoGenetico {
         return nuevaPoblacion;
     }
 
+    /*
     public static Cromosoma cruzar(Cromosoma padre1, Cromosoma padre2) {
         HashMap<String, Tramo> nuevaRutaMap = new HashMap<>(padre1.getRutaMap());  // Copiar la ruta del padre1
         
@@ -176,6 +177,34 @@ public class AlgoritmoGenetico {
     
         return new Cromosoma(nuevaRutaMap, new Camion(padre1.getIdCamion()));
     }
+    */
+    
+    public static Cromosoma cruzar(Cromosoma padre1, Cromosoma padre2) {
+        HashMap<String, Tramo> nuevaRutaMap = new HashMap<>();
+        List<Tramo> tramosPadre1 = new ArrayList<>(padre1.getRutaMap().values());
+        List<Tramo> tramosPadre2 = new ArrayList<>(padre2.getRutaMap().values());
+
+        // Mezclar tramos de ambos padres de manera más equitativa, evitando duplicados
+        for (int i = 0; i < tramosPadre1.size(); i++) {
+            // Alternar entre agregar tramos del padre1 y padre2
+            if (random.nextBoolean()) {
+                Tramo tramo = tramosPadre1.get(i);
+                String clave = tramo.getUbigeoOrigen() + "-" + tramo.getUbigeoDestino();
+                if (!nuevaRutaMap.containsKey(clave)) {
+                    nuevaRutaMap.put(clave, tramo);
+                }
+            } else if (i < tramosPadre2.size()) {
+                Tramo tramo = tramosPadre2.get(i);
+                String clave = tramo.getUbigeoOrigen() + "-" + tramo.getUbigeoDestino();
+                if (!nuevaRutaMap.containsKey(clave)) {
+                    nuevaRutaMap.put(clave, tramo);
+                }
+            }
+        }
+
+        return new Cromosoma(nuevaRutaMap, new Camion(padre1.getIdCamion()));
+    }
+
 
     public static void mutar(Cromosoma individuo) {
         
