@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.HashMap;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Random;
 
 public class AlgoritmoGenetico {
@@ -124,14 +125,37 @@ public class AlgoritmoGenetico {
     //     }
     //     return nuevaPoblacion;
     // }
+    
     public static ArrayList<Cromosoma> evolucionarPoblacion(ArrayList<Cromosoma> poblacion) {
         ArrayList<Cromosoma> nuevaPoblacion = new ArrayList<>();
         for (Cromosoma cromosoma : poblacion) {
             cromosoma.setTiempoTotal(); // Llamar al método setTiempoTotal() para cada cromosoma
         }
-        for (int i = 0; i < poblacion.size(); i++) {
+        // Elitismo: Mantén los mejores cromosomas (por ejemplo, el 10% mejor) sin alterarlos
+        int elitismoSize = (int) (0.1 * poblacion.size());
+        Collections.sort(poblacion, Comparator.comparingDouble(Cromosoma::getTiempoTotal));
+        
+        // Añadir los mejores cromosomas directamente a la nueva población
+        for (int i = 0; i < elitismoSize; i++) {
+        nuevaPoblacion.add(poblacion.get(i));
+        }
+        
+        // Generar el resto de la nueva población
+        for (int i = elitismoSize; i < poblacion.size(); i++) {
             Cromosoma padre1 = seleccionarPorRuleta(poblacion);
-            Cromosoma padre2 = seleccionarPorRuleta(poblacion);
+            Cromosoma padre2 = null;
+
+            // Intentar encontrar un padre2 diferente de padre1 (máximo 10 intentos)
+            int intentos = 0;
+            do {
+                padre2 = seleccionarPorRuleta(poblacion);
+                intentos++;
+            } while (padre1.equals(padre2) && intentos < 10);
+
+            // Si después de 10 intentos no se encuentra uno diferente, selecciona aleatoriamente
+            if (padre1.equals(padre2)) {
+                padre2 = seleccionarAleatorio(poblacion);
+            }
             Cromosoma hijo = cruzar(padre1, padre2);
             mutar(hijo);
             hijo.setTiempoTotal(); //actualizar tiempo total de cromosoma
@@ -154,17 +178,23 @@ public class AlgoritmoGenetico {
     }
 
     public static void mutar(Cromosoma individuo) {
-        List<String> claves = new ArrayList<>(individuo.getRutaMap().keySet());
-        int i = random.nextInt(claves.size());
-        int j = random.nextInt(claves.size());
         
-        // Intercambiar tramos
-        Tramo tramo1 = individuo.getRutaMap().get(claves.get(i));
-        Tramo tramo2 = individuo.getRutaMap().get(claves.get(j));
-    
-        // Hacer el swap
-        individuo.getRutaMap().put(claves.get(i), tramo2);
-        individuo.getRutaMap().put(claves.get(j), tramo1);
+        // Posibilidad de realizar más de una mutación (por ejemplo, entre 1 y 3 mutaciones)
+        int numMutaciones = 1 + random.nextInt(3);
+        
+        for (int m = 0; m < numMutaciones; m++) {
+            List<String> claves = new ArrayList<>(individuo.getRutaMap().keySet());
+            int i = random.nextInt(claves.size());
+            int j = random.nextInt(claves.size());
+
+            // Intercambiar tramos
+            Tramo tramo1 = individuo.getRutaMap().get(claves.get(i));
+            Tramo tramo2 = individuo.getRutaMap().get(claves.get(j));
+
+            // Realizar el swap
+            individuo.getRutaMap().put(claves.get(i), tramo2);
+            individuo.getRutaMap().put(claves.get(j), tramo1);
+        }
     }
     
     public static Cromosoma seleccionarMejor(ArrayList<Cromosoma> poblacion) {
