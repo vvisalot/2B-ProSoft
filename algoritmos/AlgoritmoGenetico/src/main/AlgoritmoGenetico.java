@@ -48,6 +48,7 @@ public class AlgoritmoGenetico {
         }
     }
 
+    //etender a la poblacion
     public static ArrayList<Cromosoma> generarPoblacionInicial(Venta pedido, HashMap<String, Tramo> mapaTramos, Camion camion) {
         ArrayList<Cromosoma> poblacion = new ArrayList<>();
 
