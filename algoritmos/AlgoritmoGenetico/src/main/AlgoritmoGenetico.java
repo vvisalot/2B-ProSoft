@@ -243,6 +243,7 @@ public class AlgoritmoGenetico {
     }
 
 
+    //ruleto bota la funcion cromosoma?
     public static Cromosoma seleccionarPorRuleta(ArrayList<Cromosoma> poblacion) {
 
         // Paso 1: Encontrar el tiempo máximo en la población
