@@ -15,6 +15,7 @@ public class Ruta {
     private final GrafoTramos grafoTramos = GrafoTramos.getInstance();
     private final MapaVelocidad mapaVelocidad = MapaVelocidad.getInstance();
     private Oficina puntoPartida;
+    private final double TIEMPO_DESCARGA = 2;
 
     public Ruta(Oficina puntoPartida) {
         for (int i = 0; i < RutaManager.cantidadPaquetes(); i++) {
@@ -27,6 +28,12 @@ public class Ruta {
         this.rutaRecorrida = tramos;
     }
 
+    public Ruta(Oficina puntoInicial, Oficina almacenRetorno){
+        var paqueteVacioInicial = new Paquete(new Venta(puntoInicial),0);
+        var paqueteVacioAlmacenRetorno = new Paquete(new Venta(almacenRetorno),0);
+        this.paquetesEntregados.add(paqueteVacioInicial);
+        this.paquetesEntregados.add(paqueteVacioAlmacenRetorno);
+    }
 
     @SuppressWarnings("unchecked")
     public Ruta(ArrayList<Paquete> paquetes, Oficina puntoPartida) {
@@ -38,6 +45,7 @@ public class Ruta {
         return (ArrayList<Paquete>) paquetesEntregados;
     }
 
+    // Creamos una solución vecina intercambiando dos paquetes
     public void generateIndividual() {
         for (int paqueteIndex = 0; paqueteIndex < RutaManager.cantidadPaquetes(); paqueteIndex++) {
             setPaquete(paqueteIndex, RutaManager.obtenerPaquete(paqueteIndex));
@@ -60,10 +68,6 @@ public class Ruta {
         tiempo = 0.0;
     }
 
-    /**
-     * Computes and returns the total distance of the tour
-     * @return distance total distance of the tour
-     */
     public double getTiempoTotal(){
         if (tiempo == 0.0) {
             double tiempoRuta = 0.0;
@@ -84,16 +88,13 @@ public class Ruta {
                 // Get the distance between the two cities
 
                 tiempoRuta += calcularTiempoRuta(paqueteActual, paqueteSiguiente);
+                tiempoRuta += TIEMPO_DESCARGA;
             }
             tiempo = tiempoRuta;
         }
         return tiempo;
     }
 
-    /**
-     * Get number of cities on our tour
-     * @return number how many cities there are in the tour!
-     */
     public int cantidadPaquetes() {
         return paquetesEntregados.size();
     }
@@ -114,6 +115,13 @@ public class Ruta {
     public double calcularTiempoRuta(Paquete paqueteActual, Paquete paqueteSiguiente) {
         var oficinaActual = paqueteActual.getVenta().getDestino();
         var oficinaSiguiente = paqueteSiguiente.getVenta().getDestino();
+        var mejorRuta = grafoTramos.obtenerRutaMasCorta(oficinaActual, oficinaSiguiente);
+        return calcularTiempoRuta(mejorRuta);
+    }
+
+    public double calcularTiempoRutaRegreso() {
+        var oficinaActual = this.paquetesEntregados.get(0).getVenta().getDestino();
+        var oficinaSiguiente = this.paquetesEntregados.get(1).getVenta().getDestino();
         var mejorRuta = grafoTramos.obtenerRutaMasCorta(oficinaActual, oficinaSiguiente);
         return calcularTiempoRuta(mejorRuta);
     }
@@ -145,5 +153,22 @@ public class Ruta {
             ruta.addAll(mejorRuta);
         }
         this.rutaRecorrida = ruta;
+    }
+
+    public void construirRutaMarcada(){
+        List<Tramo> ruta = new ArrayList<>();
+        for (int i = 0; i < paquetesEntregados.size() - 1; i++) {
+            var oficinaActual = paquetesEntregados.get(i).getVenta().getDestino();
+            var oficinaSiguiente = paquetesEntregados.get(i + 1).getVenta().getDestino();
+            var mejorRuta = grafoTramos.obtenerRutaMasCorta(oficinaActual, oficinaSiguiente);
+            mejorRuta.get(mejorRuta.size() - 1).setEsFinal(true);
+            ruta.addAll(mejorRuta);
+        }
+        this.rutaRecorrida = ruta;
+    }
+    //TODO: Desmarcar los tramos como finales
+
+    public List<Tramo> getRutaRecorrida(){
+        return this.rutaRecorrida;
     }
 }

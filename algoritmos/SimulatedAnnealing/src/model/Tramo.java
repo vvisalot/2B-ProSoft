@@ -15,6 +15,13 @@ public class Tramo {
 
     private double costoReal;
     private double costoTotal;
+    private boolean esFinal = false;
+    private boolean estaBloqueado = false;
+
+    public Tramo(Oficina origen, Oficina destino){
+        this.origen = origen;
+        this.destino = destino;
+    }
 
     public Tramo(Oficina origen, Oficina destino, double distancia) {
         this.origen = origen;
@@ -83,6 +90,21 @@ public class Tramo {
         return destino;
     }
 
+    public boolean getEsFinal(){
+        return this.esFinal;
+    }
+
+    public void setEsFinal(boolean esFinal){
+        this.esFinal = esFinal;
+    }
+
+    public boolean getEstaBloqueado() {
+        return estaBloqueado;
+    }
+
+    public void setEstaBloqueado(boolean estaBloqueado){
+        this.estaBloqueado = estaBloqueado;
+    }
 
     @Override
     public boolean equals(Object obj) {

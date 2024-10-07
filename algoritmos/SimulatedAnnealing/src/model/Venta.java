@@ -17,6 +17,11 @@ public class Venta implements Cloneable {
         this.codigo = UUID.randomUUID();
     }
 
+    public Venta(Oficina destino) {
+        this.codigo = UUID.randomUUID();
+        this.destino = destino;
+    }
+
     // Getters y Setters
     public UUID getCodigo() {
         return codigo;

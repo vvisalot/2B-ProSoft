@@ -1,7 +1,9 @@
 package model;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class Camion {
     private String codigo;
@@ -9,9 +11,20 @@ public class Camion {
     private int capacidad;
     private int cargaActual;
     private List<Paquete> paquetes;
-    private Oficina posicionActual;
+    private Oficina posicionFinal;
+    private LocalDateTime fechaDeLlegadaPosicionFinal;
+    private boolean enRuta = false;
+    private List<LocalDateTime> mantenimientosProgrmados;
+    private LocalDateTime fechaUltimoMantenimiento;
+    private boolean enMantenimiento = false;
+    private Oficina almacenCarga;
+    private LocalDateTime regresoAlmacen;
 
-    public Camion(String codigo, char tipo, Oficina posicionActual) {
+    public Camion(String codigo){
+        this.codigo = codigo;
+    }
+
+    public Camion(String codigo, char tipo, Oficina almacenCarga) {
         this.codigo = codigo;
         this.tipo = tipo;
         this.paquetes = new ArrayList<>();
@@ -28,10 +41,12 @@ public class Camion {
                 break;
         }
         this.cargaActual = 0;
-        this.posicionActual = posicionActual;
+        this.posicionFinal = almacenCarga;
+        this.almacenCarga = almacenCarga;
+        this.mantenimientosProgrmados = new ArrayList<>();
     }
 
-    public static List<Camion> inicializarCamiones(Oficina lima, Oficina trujillo, Oficina arequipa) {
+    public static List<Camion> inicializarCamiones(Oficina lima, Oficina trujillo, Oficina arequipa, Map<Camion,List<LocalDateTime>> mapaMantenimientos) {
         List<Camion> camiones = new ArrayList<>();
 
         //Tipo A
@@ -54,13 +69,16 @@ public class Camion {
         for (int i = 10; i < 16; i++)
             camiones.add(new Camion(String.format("C%03d", i + 1), 'C', trujillo));
         for (int i = 16; i < 24; i++)
-            camiones.add(new Camion(String.format("B%03d", i + 1), 'C', arequipa));
+            camiones.add(new Camion(String.format("C%03d", i + 1), 'C', arequipa));
 
         int cap = 0;
         for (Camion c : camiones) {
+            if(mapaMantenimientos.containsKey(c)){
+                c.setMantenimientosProgrmados(mapaMantenimientos.get(c));
+            }
             cap += c.getCapacidad();
         }
-        System.out.println("Capacidad total: " + cap + "\n");
+//        System.out.println("Capacidad total: " + cap + "\n");
         return camiones;
     }
 
@@ -104,14 +122,34 @@ public class Camion {
         this.paquetes = paquetes;
     }
 
-    public Oficina getPosicionActual() {
-        return posicionActual;
+    public Oficina getPosicionFinal() {
+        return posicionFinal;
     }
     //Imprimir ventas
     public void imprimirPaquetes() {
         for (Paquete p : paquetes) {
             System.out.println(p);
         }
+    }
+
+    public void setPosicionFinal(Oficina posicionFinal) {
+        this.posicionFinal = posicionFinal;
+    }
+
+    public List<LocalDateTime> getMantenimientosProgrmados() {
+        return mantenimientosProgrmados;
+    }
+
+    public void setMantenimientosProgrmados(List<LocalDateTime> mantenimientosProgrmados) {
+        this.mantenimientosProgrmados = mantenimientosProgrmados;
+    }
+
+    public LocalDateTime getFechaUltimoMantenimiento() {
+        return fechaUltimoMantenimiento;
+    }
+
+    public void setFechaUltimoMantenimiento(LocalDateTime fechaUltimoMantenimiento) {
+        this.fechaUltimoMantenimiento = fechaUltimoMantenimiento;
     }
 
     public void agregarPaquete(Paquete paquete) {
@@ -125,5 +163,59 @@ public class Camion {
                 ", Capacidad: " + capacidad +
                 ", Carga Actual: " + cargaActual +
                 ", Paquetes asignadas: " + paquetes.size() + "]";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Camion) {
+            Camion c = (Camion) obj;
+            return this.codigo.equals(c.codigo);
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.codigo.hashCode();
+    }
+
+    public LocalDateTime getFechaDeLlegadaPosicionFinal(){
+        return this.fechaDeLlegadaPosicionFinal;
+    }
+
+    public void setFechaDeLlegadaPosicionFinal(LocalDateTime fechaDeLlegadaPosicionFinal){
+        this.fechaDeLlegadaPosicionFinal = fechaDeLlegadaPosicionFinal;
+    }
+
+    public boolean getEnRuta(){
+        return this.enRuta;
+    };
+
+    public void setEnRuta(boolean enRuta){
+        this.enRuta = enRuta;
+    };
+
+    public boolean getEnMantenimiento() {
+        return  this.enMantenimiento;
+    }
+
+    public void setEnMantenimiento(boolean enMantenimiento) {
+        this.enMantenimiento = enMantenimiento;
+    }
+
+    public Oficina getAlmacenCarga(){
+        return this.almacenCarga;
+    }
+
+    public void setAlmacenCarga(Oficina almacenCarga) {
+        this.almacenCarga = almacenCarga;
+    }
+
+    public LocalDateTime getRegresoAlmacen(){
+        return  this.regresoAlmacen;
+    }
+
+    public void setRegresoAlmacen(LocalDateTime regresoAlmacen) {
+        this.regresoAlmacen = regresoAlmacen;
     }
 }

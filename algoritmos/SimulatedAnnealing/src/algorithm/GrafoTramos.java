@@ -4,6 +4,7 @@ import model.Bloqueo;
 import model.Oficina;
 import model.Tramo;
 import utils.CalculaDistancia;
+import utils.RelojSimulado;
 
 import java.util.*;
 
@@ -11,6 +12,8 @@ import java.util.*;
 public class GrafoTramos {
     private final HashMap<Tramo, Set<Tramo>> grafo = new HashMap<Tramo, Set<Tramo>>();
     private static GrafoTramos instance;
+    private final RelojSimulado relojSimulado = RelojSimulado.getInstance();
+
     public void agregarArista(Tramo tramoOrigen, Set<Tramo> tramosSiguientes) {
         grafo.put(tramoOrigen, tramosSiguientes);
     }
@@ -47,6 +50,7 @@ public class GrafoTramos {
         return grafo.get(origen);
     }
 
+    // Algoritmo de búsqueda A*
     public List<Tramo> obtenerRutaMasCorta(Oficina origen, Oficina destino) {
         PriorityQueue<Tramo> frontera = new PriorityQueue<>(Comparator.comparingDouble(tramo -> calcularHeuristica(tramo, destino)));
         Map<Tramo, Tramo> cameFrom = new HashMap<>();
@@ -75,6 +79,7 @@ public class GrafoTramos {
 
             // Revisar los tramos vecinos
             for (Tramo vecino : obtenerVecinos(actual)) {
+                if(estaBloqueado(vecino.getBloqueos())) continue;
                 double nuevoCosto = costeActual.get(actual) + vecino.getDistancia();
 
                 if (!costeActual.containsKey(vecino) || nuevoCosto < costeActual.get(vecino)) {
@@ -88,11 +93,24 @@ public class GrafoTramos {
         return null;  // No se encontró ruta
     }
 
+    private boolean estaBloqueado(List<Bloqueo> bloqueos){
+//        return false;
+        for(Bloqueo b : bloqueos){
+            if(b.getFechaHoraInicio().isAfter(relojSimulado.getTiempo()) && b.getFechaHoraInicio().isBefore(relojSimulado.getTiempoSiguienteBatch())
+                || b.getFechaHoraInicio().isBefore(relojSimulado.getTiempo()) && b.getFechaHoraFin().isAfter(relojSimulado.getTiempoSiguienteBatch())
+                || b.getFechaHoraFin().isAfter(relojSimulado.getTiempo()) && b.getFechaHoraFin().isBefore(relojSimulado.getTiempoSiguienteBatch())
+            ){
+                return true;
+            }
+        }
+        return false;
+    }
+
     private List<Tramo> buscarTramosConOrigen(Oficina origen) {
         // Busca los tramos que salen de la oficina de origen en el grafo
         List<Tramo> tramos = new ArrayList<>();
         for (Tramo tramo : grafo.keySet()) {
-            if (tramo.getOrigen().equals(origen)) {
+            if (tramo.getOrigen().equals(origen) && !estaBloqueado(tramo.getBloqueos())){
                 tramos.add(tramo);
             }
         }
@@ -100,10 +118,10 @@ public class GrafoTramos {
     }
 
 
-    private Tramo buscarTramoConOrigen(Oficina origen) {
+    public Tramo buscarTramoConOrigenDestino(Oficina origen, Oficina destino) {
         // Busca el tramo que sale de la oficina de origen en el grafo
         for (Tramo tramo : grafo.keySet()) {
-            if (tramo.getOrigen().equals(origen)) {
+            if (tramo.getOrigen().equals(origen) && tramo.getDestino().equals(destino)) {
                 return tramo;
             }
         }
@@ -157,5 +175,49 @@ public class GrafoTramos {
                     + " | Distancia: " + tramo.getDistancia());
         }
     }
+
+    public void actualizarBloqueos(){
+        for (Tramo tramo : grafo.keySet()) {
+            var hayBloqueo = false;
+            for(Bloqueo b : tramo.getBloqueos()){
+                if (
+                        (b.getFechaHoraInicio().isAfter(relojSimulado.getTiempo()) && b.getFechaHoraInicio().isBefore(relojSimulado.getTiempoSiguienteBatch()))
+                        || (b.getFechaHoraInicio().isBefore(relojSimulado.getTiempo()) && b.getFechaHoraFin().isAfter(relojSimulado.getTiempoSiguienteBatch()))
+                        || (b.getFechaHoraFin().isAfter(relojSimulado.getTiempo()) && b.getFechaHoraFin().isBefore(relojSimulado.getTiempoSiguienteBatch()))
+                ) {
+                    hayBloqueo = true;
+                    break;
+                }
+            }
+            tramo.setEstaBloqueado(hayBloqueo);
+            actualizarBloqueosParaVecinos(tramo,hayBloqueo);
+        }
+    }
+
+    private void actualizarBloqueosParaVecinos(Tramo tramo, boolean hayBloqueo){
+        var vecinos = obtenerVecinos(tramo);
+        var tramoInvertido = obtenerTramoInvertido(tramo);
+        if(tramoInvertido == null) throw new RuntimeException("Huh??");
+        for(Tramo t : vecinos){
+            var tInvertido = obtenerTramoInvertido(t);
+            for (Tramo ti: obtenerVecinos(tInvertido)){
+                if(ti.equals(tramoInvertido)){
+                    ti.setEstaBloqueado(hayBloqueo);
+                    break;
+                }
+            }
+        }
+    }
+
+    private Tramo obtenerTramoInvertido(Tramo tramo){
+        var tramoBusqueda = new Tramo(new Oficina(tramo.getDestino().getCodigo()),new Oficina(tramo.getOrigen().getCodigo()));
+        for (Tramo key : grafo.keySet()) {
+            if (key.equals(tramoBusqueda)) {
+                return key;
+            }
+        }
+        return null;
+    }
+
 }
 

@@ -1,5 +1,7 @@
 package model;
 
+import java.util.Objects;
+
 // Una oficina representa un nodo en nuestro grafo. Cada una tiene un ID unico y atributos extra y una
 // lista de vecinos que son otras instancias de Oficina
 public class Oficina {
@@ -10,6 +12,10 @@ public class Oficina {
     private double longitud;
     private String region;
     private int capacidad;
+
+    public Oficina(String codigo) {
+        this.codigo = codigo;
+    }
 
     public Oficina(String codigo, String departamento, String provincia, double latitud, double longitud, String region, int capacidad) {
         this.codigo = codigo;
@@ -91,6 +97,23 @@ public class Oficina {
                 '}';
     }
 
+    @Override
+    public boolean equals(Object obj){
+        if (this == obj) {
+            return true; // Check if both are the same object
+        }
+        if (obj == null || getClass() != obj.getClass()) {
+            return false; // Check if obj is null or a different class
+        }
+        Oficina other = (Oficina) obj;
+        return Objects.equals(codigo, other.codigo);
+    }
 
-
+    @Override
+    public int hashCode() {
+        if (codigo == null) {
+            return 0;
+        }
+        return codigo.hashCode();
+    }
 }
