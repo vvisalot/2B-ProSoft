@@ -12,9 +12,9 @@ import java.util.Random;
 public class SimulatedAnnealing {
     private final GrafoTramos grafoTramos = GrafoTramos.getInstance();
     private static final MapaVelocidad mapaVelocidad = MapaVelocidad.getInstance();
-    private static final double TIEMPO_DESCARGA = 2;
+    private static final double TIEMPO_DESCARGA = 1;
 
-    public static void calcular(List<Paquete> paquetes, Camion camion, RelojSimulado reloj, List<Oficina> almacenesPrincipales) {
+    public static double calcular(List<Paquete> paquetes, Camion camion, RelojSimulado reloj, List<Oficina> almacenesPrincipales) {
         RutaManager.limpiarPaquetes();
         for (var paquete : paquetes) {
             RutaManager.agregarPaquete(paquete);
@@ -110,6 +110,7 @@ public class SimulatedAnnealing {
 //        System.out.println("Tiempo Final solución: " + best.getTiempoTotal());
 //        System.out.println("Ruta: " + best);
 //        System.out.println("\n");
+        return bestTime+mejorTiempo;
     }
 
     public static double acceptanceProbability(double currentTime, double newTime, double temperature) {

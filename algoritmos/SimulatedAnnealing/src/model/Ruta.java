@@ -15,7 +15,7 @@ public class Ruta {
     private final GrafoTramos grafoTramos = GrafoTramos.getInstance();
     private final MapaVelocidad mapaVelocidad = MapaVelocidad.getInstance();
     private Oficina puntoPartida;
-    private final double TIEMPO_DESCARGA = 2;
+    private final double TIEMPO_DESCARGA = 1;
 
     public Ruta(Oficina puntoPartida) {
         for (int i = 0; i < RutaManager.cantidadPaquetes(); i++) {

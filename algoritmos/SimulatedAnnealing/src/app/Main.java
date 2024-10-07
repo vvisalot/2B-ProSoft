@@ -66,29 +66,6 @@ public class Main {
         for (Tramo tramo : listaTramos) {
             grafoTramos.agregarArista(tramo, mapaTramos.get(tramo.getDestino().getCodigo()));
         }
-        //grafoTramos.imprimirTodosLosTramos();
-
-//        Oficina origen = mapaOficinas.get("010201");
-//        Oficina destino = mapaOficinas.get("010601");
-//
-//        List<Tramo> rutaMasCorta = grafoTramos.obtenerRutaMasCorta(origen, destino);
-//
-//        if (rutaMasCorta != null) {
-//            System.out.println("Ruta más corta encontrada:");
-//            for (Tramo tramo : rutaMasCorta) {
-//                System.out.println(tramo);
-//            }
-//        } else {
-//            System.out.println("No se encontró ruta.");
-//        }
-
-        //grafoTramos.imprimirGrafo();
-
-//        for (int i = 1; i <= 12; i++) {
-//            String filePathBloqueos = String.format("resources/bloqueos/bloqueo%02d.txt", i);
-//            LeerDatos.leerBloqueos(filePathBloqueos, grafoTramos);
-//        }
-//        grafoTramos.imprimirBloqueos();
 
         //Lectura de ventas
         String archivoVentas = "resources/ventas.historico.proyectado/ventas200001.txt";
@@ -101,7 +78,7 @@ public class Main {
         List<Camion> camiones = Camion.inicializarCamiones(almacenesPrincipales.get(2), almacenesPrincipales.get(0), almacenesPrincipales.get(1),mapaMantenimientos);
 
         var reloj = RelojSimulado.getInstance();
-        for(int i = 0; i < 4; i++){
+        for(int i = 0; i < 4; i++){ //6*4 = 24 horas, es decir un día
             // Empezamos a tomar el tiempo desde la asignacion de ventas a camiones
             long tiempoInicio = System.currentTimeMillis();
             //Loop en todos los camiones para revisar si alguno le toca mantenimiento o si tiene que salir de mantenmiento
@@ -118,47 +95,42 @@ public class Main {
                     }
                 }
             }
-            //Actualizar Bloques en los tramos
-//            grafoTramos.actualizarBloqueos();
-//            var tramo = grafoTramos.buscarTramoConOrigenDestino(new Oficina("130901"),new Oficina("100101"));
-//            var vecinos = grafoTramos.obtenerVecinos(tramo);
+
             // Asignamos las ventas a los camiones
             var mapaCamionesPorCentral = AsignadorVentas.asignarVentasGreedy(camiones, ventas,almacenesPrincipales, grafoTramos); //ALEATORIO CON CONDICIONES
-//            for(var entry : mapaCamionesPorCentral.entrySet()){
-//                System.out.println("Central: " + entry.getKey());
-//                for(var camion: entry.getValue()){
-//                    System.out.println("Camion: " + camion.getCodigo());
-//                    camion.imprimirPaquetes();
-//                    System.out.println("\n");
-//                }
-//            }
 
             // Planificamos una ruta para cada camión
+            var tiempoTotal = 0.0;
+            var camionesConPaquetes = 0;
             for(var entry : mapaCamionesPorCentral.entrySet()){
                 for(var camion: entry.getValue()){
                     if(camion.getPaquetes().isEmpty()){
                         continue;
                     }
-                    SimulatedAnnealing.calcular(camion.getPaquetes(),camion, reloj, almacenesPrincipales);
+                    tiempoTotal += SimulatedAnnealing.calcular(camion.getPaquetes(),camion, reloj, almacenesPrincipales);
+                    camionesConPaquetes++;
                 }
             }
+
             //Actualizar posicion de los camiones para siguiente ejecucion
+            // TODO: Revisar si la hora del siguiente batch es despues de regresoAlmacen del camion
 //            for(Camion c :camiones){
 //
-//            }
-
 
             // Obtenemos el tiempo de ejecucion del programa
             long tiempoFin = System.currentTimeMillis();
             System.out.println("Tiempo de ejecución: " + (tiempoFin - tiempoInicio) + " ms");
+            var tiempoPromedioRuta =  tiempoTotal/camionesConPaquetes;
             for(var entry : mapaCamionesPorCentral.entrySet()){
                 for(var camion: entry.getValue()){
                     if(camion.getPaquetes().isEmpty()){
                         continue;
                     }
                     System.out.println("Camion: " + camion);
+
                 }
             }
+            System.out.println("Tiempo promedio de ruta: " + tiempoPromedioRuta);
             reloj.pasarCicloDeEntregas();
         }
 
