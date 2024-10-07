@@ -3,16 +3,13 @@ package algorithm;
 import model.*;
 import utils.RelojSimulado;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class SimulatedAnnealing {
-    private final GrafoTramos grafoTramos = GrafoTramos.getInstance();
     private static final MapaVelocidad mapaVelocidad = MapaVelocidad.getInstance();
     private static final double TIEMPO_DESCARGA = 1;
+    private final GrafoTramos grafoTramos = GrafoTramos.getInstance();
 
     public static double calcular(List<Paquete> paquetes, Camion camion, RelojSimulado reloj, List<Oficina> almacenesPrincipales) {
         RutaManager.limpiarPaquetes();
@@ -25,21 +22,21 @@ public class SimulatedAnnealing {
         Ruta currentSolution;
         Ruta best;
         double time;
-        do{
+        do {
             currentSolution = new Ruta(camion.getPosicionFinal());
             currentSolution.generateIndividual();
 //        System.out.println("Total time of initial solution: " + currentSolution.getTiempoTotal());
-//        System.out.println("Ruta: " + currentSolution);
+ //       System.out.println("Ruta: " + currentSolution);
 
             best = new Ruta(currentSolution.getPaquetesEntregados(), camion.getPosicionFinal());
             time = best.getTiempoTotal();
-        } while (esRutaInvalida(best,time));
+        } while (esRutaInvalida(best, time));
 
         double bestTime = time;
         while (temp > 1) {
             // Crea una nueva solución vecina
             Ruta newSolution = new Ruta(currentSolution.getPaquetesEntregados(), camion.getPosicionFinal());
-            if(newSolution.cantidadPaquetes() <= 2){
+            if (newSolution.cantidadPaquetes() <= 2) {
                 break;
             }
             // Escoge dos posiciones aleatorias en la ruta, excluyendo la posicion inicial del camion
@@ -58,12 +55,12 @@ public class SimulatedAnnealing {
             // Intercambia los paquetes
             newSolution.setPaquete(rutaPos2, paqueteACambiar1);
             newSolution.setPaquete(rutaPos1, paqueteACambiar2);
-            
+
             // Consigue la energía de las soluciones actuales y nuevas
             double currentTime = currentSolution.getTiempoTotal();
             double neighbourTime = newSolution.getTiempoTotal();
 
-            if(esRutaInvalida(newSolution,neighbourTime)){
+            if (esRutaInvalida(newSolution, neighbourTime)) {
                 temp *= 1 - coolingRate;
                 continue;
             }
@@ -82,7 +79,7 @@ public class SimulatedAnnealing {
             // Enfriamos el sistema
             temp *= 1 - coolingRate;
         }
-        var posicionFinal = best.getPaquetesEntregados().get(best.getPaquetesEntregados().size()-1).getVenta().getDestino();
+        var posicionFinal = best.getPaquetesEntregados().get(best.getPaquetesEntregados().size() - 1).getVenta().getDestino();
         camion.setPosicionFinal(posicionFinal);
         //AGREGAR TIEMPO DE LLEGADA A ULTIMO PUNTO
         double hoursToAdd = bestTime;
@@ -94,10 +91,10 @@ public class SimulatedAnnealing {
         //Escoger almacén de retorno
         var mejorTiempo = Double.MAX_VALUE;
         Oficina almacenRegreso = null;
-        for(Oficina almacen: almacenesPrincipales) {
-            var ruta = new Ruta(posicionFinal,almacen);
+        for (Oficina almacen : almacenesPrincipales) {
+            var ruta = new Ruta(posicionFinal, almacen);
             var tiempoRegreso = ruta.getTiempoTotal();
-            if(tiempoRegreso < mejorTiempo){
+            if (tiempoRegreso < mejorTiempo) {
                 mejorTiempo = tiempoRegreso;
                 almacenRegreso = almacen;
             }
@@ -108,9 +105,8 @@ public class SimulatedAnnealing {
         camion.setRegresoAlmacen(fechaEntregaUltimoPaquete.plusHours(wholeHours).plusMinutes(minutes));
         camion.setAlmacenCarga(almacenRegreso);
 //        System.out.println("Tiempo Final solución: " + best.getTiempoTotal());
-//        System.out.println("Ruta: " + best);
-//        System.out.println("\n");
-        return bestTime+mejorTiempo;
+        System.out.println("Ruta: " + best);
+        return bestTime + mejorTiempo;
     }
 
     public static double acceptanceProbability(double currentTime, double newTime, double temperature) {
@@ -131,11 +127,11 @@ public class SimulatedAnnealing {
         return (int) d;
     }
 
-    private static boolean esRutaInvalida(Ruta ruta, double tiempo){
+    private static boolean esRutaInvalida(Ruta ruta, double tiempo) {
 //        return false;
-        if(tiempo<=24.0){
+        if (tiempo <= 24.0) {
             return false;
-        }else if(tiempo <= 48.0) {
+        } else if (tiempo <= 48.0) {
             //TODO
             //Validar que se esten entregando primero los paquetes de la costa
             ruta.construirRutaMarcada();
@@ -145,12 +141,12 @@ public class SimulatedAnnealing {
                 var velocidad = mapaVelocidad.obtenerVelocidad(tramo.getOrigen().getRegion(), tramo.getDestino().getRegion());
                 tiempoEnRuta += tramo.getDistancia() / velocidad;
                 tiempoEnRuta += TIEMPO_DESCARGA;
-                if(tramo.getEsFinal() && tramo.getDestino().getRegion().equals("COSTA") && tiempoEnRuta>=24.0){
+                if (tramo.getEsFinal() && tramo.getDestino().getRegion().equals("COSTA") && tiempoEnRuta >= 24.0) {
                     return true;
                 }
             }
             return false;
-        }else if (tiempo <= 72.0) {
+        } else if (tiempo <= 72.0) {
             //Validar que se esten entregando primero los paquetes de la costa y la sierra
             ruta.construirRutaMarcada();
             var rutaEvaluar = ruta.getRutaRecorrida();
@@ -158,11 +154,10 @@ public class SimulatedAnnealing {
             for (Tramo tramo : rutaEvaluar) {
                 var velocidad = mapaVelocidad.obtenerVelocidad(tramo.getOrigen().getRegion(), tramo.getDestino().getRegion());
                 tiempoEnRuta += tramo.getDistancia() / velocidad;
-                if(tramo.getEsFinal()){
-                    if(tramo.getDestino().getRegion().equals("COSTA") && tiempoEnRuta>=24.0){
+                if (tramo.getEsFinal()) {
+                    if (tramo.getDestino().getRegion().equals("COSTA") && tiempoEnRuta >= 24.0) {
                         return true;
-                    }
-                    else if (tramo.getDestino().getRegion().equals("SIERRA") && tiempoEnRuta>=48.0) {
+                    } else if (tramo.getDestino().getRegion().equals("SIERRA") && tiempoEnRuta >= 48.0) {
                         return true;
                     }
                 }

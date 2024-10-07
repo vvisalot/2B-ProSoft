@@ -119,13 +119,6 @@ public class Ruta {
         return calcularTiempoRuta(mejorRuta);
     }
 
-    public double calcularTiempoRutaRegreso() {
-        var oficinaActual = this.paquetesEntregados.get(0).getVenta().getDestino();
-        var oficinaSiguiente = this.paquetesEntregados.get(1).getVenta().getDestino();
-        var mejorRuta = grafoTramos.obtenerRutaMasCorta(oficinaActual, oficinaSiguiente);
-        return calcularTiempoRuta(mejorRuta);
-    }
-
     public double calcularTiempoRuta() {
         double tiempoTotal = 0.0;
         for (Tramo tramo : rutaRecorrida) {

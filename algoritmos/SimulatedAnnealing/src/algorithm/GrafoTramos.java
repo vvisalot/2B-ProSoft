@@ -118,16 +118,6 @@ public class GrafoTramos {
     }
 
 
-    public Tramo buscarTramoConOrigenDestino(Oficina origen, Oficina destino) {
-        // Busca el tramo que sale de la oficina de origen en el grafo
-        for (Tramo tramo : grafo.keySet()) {
-            if (tramo.getOrigen().equals(origen) && tramo.getDestino().equals(destino)) {
-                return tramo;
-            }
-        }
-        return null;  // Si no encuentra tramo con la oficina origen
-    }
-
     private double calcularHeuristica(Tramo tramoActual, Oficina destinoFinal) {
         // Calculamos la distancia desde el destino del tramo actual hasta el destino final
         return CalculaDistancia.calcular(
@@ -175,49 +165,5 @@ public class GrafoTramos {
                     + " | Distancia: " + tramo.getDistancia());
         }
     }
-
-    public void actualizarBloqueos(){
-        for (Tramo tramo : grafo.keySet()) {
-            var hayBloqueo = false;
-            for(Bloqueo b : tramo.getBloqueos()){
-                if (
-                        (b.getFechaHoraInicio().isAfter(relojSimulado.getTiempo()) && b.getFechaHoraInicio().isBefore(relojSimulado.getTiempoSiguienteBatch()))
-                        || (b.getFechaHoraInicio().isBefore(relojSimulado.getTiempo()) && b.getFechaHoraFin().isAfter(relojSimulado.getTiempoSiguienteBatch()))
-                        || (b.getFechaHoraFin().isAfter(relojSimulado.getTiempo()) && b.getFechaHoraFin().isBefore(relojSimulado.getTiempoSiguienteBatch()))
-                ) {
-                    hayBloqueo = true;
-                    break;
-                }
-            }
-            tramo.setEstaBloqueado(hayBloqueo);
-            actualizarBloqueosParaVecinos(tramo,hayBloqueo);
-        }
-    }
-
-    private void actualizarBloqueosParaVecinos(Tramo tramo, boolean hayBloqueo){
-        var vecinos = obtenerVecinos(tramo);
-        var tramoInvertido = obtenerTramoInvertido(tramo);
-        if(tramoInvertido == null) throw new RuntimeException("Huh??");
-        for(Tramo t : vecinos){
-            var tInvertido = obtenerTramoInvertido(t);
-            for (Tramo ti: obtenerVecinos(tInvertido)){
-                if(ti.equals(tramoInvertido)){
-                    ti.setEstaBloqueado(hayBloqueo);
-                    break;
-                }
-            }
-        }
-    }
-
-    private Tramo obtenerTramoInvertido(Tramo tramo){
-        var tramoBusqueda = new Tramo(new Oficina(tramo.getDestino().getCodigo()),new Oficina(tramo.getOrigen().getCodigo()));
-        for (Tramo key : grafo.keySet()) {
-            if (key.equals(tramoBusqueda)) {
-                return key;
-            }
-        }
-        return null;
-    }
-
 }
 

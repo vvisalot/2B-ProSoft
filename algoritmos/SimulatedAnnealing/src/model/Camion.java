@@ -158,11 +158,11 @@ public class Camion {
 
     @Override
     public String toString() {
-        return "Camion [Código: " + codigo +
-                ", Tipo: " + tipo +
-                ", Capacidad: " + capacidad +
-                ", Carga Actual: " + cargaActual +
-                ", Paquetes asignadas: " + paquetes.size() + "]";
+        return "El camion de código " + codigo +
+                " y tipo " + tipo +
+                " de capacidad " + capacidad +
+                " se encuentra llevando " + cargaActual + " de carga" +
+                " y tiene " + paquetes.size() + " paquete(s) asignados.";
     }
 
     @Override
