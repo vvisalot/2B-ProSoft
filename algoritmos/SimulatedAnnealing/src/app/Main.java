@@ -63,7 +63,6 @@ public class Main {
 
         // Loop de un dia
         for (int i = 0; i < 4; i++) {
-
             // Mantenimiento de camiones
             for (Camion c : camiones) {
                 //Revisar si esta en mantenimiento, si ya paso los días de mantenimiento vuelve a estar disponible
@@ -102,9 +101,9 @@ public class Main {
 
             var tiempoPromedioRuta = tiempoTotal / camionesConPaquetes;
 
-            System.out.println(String.format("Hora de salida de los camiones: %02d:%02d - %02d:%02d",
+            System.out.printf("Hora de salida de los camiones: %02d:%02d - %02d:%02d%n",
                     reloj.getTiempo().getHour(), reloj.getTiempo().getMinute(),
-                    reloj.getTiempoSiguienteBatch().getHour(), reloj.getTiempoSiguienteBatch().getMinute()));
+                    reloj.getTiempoSiguienteBatch().getHour(), reloj.getTiempoSiguienteBatch().getMinute());
             for (var entry : mapaCamionesPorCentral.entrySet()) {
                 System.out.println("\tDe la oficina central " + entry.getKey().getCodigo() + " ubicada en  "
                         + entry.getKey().getDepartamento() + " salen los siguientes camiones:");
@@ -115,7 +114,7 @@ public class Main {
                     System.out.println("\t\t" + camion);
                 }
             }
-            System.out.println(String.format("\nTiempo promedio de ruta: %.2f\n\n", tiempoPromedioRuta));
+            System.out.printf("\nTiempo promedio de ruta: %.2f\n\n%n", tiempoPromedioRuta);
             reloj.pasarCicloDeEntregas();
         }
         // Obtenemos el tiempo de ejecucion del programa

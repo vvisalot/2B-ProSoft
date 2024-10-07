@@ -25,7 +25,7 @@ public class AsignadorVentas {
         }
         var ventasProcesadas = ventas.stream()
                 .filter(v -> v.getFechaHora().isAfter(reloj.getTiempo()) && v.getFechaHora().isBefore(reloj.getTiempoSiguienteBatch()))
-                .collect(Collectors.toList());
+                .toList();
         // Calculamos el tiempo para cada venta desde cada almacen principal
         Map<Oficina, Map<Venta, Double>> mapaTiempoPorVentaPorOficina = new HashMap<>();
         for (var almacen : almacenesPrincipales) {

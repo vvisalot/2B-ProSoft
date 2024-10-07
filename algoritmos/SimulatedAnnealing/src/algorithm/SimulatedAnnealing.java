@@ -75,12 +75,11 @@ public class SimulatedAnnealing {
                 best = new Ruta(currentSolution.getPaquetesEntregados(), camion.getPosicionFinal());
                 bestTime = currentSolution.getTiempoTotal();
             }
-
-            // Enfriamos el sistema
             temp *= 1 - coolingRate;
         }
         var posicionFinal = best.getPaquetesEntregados().get(best.getPaquetesEntregados().size() - 1).getVenta().getDestino();
         camion.setPosicionFinal(posicionFinal);
+
         //AGREGAR TIEMPO DE LLEGADA A ULTIMO PUNTO
         double hoursToAdd = bestTime;
         long wholeHours = (long) hoursToAdd;
@@ -88,6 +87,7 @@ public class SimulatedAnnealing {
         var fechaEntregaUltimoPaquete = reloj.getTiempo().plusHours(wholeHours).plusMinutes(minutes);
         camion.setFechaDeLlegadaPosicionFinal(fechaEntregaUltimoPaquete);
         camion.setEnRuta(true);
+
         //Escoger almacén de retorno
         var mejorTiempo = Double.MAX_VALUE;
         Oficina almacenRegreso = null;
@@ -128,12 +128,9 @@ public class SimulatedAnnealing {
     }
 
     private static boolean esRutaInvalida(Ruta ruta, double tiempo) {
-//        return false;
         if (tiempo <= 24.0) {
             return false;
         } else if (tiempo <= 48.0) {
-            //TODO
-            //Validar que se esten entregando primero los paquetes de la costa
             ruta.construirRutaMarcada();
             var rutaEvaluar = ruta.getRutaRecorrida();
             var tiempoEnRuta = 0.0;
@@ -147,7 +144,6 @@ public class SimulatedAnnealing {
             }
             return false;
         } else if (tiempo <= 72.0) {
-            //Validar que se esten entregando primero los paquetes de la costa y la sierra
             ruta.construirRutaMarcada();
             var rutaEvaluar = ruta.getRutaRecorrida();
             var tiempoEnRuta = 0.0;
