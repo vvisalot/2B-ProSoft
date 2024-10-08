@@ -218,4 +218,5 @@ public class Camion {
     public void setRegresoAlmacen(LocalDateTime regresoAlmacen) {
         this.regresoAlmacen = regresoAlmacen;
     }
+
 }

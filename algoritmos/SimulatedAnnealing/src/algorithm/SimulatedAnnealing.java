@@ -11,7 +11,8 @@ public class SimulatedAnnealing {
     private static final double TIEMPO_DESCARGA = 1;
     private final GrafoTramos grafoTramos = GrafoTramos.getInstance();
 
-    public static double calcular(List<Paquete> paquetes, Camion camion, RelojSimulado reloj, List<Oficina> almacenesPrincipales) {
+    public static double calcular(List<Paquete> paquetes, Camion camion, RelojSimulado reloj,
+                                  List<Oficina> almacenesPrincipales) {
         RutaManager.limpiarPaquetes();
         for (var paquete : paquetes) {
             RutaManager.agregarPaquete(paquete);
