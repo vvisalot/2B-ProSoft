@@ -204,6 +204,9 @@ public class LeerDatos {
             // Parsear el tramo: "250301 => 220501"
             String[] tramos = datos[0].split("=>");
             Tramo tramoBloqueo = new Tramo(tramos[0].trim(),tramos[1].trim());
+            tramoBloqueo.setDistanciaTramo(tramos[0].trim(), tramos[1].trim());
+            tramoBloqueo.setVelocidadTramo(tramos[0].trim(), tramos[1].trim());
+            tramoBloqueo.setHorasTramo(tramoBloqueo.getDistanciaTramo(),tramoBloqueo.getVelocidadTramo());
 
             // Parsear las fechas de inicio y fin: "0101,13:32==0119,10:39"
             String[] tiempos = datos[1].split("==");

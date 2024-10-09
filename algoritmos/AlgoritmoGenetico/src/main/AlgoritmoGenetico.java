@@ -2,6 +2,7 @@ package main;
 
 import Clases.*;
 import Utils.LeerDatos;
+import static Utils.LeerDatos.leerBloqueos;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,27 +12,35 @@ import java.util.HashMap;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Random;
 
 public class AlgoritmoGenetico {
     //static final int TAMANO_POBLACION = 10;
-    static final int NUM_GENERACIONES = 100; //antes era 100
+    static final int NUM_GENERACIONES = 3; //antes era 100
     static Random random = new Random();
 
     public static void main(String[] args) throws IOException {
 
         // Generar población inicial 
-        //probar con solamente un pedido                     //arequipa               tacna
-        Venta pedido = new Venta(LocalDateTime.now(), "040101", "230101", 4, "000786");
+        //probar con solamente un pedido                        //arequipa               tacna
+        LocalDateTime fechaEnvio = LocalDateTime.now();
+        Venta pedido = new Venta(fechaEnvio, "040101", "230101", 4, "000786");
         
         List<Tramo> tramos = LeerDatos.leerTramos("archivos/tramos.txt");
-        HashMap<String, Tramo> mapaTramos = new HashMap<>();
-        for (Tramo tram : tramos) {
-            String clave = tram.getUbigeoOrigen() + "-" + tram.getUbigeoDestino(); 
-            mapaTramos.put(clave, tram);
+        List<Bloqueo> bloqueos = LeerDatos.leerBloqueos("archivos/c.1inf54.24-2.bloqueo.10.txt");
+        
+        // Crear el mapa optimizado por clave origen: HashMap<String, List<Tramo>>
+        HashMap<String, List<Tramo>> mapaTramos = new HashMap<>();
+
+        for (Tramo tramo : tramos) {
+            String origen = tramo.getUbigeoOrigen();
+            // Usar computeIfAbsent para inicializar la lista si no existe
+            mapaTramos.computeIfAbsent(origen, k -> new ArrayList<>()).add(tramo);
         }
+     
         Camion camion = new Camion("A001",90, "040101");
-        ArrayList<Cromosoma> poblacion = generarPoblacionInicial(pedido,mapaTramos,camion);
+        ArrayList<Cromosoma> poblacion = generarPoblacionInicial(pedido,mapaTramos,camion,bloqueos,fechaEnvio);
 
         // Evolucionar por generaciones
         for (int gen = 0; gen < NUM_GENERACIONES; gen++) {
@@ -45,11 +54,15 @@ public class AlgoritmoGenetico {
             }
             Cromosoma mejorIndividuo = seleccionarMejor(poblacion);
             System.out.println("  Mejor tiempo: " + mejorIndividuo.getTiempoTotal());
+            imprimirRuta(mejorIndividuo,pedido);
         }
-    }
+        }
 
-    //etender a la poblacion
-    public static ArrayList<Cromosoma> generarPoblacionInicial(Venta pedido, HashMap<String, Tramo> mapaTramos, Camion camion) {
+    //entender a la poblacion
+    public static ArrayList<Cromosoma> generarPoblacionInicial(Venta pedido,
+            HashMap<String, List<Tramo>> mapaTramos, Camion camion, List<Bloqueo> bloqueos,
+            LocalDateTime fechaEnvio) {
+        
         ArrayList<Cromosoma> poblacion = new ArrayList<>();
 
         //Verificar capacidad del camión para el pedido --> solo un camion
@@ -64,32 +77,60 @@ public class AlgoritmoGenetico {
         // Crear cromosomas (individuos) a partir de las rutas
         for (Map.Entry<String, List<Tramo>> entry : rutasPosibles.entrySet()) {
             HashMap<String, Tramo> rutaMap = new HashMap<>();
-            for (Tramo tramo : entry.getValue()) {
+            boolean tieneBloqueo = false;
+            
+            // Verificar cada tramo antes de agregarlo            
+           for (Tramo tramo : entry.getValue()) {
+                // Verificar si el tramo está bloqueado en la fecha de envío
+                if (estaBloqueado(tramo, bloqueos, fechaEnvio)) {
+                    tieneBloqueo = true;  // Si hay un tramo bloqueado, no incluir esta ruta
+                    break;  // Salir del ciclo si se encuentra un tramo bloqueado
+                }
+
+                // Si no está bloqueado, agregarlo a la ruta                
                 String clave = tramo.getUbigeoOrigen() + "-" + tramo.getUbigeoDestino();
                 rutaMap.put(clave, tramo);
             }
-            Cromosoma cromosoma = new Cromosoma(rutaMap, camion);
-            cromosoma.setTiempoTotal(); // para que ya tenga de una vez el tiempo en cromosoma
-            poblacion.add(cromosoma);
+           
+            // Si no hay tramos bloqueados en esta ruta, crear el cromosoma
+            if (!tieneBloqueo) {
+                Cromosoma cromosoma = new Cromosoma(rutaMap, camion);
+                cromosoma.setTiempoTotal();  // Calcular el tiempo total del cromosoma
+                cromosoma.setFitness();
+                poblacion.add(cromosoma);  // Añadir el cromosoma a la población
+            }
         }
 
         return poblacion;
     }
+    
+    // Método auxiliar para verificar si un tramo está bloqueado
+    public static boolean estaBloqueado(Tramo tramo, List<Bloqueo> bloqueos, LocalDateTime fechaEnvio) {
+        for (Bloqueo bloqueo : bloqueos) {
+            if (bloqueo.getTramo().equals(tramo) &&
+                (fechaEnvio.isAfter(bloqueo.getFechaHoraInicio()) && fechaEnvio.isBefore(bloqueo.getFechaHoraFin()))) {
+                return true;  // El tramo está bloqueado
+            }
+        }
+        return false;  // El tramo no está bloqueado
+    }
 
 
     // Función recursiva para generar todas las rutas posibles desde el origen al destino
-    public static HashMap<String, List<Tramo>> generarRutas(String origen, String destino, HashMap<String, Tramo> mapaTramos, List<String> visitados) {
+    public static HashMap<String, List<Tramo>> generarRutas(String origen, String destino, HashMap<String, List<Tramo>> mapaTramos, List<String> visitados) {
         if (visitados == null) {
             visitados = new ArrayList<>();
         }
+        
         visitados.add(origen);
 
         HashMap<String, List<Tramo>> rutasMap = new HashMap<>();
-
-        for (String clave : mapaTramos.keySet()) {
-            // Verificar si la clave empieza con el origen
-            if (clave.startsWith(origen)) {
-                Tramo tramo = mapaTramos.get(clave);
+        
+        // Obtener los tramos que comienzan desde el origen directamente desde el mapa
+        List<Tramo> tramosDesdeOrigen = mapaTramos.get(origen);
+        
+        if (tramosDesdeOrigen != null) {
+            for (Tramo tramo : tramosDesdeOrigen) {
                 if (tramo.getUbigeoDestino().equals(destino)) {
                     // Ruta directa encontrada
                     List<Tramo> rutaDirecta = new ArrayList<>();
@@ -102,11 +143,13 @@ public class AlgoritmoGenetico {
                         List<Tramo> nuevaRuta = new ArrayList<>();
                         nuevaRuta.add(tramo);  // Añadir tramo inicial
                         nuevaRuta.addAll(rutasIntermedias.get(claveIntermedia));  // Añadir la ruta intermedia
-                        rutasMap.put(origen + "-" + destino, nuevaRuta); // Guardar la nueva ruta en el mapa
+                        rutasMap.put(origen + "-" + claveIntermedia, nuevaRuta); // Guardar la nueva ruta en el mapa
                     }
                 }
             }
         }
+        
+        //visitados.remove(origen);  // Eliminar origen de los visitados para futuras recursiones       
         return rutasMap;
     }
 
@@ -131,35 +174,28 @@ public class AlgoritmoGenetico {
         ArrayList<Cromosoma> nuevaPoblacion = new ArrayList<>();
         for (Cromosoma cromosoma : poblacion) {
             cromosoma.setTiempoTotal(); // Llamar al método setTiempoTotal() para cada cromosoma
+            cromosoma.setFitness();
         }
         // Elitismo: Mantén los mejores cromosomas (por ejemplo, el 10% mejor) sin alterarlos
         int elitismoSize = (int) (0.1 * poblacion.size());
-        Collections.sort(poblacion, Comparator.comparingDouble(Cromosoma::getTiempoTotal));
+        Collections.sort(poblacion, Comparator.comparingDouble(Cromosoma::getFitness));
+        //ordenar por fitness
         
         // Añadir los mejores cromosomas directamente a la nueva población
         for (int i = 0; i < elitismoSize; i++) {
-        nuevaPoblacion.add(poblacion.get(i));
+            nuevaPoblacion.add(poblacion.get(i));
         }
         
         // Generar el resto de la nueva población
         for (int i = elitismoSize; i < poblacion.size(); i++) {
             Cromosoma padre1 = seleccionarPorRuleta(poblacion);
-            Cromosoma padre2 = null;
-
-            // Intentar encontrar un padre2 diferente de padre1 (máximo 10 intentos)
-            int intentos = 0;
-            do {
-                padre2 = seleccionarPorRuleta(poblacion);
-                intentos++;
-            } while (padre1.equals(padre2) && intentos < 10);
-
-            // Si después de 10 intentos no se encuentra uno diferente, selecciona aleatoriamente
-            if (padre1.equals(padre2)) {
-                padre2 = seleccionarAleatorio(poblacion);
-            }
+            Cromosoma padre2 = seleccionarPorRuleta(poblacion);
             Cromosoma hijo = cruzar(padre1, padre2);
             mutar(hijo);
+            
+            //Recalular fitness hijo
             hijo.setTiempoTotal(); //actualizar tiempo total de cromosoma
+            hijo.setFitness();
             nuevaPoblacion.add(hijo);
         }
         return nuevaPoblacion;
@@ -230,7 +266,7 @@ public class AlgoritmoGenetico {
     public static Cromosoma seleccionarMejor(ArrayList<Cromosoma> poblacion) {
         Cromosoma mejorIndividuo = poblacion.get(0);
         for (Cromosoma individuo : poblacion) {
-            if (individuo.getTiempoTotal() < mejorIndividuo.getTiempoTotal()) {
+            if (individuo.getFitness()> mejorIndividuo.getFitness()) {
                 mejorIndividuo = individuo;
             }
         }
@@ -245,33 +281,63 @@ public class AlgoritmoGenetico {
 
     //ruleto bota la funcion cromosoma?
     public static Cromosoma seleccionarPorRuleta(ArrayList<Cromosoma> poblacion) {
-
-        // Paso 1: Encontrar el tiempo máximo en la población
-        double maxTiempo = Double.MIN_VALUE;
-        for (Cromosoma cromosoma : poblacion) {
-            maxTiempo = Math.max(maxTiempo, cromosoma.getTiempoTotal());
-        }
-
-        // Paso 2: Calcular la suma total de aptitudes ajustadas (inversa basada en el tiempo máximo)
+        // Paso 1: Calcular la suma total de fitness
         double sumaTotalFitness = 0.0;
         for (Cromosoma cromosoma : poblacion) {
-            // Aptitud ajustada: maxTiempo - tiempoTotal (de modo que los tiempos menores tengan más probabilidad)
-            sumaTotalFitness += (maxTiempo - cromosoma.getTiempoTotal());
+            sumaTotalFitness += cromosoma.getFitness();
         }
 
-        // Paso 3: Generar un número aleatorio entre 0 y la suma total de aptitudes
+        // Paso 2: Generar un número aleatorio entre 0 y la suma total de fitness
         double randomValue = random.nextDouble() * sumaTotalFitness;
 
-        // Paso 4: Seleccionar el cromosoma correspondiente
+        // Paso 3: Seleccionar el cromosoma correspondiente
         double sumaParcial = 0.0;
         for (Cromosoma cromosoma : poblacion) {
-            sumaParcial += (maxTiempo - cromosoma.getTiempoTotal());
+            sumaParcial += cromosoma.getFitness();
             if (sumaParcial >= randomValue) {
                 return cromosoma;  // Seleccionar este cromosoma
             }
         }
 
-        // En caso de error numérico, retorna el último cromosoma
+        // En caso de error numérico, retornar el último cromosoma
         return poblacion.get(poblacion.size() - 1);
+    }
+
+    private static void imprimirRuta(Cromosoma mejorIndividuo, Venta pedido) {
+        System.out.println("    Ruta Optima: ");
+        HashMap<String, Tramo> rutaMap = mejorIndividuo.getRutaMap();
+        String ubigeoActual = pedido.getUbigeoOrigen();
+
+        List<Tramo> rutaOrdenada = new ArrayList<>();
+        System.out.println("    Sin ordenar: ");
+        // Imprimir la ruta en orden
+        for (Tramo tramo : rutaMap.values()) {
+            System.out.println("    Desde: " + tramo.getUbigeoOrigen() + " Hasta: " + tramo.getUbigeoDestino());
+        } 
+        
+         System.out.println("Ordenado: ");
+        // Continuar hasta llegar al destino o si no se encuentra una ruta válida
+        while (!ubigeoActual.equals(pedido.getUbigeoDestino())) {
+            boolean tramoEncontrado = false;
+
+            for (Tramo tramo : rutaMap.values()) {
+                if (tramo.getUbigeoOrigen().equals(ubigeoActual)) {
+                    rutaOrdenada.add(tramo);
+                    ubigeoActual = tramo.getUbigeoDestino();
+                    tramoEncontrado = true;
+                    break;
+                }
+            }
+
+            if (!tramoEncontrado) {
+                System.out.println("    Ruta incompleta. No se pudo llegar al destino.");
+                return;  // Salir si no se encuentra el siguiente tramo
+            }
+        }
+
+        // Imprimir la ruta en orden
+        for (Tramo tramo : rutaOrdenada) {
+            System.out.println("    Desde: " + tramo.getUbigeoOrigen() + " Hasta: " + tramo.getUbigeoDestino());
+        }
     }
 }
