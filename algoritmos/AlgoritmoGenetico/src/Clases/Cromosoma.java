@@ -1,11 +1,20 @@
 package Clases;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.HashMap;
+
+//1 solución al problema --> para un día?
 public class Cromosoma { //un pedido
     private String idCamion; //solo necesario id (contiene tipo y con eso se ve capacidad)
     private HashMap<String, Tramo> rutaMap; //la ruta de un pedido
     private double tiempototal;  //suma de todas las horas de tramos --> fitness
+
+
+    //otra idea
+    //private ArrayList<ArrayList<String>> destinos;
+    //private List<PlanTransporteCamion> planesTransporteCamion;
+    //private double fitness;
     
     public Cromosoma(String idCamion) {
         this.idCamion = idCamion;
