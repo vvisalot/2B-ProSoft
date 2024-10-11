@@ -19,19 +19,19 @@ public class AlgoritmoGenetico {
     private int numGeneracion;
     private Double tasaMutacion;
     private Venta pedido;
-    private Camion camion;
+    private List<Camion> camioniones;
     static Random random = new Random();
     //static final int NUM_GENERACIONES = 3; //antes era 100
 
-    public AlgoritmoGenetico(int numGeneracion, Double tasaMutacion, Venta pedido, Camion camion) {
+    public AlgoritmoGenetico(int numGeneracion, Double tasaMutacion, Venta pedido, List<Camion> camioniones) {
         this.numGeneracion = numGeneracion;
         this.tasaMutacion = tasaMutacion;
         this.pedido = pedido;
-        this.camion = camion;
+        this.camioniones = camioniones;
     }
 
 
-    public double generarAlgoritmoGenético(int numGeneracion, Double tasaMutacion, Venta pedido, Camion camion) throws IOException{
+    public double generarAlgoritmoGenético(int numGeneracion, Double tasaMutacion, Venta pedido, List<Camion> camioniones) throws IOException{
         //Venta pedido = new Venta(fechaEnvio, "040101", "230101", 4, "000786");
         //Camion camion = new Camion("A001",90, "040101");
         List<Tramo> tramos = LeerDatos.leerTramos("archivos/tramos.txt");
@@ -50,7 +50,7 @@ public class AlgoritmoGenetico {
      
         // Generar población inicial
         LocalDateTime fechaEnvio = pedido.getFechaHora();
-        ArrayList<Cromosoma> poblacion = generarPoblacionInicial(pedido,mapaTramos,camion,bloqueos,fechaEnvio);
+        ArrayList<Cromosoma> poblacion = generarPoblacionInicial(pedido,mapaTramos,camioniones,bloqueos,fechaEnvio);
 
         // Evolucionar por generaciones
         for (int gen = 0; gen < numGeneracion; gen++) {
@@ -60,7 +60,7 @@ public class AlgoritmoGenetico {
             
             System.out.println("Generación " + gen + ":");
             for (Cromosoma cromosoma : poblacion) {
-                System.out.println("  Tiempo total: " + cromosoma.getTiempoTotal());
+//                System.out.println("  Tiempo total: " + cromosoma.getTiempoTotal());
             }
             Cromosoma mejorIndividuo = seleccionarMejor(poblacion);
             System.out.println("  Mejor tiempo: " + mejorIndividuo.getTiempoTotal());
@@ -75,15 +75,20 @@ public class AlgoritmoGenetico {
 
     //entender a la poblacion
     public static ArrayList<Cromosoma> generarPoblacionInicial(Venta pedido,
-            HashMap<String, List<Tramo>> mapaTramos, Camion camion, List<Bloqueo> bloqueos,
+            HashMap<String, List<Tramo>> mapaTramos, List<Camion> camioniones, List<Bloqueo> bloqueos,
             LocalDateTime fechaEnvio) {
         
         ArrayList<Cromosoma> poblacion = new ArrayList<>();
 
         //Verificar capacidad del camión para el pedido --> solo un camion
-        if (pedido.getCantidad() > camion.getCapacidad()) {
-            System.out.println("El camión no tiene capacidad suficiente para este pedido.");
-            return poblacion;
+        Camion newCamion = new Camion(); 
+        for(Camion camion: camioniones){
+            if (pedido.getCantidad() > camion.getCapacidad()) {
+//                System.out.println("El camión no tiene capacidad suficiente para este pedido.");
+                ///return poblacion;
+            }else{
+                newCamion=new Camion(camion.getIdCamion(),camion.getCapacidad(),camion.getUbigeo());
+            }
         }
         
         // Generar todas las rutas posibles entre el origen y el destino del pedido
@@ -94,7 +99,7 @@ public class AlgoritmoGenetico {
             HashMap<String, Tramo> rutaMap = new HashMap<>();
             boolean tieneBloqueo = false;
             
-            // Verificar cada tramo antes de agregarlo            
+            // Verificar cada tramo antes de agregarlo           
            for (Tramo tramo : entry.getValue()) {
                 // Verificar si el tramo está bloqueado en la fecha de envío
                 if (estaBloqueado(tramo, bloqueos, fechaEnvio)) {
@@ -109,7 +114,7 @@ public class AlgoritmoGenetico {
            
             // Si no hay tramos bloqueados en esta ruta, crear el cromosoma
             if (!tieneBloqueo) {
-                Cromosoma cromosoma = new Cromosoma(rutaMap, camion);
+                Cromosoma cromosoma = new Cromosoma(rutaMap, newCamion);
                 cromosoma.setTiempoTotal();  // Calcular el tiempo total del cromosoma
                 cromosoma.setFitness();
                 poblacion.add(cromosoma);  // Añadir el cromosoma a la población
@@ -324,10 +329,10 @@ public class AlgoritmoGenetico {
         String ubigeoActual = pedido.getUbigeoOrigen();
 
         List<Tramo> rutaOrdenada = new ArrayList<>();
-        System.out.println("    Sin ordenar: ");
+//        System.out.println("    Sin ordenar: ");
         // Imprimir la ruta en orden
         for (Tramo tramo : rutaMap.values()) {
-            System.out.println("    Desde: " + tramo.getUbigeoOrigen() + " Hasta: " + tramo.getUbigeoDestino());
+//            System.out.println("    Desde: " + tramo.getUbigeoOrigen() + " Hasta: " + tramo.getUbigeoDestino());
         } 
         
          System.out.println("Ordenado: ");

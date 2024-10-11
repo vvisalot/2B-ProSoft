@@ -1,5 +1,7 @@
 package Clases;
 
+import java.util.List;
+
 // Nombre: Angela Llontop
 // CódigoPUCP: 20181897 
 
@@ -72,15 +74,6 @@ public class Camion {
 
     public void setCantPedidos(int cantPedidos) {
         this.cantPedidos = cantPedidos;
-    }
-
-    public boolean estaEnMantenimiento(List<Mantenimiento> listaMant){
-        for(Mantenimiento mant: listaMant){
-            if(mant.){
-                return true;
-            }
-        }
-        return false;
     }
 }
 

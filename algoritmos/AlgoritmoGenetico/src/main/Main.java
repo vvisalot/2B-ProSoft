@@ -11,13 +11,14 @@ import Utils.LeerDatos;
 import java.io.IOException;
 import java.util.List;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class Main {
     public static void main(String[] args) {
         try {
             // Leer todas las ventas en la carpeta "ventas.historico.proyectado"
-            String carpetaVentas = "archivos/ventas.historico.proyectado";
-            List<Venta> ventas = LeerDatos.leerVentasEnCarpeta(carpetaVentas);
+            String carpetaVentas = "archivos/ventas.historico.proyectado/c.1inf54.ventas202403.txt";
+            List<Venta> ventas = LeerDatos.leerVentas(carpetaVentas,2024,3);
             // int i=1;
             // System.out.println("VENTAS");
             // for(Venta venta: ventas){
@@ -29,37 +30,66 @@ public class Main {
             // }
 
             // Leer todas los mantenimientos en la carpeta "mantenimiento"
-            String carpetaMantenimientos = "archivos/Mantenimiento";
+            String carpetaMantenimientos = "archivos/mantenimiento_trim.txt";
             List<Mantenimiento> mantenimientos  = LeerDatos.leerMantenimientos(carpetaMantenimientos);
 
             int i=0;
+
+            int cantVentas=0;
+            Double sumaVentas=0.0, promedioVentas=0.0;
             for(Venta vv: ventas){
                 //Camion camion = new Camion("A001",90, "040101");
                 System.out.println("fecha de venta: "+vv.getFechaHora());
                 System.out.println("Ubigeo origen: "+vv.getUbigeoOrigen());
+                
                 //1. Leer camiones con ubigeo
                 List<Camion> camiones = LeerDatos.leerCamionesConUbigeo("archivos/camiones.txt",vv.getUbigeoOrigen());
-                //2. Ver que camion no este en mantenimiento
-
-
-                for(Camion cam: camiones){
-                    System.out.println("Camion: "+cam.getIdCamion());
-
-                    
-
-                    AlgoritmoGenetico algGen = new AlgoritmoGenetico(5,0.5,vv,cam);
-                    Double mejorTiempo = algGen.generarAlgoritmoGenético(5, 0.5, vv, cam);
                 
+                //2. Remover camiones con ubigeo mal
+                Iterator<Camion> iterator = camiones.iterator();
+                while (iterator.hasNext()) {
+                    Camion camion = iterator.next();
+                    if (!camion.getUbigeo().equals(vv.getUbigeoOrigen())) {
+                        iterator.remove();
+                    }
                 }
+
+                //3. Ver que camion no este en mantenimiento
+                for (Mantenimiento mant : mantenimientos) {
+                    if (vv.getFechaHora().equals(mant.getFechaHoraInicio())) { // se encuentra en mantenimiento camion
+                        // remover camion
+                        Iterator<Camion> iterator2 = camiones.iterator();
+                        while (iterator2.hasNext()) {
+                            Camion camion = iterator2.next();
+                            if (mant.getCamion().equals(camion.getIdCamion())) {
+                                iterator2.remove();
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                AlgoritmoGenetico algGen = new AlgoritmoGenetico(5,0.5,vv,camiones);
+                Double mejorTiempo = algGen.generarAlgoritmoGenético(5, 0.5, vv, camiones);
+
                 
-                i++;
-                if(i==1) break;
+                //i++;
+                //if(i==1) break;
 
 
                 //System.out.println(vv.getUbigeoOrigen()+" "+vv.getUbigeoDestino()+" "+vv.getCantidad()+" "+vv.getIdCliente()+" "+vv.getFechaHora());
-                System.out.println("El mejor tiempo para esta venta es: "+mejorTiempo);
+                System.out.println("El mejor tiempo para esta venta i "+cantVentas+" es: "+mejorTiempo);
+
+                if(mejorTiempo>=0){
+                    cantVentas++;
+                    sumaVentas+=mejorTiempo;
+                }
             }
 
+            //Promedio del tiempo para estas ventas
+            promedioVentas = sumaVentas/cantVentas;
+            System.out.println("El cantidad de ventas es: "+cantVentas);
+            System.out.println("El promedio de ventas es: "+promedioVentas);
 
 
 
@@ -68,11 +98,11 @@ public class Main {
 
 
             // Leer todos los bloqueos en la carpeta "bloqueos"
-            String carpetaBloqueos = "archivos/bloqueos";
-            List<Bloqueo> bloqueos = LeerDatos.leerBloqueosEnCarpeta(carpetaBloqueos);
+            //String carpetaBloqueos = "archivos/bloqueos";
+            ///List<Bloqueo> bloqueos = LeerDatos.leerBloqueosEnCarpeta(carpetaBloqueos);
             
             //Leer oficinas
-            List<Oficina> oficinas = LeerDatos.leerOficinas("archivos/oficinas.txt");
+            //List<Oficina> oficinas = LeerDatos.leerOficinas("archivos/oficinas.txt");
             //int i=1;
             // for(Oficina of: oficinas){
             //     System.out.println(i+") Ubigeo:"+of.getUbigeo()+"  Dep: "+of.getDepartamento()+"   Prov: "+of.getProvincia()+"   Capac:"+of.getAlmacen());
