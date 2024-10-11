@@ -73,8 +73,8 @@ public class Main {
                 Double mejorTiempo = algGen.generarAlgoritmoGenético(5, 0.5, vv, camiones);
 
                 
-                //i++;
-                //if(i==1) break;
+                i++;
+                if(i==5) break;
 
 
                 //System.out.println(vv.getUbigeoOrigen()+" "+vv.getUbigeoDestino()+" "+vv.getCantidad()+" "+vv.getIdCliente()+" "+vv.getFechaHora());

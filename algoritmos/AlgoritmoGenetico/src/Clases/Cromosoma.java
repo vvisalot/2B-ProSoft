@@ -9,6 +9,8 @@ public class Cromosoma { //un pedido
     private HashMap<String, Tramo> rutaMap; //la ruta de un pedido
     private double tiempototal;  //suma de todas las horas de tramos --> fitness
     private double fitness; 
+    private String origen;
+    private String destino;
     
     public Cromosoma(String idCamion) {
         this.idCamion = idCamion;
@@ -20,6 +22,23 @@ public class Cromosoma { //un pedido
         this.rutaMap = rutaMap;
         this.fitness = 0.0;
         this.tiempototal = 0.0;
+    }
+
+
+    public String getOrigen() {
+        return origen;
+    }
+
+    public void setOrigen(String origen) {
+        this.origen = origen;
+    }
+
+    public String getDestino() {
+        return destino;
+    }
+
+    public void setDestino(String destino) {
+        this.destino = destino;
     }
 
     public String getIdCamion() {
