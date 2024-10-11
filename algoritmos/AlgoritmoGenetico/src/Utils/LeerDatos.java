@@ -1,6 +1,7 @@
 package Utils;
 
 import Clases.Bloqueo;
+import Clases.Camion;
 import Clases.Mantenimiento;
 import Clases.Oficina;
 import Clases.Tramo;
@@ -93,6 +94,61 @@ public class LeerDatos {
         }
         return tramos;
     }
+
+    public static List<Camion> leerCamiones(String archivo) throws IOException {
+        List<Camion> camiones = new ArrayList<>();
+        List<String> lineas = Files.readAllLines(Paths.get(archivo));
+
+
+        for (String linea : lineas) {
+            // Parsear la línea: "CÓDIGO_CAMION, CAPACIDAD, UBIGEO_ORIGEN"
+            String[] datos = linea.split(",");
+            if (datos.length == 3) {
+                String codigoCamion = datos[0].trim();
+                Double capacidad = Double.parseDouble(datos[1].trim());
+                String ubigeoOrigen = datos[2].trim();
+
+                // Crear el objeto Camion y agregarlo a la lista
+                Camion camion = new Camion(codigoCamion, capacidad, ubigeoOrigen);
+
+                // Añadir el camión a la lista
+                camiones.add(camion);
+            } else {
+                System.out.println("Formato de línea incorrecto: " + linea);
+            }
+        }
+
+        return camiones;
+    }
+
+    public static List<Camion> leerCamionesConUbigeo(String archivo, String ubigeo) throws IOException {
+        List<Camion> camiones = new ArrayList<>();
+        List<String> lineas = Files.readAllLines(Paths.get(archivo));
+
+
+        for (String linea : lineas) {
+            // Parsear la línea: "CÓDIGO_CAMION, CAPACIDAD, UBIGEO_ORIGEN"
+            String[] datos = linea.split(",");
+            if (datos.length == 3) {
+                String codigoCamion = datos[0].trim();
+                Double capacidad = Double.parseDouble(datos[1].trim());
+                String ubigeoOrigen = datos[2].trim();
+
+                if(ubigeoOrigen==ubigeo){
+                    // Crear el objeto Camion y agregarlo a la lista
+                    Camion camion = new Camion(codigoCamion, capacidad, ubigeoOrigen);
+
+                    // Añadir el camión a la lista
+                    camiones.add(camion);
+                }
+            } else {
+                System.out.println("Formato de línea incorrecto: " + linea);
+            }
+        }
+
+        return camiones;
+    }
+
 
     // Leer todos los archivos de ventas en la carpeta y devolver una lista de ventas
                     //lee todos los txt de la carpeta

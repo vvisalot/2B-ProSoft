@@ -74,6 +74,13 @@ public class Camion {
         this.cantPedidos = cantPedidos;
     }
 
- 
+    public boolean estaEnMantenimiento(List<Mantenimiento> listaMant){
+        for(Mantenimiento mant: listaMant){
+            if(mant.){
+                return true;
+            }
+        }
+        return false;
+    }
 }
 

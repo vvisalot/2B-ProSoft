@@ -16,20 +16,26 @@ import java.util.HashSet;
 import java.util.Random;
 
 public class AlgoritmoGenetico {
-    //static final int TAMANO_POBLACION = 10;
-    static final int NUM_GENERACIONES = 3; //antes era 100
+    private int numGeneracion;
+    private Double tasaMutacion;
+    private Venta pedido;
+    private Camion camion;
     static Random random = new Random();
+    //static final int NUM_GENERACIONES = 3; //antes era 100
 
-    public static void main(String[] args) throws IOException {
+    public AlgoritmoGenetico(int numGeneracion, Double tasaMutacion, Venta pedido, Camion camion) {
+        this.numGeneracion = numGeneracion;
+        this.tasaMutacion = tasaMutacion;
+        this.pedido = pedido;
+        this.camion = camion;
+    }
 
-        // Generar población inicial 
-        //probar con solamente un pedido                        //arequipa               tacna
-        LocalDateTime fechaEnvio = LocalDateTime.now();
-        Venta pedido = new Venta(fechaEnvio, "040101", "230101", 4, "000786");
-        
+
+    public double generarAlgoritmoGenético(int numGeneracion, Double tasaMutacion, Venta pedido, Camion camion) throws IOException{
+        //Venta pedido = new Venta(fechaEnvio, "040101", "230101", 4, "000786");
+        //Camion camion = new Camion("A001",90, "040101");
         List<Tramo> tramos = LeerDatos.leerTramos("archivos/tramos.txt");
         List<Bloqueo> bloqueos = LeerDatos.leerBloqueos("archivos/c.1inf54.24-2.bloqueo.10.txt");
-        
         // Crear el mapa optimizado por clave origen: HashMap<String, List<Tramo>>
         HashMap<String, List<Tramo>> mapaTramos = new HashMap<>();
 
@@ -38,12 +44,16 @@ public class AlgoritmoGenetico {
             // Usar computeIfAbsent para inicializar la lista si no existe
             mapaTramos.computeIfAbsent(origen, k -> new ArrayList<>()).add(tramo);
         }
+
+        //Declarar mejor tiempo
+        Double mejorTiempo=999.9;
      
-        Camion camion = new Camion("A001",90, "040101");
+        // Generar población inicial
+        LocalDateTime fechaEnvio = pedido.getFechaHora();
         ArrayList<Cromosoma> poblacion = generarPoblacionInicial(pedido,mapaTramos,camion,bloqueos,fechaEnvio);
 
         // Evolucionar por generaciones
-        for (int gen = 0; gen < NUM_GENERACIONES; gen++) {
+        for (int gen = 0; gen < numGeneracion; gen++) {
             poblacion = evolucionarPoblacion(poblacion);
             //Cromosoma mejorIndividuo = seleccionarMejor(poblacion);
             //System.out.println("Generación " + gen + ": Mejor tiempo = " + mejorIndividuo.getTiempoTotal());
@@ -55,8 +65,13 @@ public class AlgoritmoGenetico {
             Cromosoma mejorIndividuo = seleccionarMejor(poblacion);
             System.out.println("  Mejor tiempo: " + mejorIndividuo.getTiempoTotal());
             imprimirRuta(mejorIndividuo,pedido);
+
+            if(mejorTiempo>mejorIndividuo.getTiempoTotal()) mejorTiempo=mejorIndividuo.getTiempoTotal();
         }
-        }
+
+        return mejorTiempo;
+    }
+
 
     //entender a la poblacion
     public static ArrayList<Cromosoma> generarPoblacionInicial(Venta pedido,
