@@ -8,6 +8,8 @@ import Clases.Tramo;
 import Clases.Velocidad;
 import Clases.Venta;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -20,6 +22,7 @@ import java.time.MonthDay;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LeerDatos {
 

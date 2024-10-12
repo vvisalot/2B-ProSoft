@@ -35,7 +35,7 @@ public class AlgoritmoGenetico {
         //Venta pedido = new Venta(fechaEnvio, "040101", "230101", 4, "000786");
         //Camion camion = new Camion("A001",90, "040101");
         List<Tramo> tramos = LeerDatos.leerTramos("archivos/tramos.txt");
-        List<Bloqueo> bloqueos = LeerDatos.leerBloqueos("archivos/c.1inf54.24-2.bloqueo.10.txt");
+        List<Bloqueo> bloqueos = LeerDatos.leerBloqueos("archivos/bloqueos/c.1inf54.24-2.bloqueo.03.txt");
         // Crear el mapa optimizado por clave origen: HashMap<String, List<Tramo>>
         HashMap<String, List<Tramo>> mapaTramos = new HashMap<>();
 
@@ -62,11 +62,16 @@ public class AlgoritmoGenetico {
             for (Cromosoma cromosoma : poblacion) {
 //                System.out.println("  Tiempo total: " + cromosoma.getTiempoTotal());
             }
-            Cromosoma mejorIndividuo = seleccionarMejor(poblacion);
-            System.out.println("  Mejor tiempo: " + mejorIndividuo.getTiempoTotal());
-            imprimirRuta(mejorIndividuo,pedido);
+            
+            if(!poblacion.isEmpty()){
+                Cromosoma mejorIndividuo = seleccionarMejor(poblacion);
+                System.out.println("  Mejor tiempo: " + mejorIndividuo.getTiempoTotal());
+                imprimirRuta(mejorIndividuo,pedido);
+                if(mejorTiempo>mejorIndividuo.getTiempoTotal()) mejorTiempo=mejorIndividuo.getTiempoTotal();
+            }else{{
+                System.out.println("No se encontró solución en la generación " + gen);
+            }}
 
-            if(mejorTiempo>mejorIndividuo.getTiempoTotal()) mejorTiempo=mejorIndividuo.getTiempoTotal();
         }
 
         return mejorTiempo;
@@ -95,7 +100,7 @@ public class AlgoritmoGenetico {
         HashMap<String, List<Tramo>> rutasPosibles = generarRutas(pedido.getUbigeoOrigen(), pedido.getUbigeoDestino(), mapaTramos,null);
         // Agregar un mensaje para mostrar cuántas rutas se generaron
         System.out.println("Total de rutas generadas: " + rutasPosibles.size());
-        imprimirRutasPosibles(rutasPosibles, pedido.getUbigeoOrigen(), pedido.getUbigeoDestino());
+        //imprimirRutasPosibles(rutasPosibles, pedido.getUbigeoOrigen(), pedido.getUbigeoDestino());
 
 
         // Crear cromosomas (individuos) a partir de las rutas

@@ -17,8 +17,8 @@ public class Main {
     public static void main(String[] args) {
         try {
             // Leer todas las ventas en la carpeta "ventas.historico.proyectado"
-            String carpetaVentas = "archivos/ventas.historico.proyectado/c.1inf54.ventas202403.txt";
-            List<Venta> ventas = LeerDatos.leerVentas(carpetaVentas,2024,3);
+            String carpetaVentas = "archivos/ventas.historico.proyectado/c.1inf54.ventas200001.txt";
+            List<Venta> ventas = LeerDatos.leerVentas(carpetaVentas,2000,1);
             // int i=1;
             // System.out.println("VENTAS");
             // for(Venta venta: ventas){
@@ -74,10 +74,11 @@ public class Main {
 
                 
                 i++;
-                if(i==5) break;
+                if(i==9) break;
 
 
                 //System.out.println(vv.getUbigeoOrigen()+" "+vv.getUbigeoDestino()+" "+vv.getCantidad()+" "+vv.getIdCliente()+" "+vv.getFechaHora());
+                System.out.println("\n\n====================================");
                 System.out.println("El mejor tiempo para esta venta i "+cantVentas+" es: "+mejorTiempo);
 
                 if(mejorTiempo>=0){
