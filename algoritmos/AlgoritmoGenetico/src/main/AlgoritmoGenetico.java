@@ -66,7 +66,7 @@ public class AlgoritmoGenetico {
             if(!poblacion.isEmpty()){
                 Cromosoma mejorIndividuo = seleccionarMejor(poblacion);
                 System.out.println("  Mejor tiempo: " + mejorIndividuo.getTiempoTotal());
-                imprimirRuta(mejorIndividuo,pedido);
+                imprimirRuta(mejorIndividuo);
                 if(mejorTiempo>mejorIndividuo.getTiempoTotal()) mejorTiempo=mejorIndividuo.getTiempoTotal();
             }else{{
                 System.out.println("No se encontró solución en la generación " + gen);
@@ -128,6 +128,7 @@ public class AlgoritmoGenetico {
                 cromosoma.setFitness();
                 cromosoma.setOrigen(pedido.getUbigeoOrigen());
                 cromosoma.setDestino(pedido.getUbigeoDestino());
+                System.out.println("Añadiendo hijo a la población inicial: " + cromosoma.getFitness());
                 poblacion.add(cromosoma);  // Añadir el cromosoma a la población
             }
         }
@@ -190,14 +191,17 @@ public class AlgoritmoGenetico {
     // Método auxiliar para verificar si un tramo está bloqueado
     public static boolean estaBloqueado(Tramo tramo, List<Bloqueo> bloqueos, LocalDateTime fechaEnvio) {
         for (Bloqueo bloqueo : bloqueos) {
-            if (bloqueo.getTramo().equals(tramo) &&
-                (fechaEnvio.isAfter(bloqueo.getFechaHoraInicio()) && fechaEnvio.isBefore(bloqueo.getFechaHoraFin()))) {
-                return true;  // El tramo está bloqueado
-            }
+            if (bloqueo.getTramo().equals(tramo)) {
+                // Verificar las fechas y hacer un print para depuración
+                System.out.println("Verificando bloqueo: " + bloqueo.getFechaHoraInicio() + " a " + bloqueo.getFechaHoraFin());
+                if (fechaEnvio.isAfter(bloqueo.getFechaHoraInicio()) && fechaEnvio.isBefore(bloqueo.getFechaHoraFin())) {
+                    System.out.println("Tramo bloqueado: " + tramo.getUbigeoOrigen() + " -> " + tramo.getUbigeoDestino());
+                    return true;  // El tramo está bloqueado
+                }
+             }
         }
-        return false;  // El tramo no está bloqueado
-    }
-
+    return false;  // El tramo no está bloqueado
+}
 
     // Función recursiva para generar todas las rutas posibles desde el origen al destino
     public static HashMap<String, List<Tramo>> generarRutas(String origen, String destino, HashMap<String, List<Tramo>> mapaTramos, List<String> visitados) {
@@ -286,60 +290,57 @@ public class AlgoritmoGenetico {
 
     public static ArrayList<Cromosoma> evolucionarPoblacion(ArrayList<Cromosoma> poblacion) {
         ArrayList<Cromosoma> nuevaPoblacion = new ArrayList<>();
+
+        // Actualizar el tiempo y fitness de cada cromosoma
         for (Cromosoma cromosoma : poblacion) {
-            cromosoma.setTiempoTotal(); // Llamar al método setTiempoTotal() para cada cromosoma
+            cromosoma.setTiempoTotal(); 
             cromosoma.setFitness();
         }
 
         // Elitismo: Mantén los mejores cromosomas (por ejemplo, el 10% mejor) sin alterarlos
         int elitismoSize = (int) (0.05 * poblacion.size());
-        Collections.sort(poblacion, Comparator.comparingDouble(Cromosoma::getFitness).reversed()); // Ordenar de mayor a menor fitness
+        Collections.sort(poblacion, Comparator.comparingDouble(Cromosoma::getFitness).reversed()); 
 
         // Añadir los mejores cromosomas directamente a la nueva población
         for (int i = 0; i < elitismoSize; i++) {
             nuevaPoblacion.add(poblacion.get(i));
         }
 
-        // Variable para contar intentos fallidos
-        int intentosFallidos = 0;
-        int maxIntentos = 10;  // Número máximo de intentos para cruzar antes de detener
-
         // Generar el resto de la nueva población
         while (nuevaPoblacion.size() < poblacion.size()) {
             Cromosoma padre1 = seleccionarPorRuleta(poblacion);
             Cromosoma padre2 = seleccionarPorRuleta(poblacion);
 
-            // Intentar cruzar hasta obtener hijos válidos
+            // Intentar cruzar los padres
             Cromosoma[] hijos = cruzar(padre1, padre2);
 
             if (hijos != null) {
-                // Si los hijos no son nulos, los agregamos a la nueva población
+                // Si los hijos son válidos, añadirlos a la nueva población
                 for (Cromosoma hijo : hijos) {
-                    if (hijo != null) {  // Verificar que el hijo no sea nulo
-                        hijo.setTiempoTotal(); // Actualizar tiempo total de cromosoma
-                        hijo.setFitness();      // Recalcular fitness del hijo
+                    if (hijo != null) {
+                       //mutar(hijo);  // Mutar los hijos para añadir diversidad
+                        hijo.setTiempoTotal(); 
+                        hijo.setFitness();      
                         nuevaPoblacion.add(hijo);
                     }
                 }
-                intentosFallidos = 0;  // Reiniciar el contador de intentos fallidos
             } else {
-                intentosFallidos++;
+                // Si no se generan hijos válidos, mutar y devolver a los padres
+                //mutar(padre1);  
+                //mutar(padre2);  
+                nuevaPoblacion.add(padre1);
+                nuevaPoblacion.add(padre2);
             }
 
             // Si se ha alcanzado el tamaño de la nueva población, salir del bucle
             if (nuevaPoblacion.size() >= poblacion.size()) {
                 break;
             }
-
-            // Si se alcanzan demasiados intentos fallidos, salir del bucle
-            if (intentosFallidos >= maxIntentos) {
-                System.out.println("Se alcanzó el límite de intentos fallidos. Deteniendo el proceso con la población actual.");
-                break;
-            }
         }
 
         return nuevaPoblacion;
     }
+
 
     
     // public static Cromosoma cruzar(Cromosoma padre1, Cromosoma padre2) {
@@ -385,6 +386,7 @@ public class AlgoritmoGenetico {
                 // Si encontramos una ciudad intermedia en común, la agregamos a la lista
                 String puntoComun = tramo1.getUbigeoDestino();
                 if (tramo1.getUbigeoDestino().equals(tramo2.getUbigeoDestino()) && !puntoComun.equals(padre1.getDestino())) {
+                    //System.out.println("Mi punto Comun es: " + puntoComun);
                     puntosComunes.add(puntoComun);
                 }
             }
@@ -392,12 +394,13 @@ public class AlgoritmoGenetico {
         
         // Si no hay puntos comunes, retornar hijos nulos
         if (puntosComunes.isEmpty()) {
+            //System.out.println("No hay puntos comunes, salir");
             return null;  // No se puede realizar el cruce
         }
 
         // Elegir un punto común al azar si hay más de uno
         String puntoCruce = puntosComunes.get(random.nextInt(puntosComunes.size()));
-
+        //System.out.println("Mi punto de cruce es: " + puntoCruce);
         // Crear hijo1: agregar tramos de padre1 hasta el punto común, y de padre2 desde el punto de cruce hasta el destino
         for (Tramo tramo : tramosOrdenadosPadre1) {
             hijo1Rutas.add(tramo);
@@ -561,41 +564,42 @@ public class AlgoritmoGenetico {
         return poblacion.get(poblacion.size() - 1);
     }
 
-    private static void imprimirRuta(Cromosoma mejorIndividuo, Venta pedido) {
-        System.out.println("    Ruta Optima: ");
+    private static void imprimirRuta(Cromosoma mejorIndividuo) {
+        System.out.println("    Ruta: ");
+
+        // Obtener el mapa de tramos del cromosoma
         HashMap<String, Tramo> rutaMap = mejorIndividuo.getRutaMap();
-        String ubigeoActual = pedido.getUbigeoOrigen();
 
-        List<Tramo> rutaOrdenada = new ArrayList<>();
-//        System.out.println("    Sin ordenar: ");
-        // Imprimir la ruta en orden
-        for (Tramo tramo : rutaMap.values()) {
-//            System.out.println("    Desde: " + tramo.getUbigeoOrigen() + " Hasta: " + tramo.getUbigeoDestino());
-        } 
-        
-         System.out.println("Ordenado: ");
-        // Continuar hasta llegar al destino o si no se encuentra una ruta válida
-        while (!ubigeoActual.equals(pedido.getUbigeoDestino())) {
-            boolean tramoEncontrado = false;
+        // Usar la función ordenarTramos para obtener la ruta ordenada
+        List<Tramo> rutaOrdenada = ordenarTramos(rutaMap, mejorIndividuo.getOrigen(), mejorIndividuo.getDestino());
 
-            for (Tramo tramo : rutaMap.values()) {
-                if (tramo.getUbigeoOrigen().equals(ubigeoActual)) {
-                    rutaOrdenada.add(tramo);
-                    ubigeoActual = tramo.getUbigeoDestino();
-                    tramoEncontrado = true;
-                    break;
-                }
-            }
+        // Crear un StringBuilder para construir la ruta en un solo formato
+        StringBuilder rutaString = new StringBuilder();
 
-            if (!tramoEncontrado) {
-                System.out.println("    Ruta incompleta. No se pudo llegar al destino.");
-                return;  // Salir si no se encuentra el siguiente tramo
+        // Construir la ruta en formato "A->B->C"
+        for (int i = 0; i < rutaOrdenada.size(); i++) {
+            Tramo tramo = rutaOrdenada.get(i);
+            rutaString.append(tramo.getUbigeoOrigen());
+
+            // Solo añadir "->" entre tramos, excepto al final
+            if (i < rutaOrdenada.size() - 1) {
+                rutaString.append("->");
+            } else {
+                rutaString.append("->").append(tramo.getUbigeoDestino()); // Agregar el destino final
             }
         }
 
-        // Imprimir la ruta en orden
-        for (Tramo tramo : rutaOrdenada) {
-            System.out.println("    Desde: " + tramo.getUbigeoOrigen() + " Hasta: " + tramo.getUbigeoDestino());
+        // Imprimir la ruta final en el formato "A->B->C"
+        System.out.println("    " + rutaString.toString());
+
+        // Validar si la ruta está completa
+        if (!rutaOrdenada.isEmpty()) {
+            Tramo ultimoTramo = rutaOrdenada.get(rutaOrdenada.size() - 1);
+            if (!ultimoTramo.getUbigeoDestino().equals(mejorIndividuo.getDestino())) {
+                System.out.println("    Ruta incompleta. No se pudo llegar al destino.");
+            }
+        } else {
+            System.out.println("    No se encontró una ruta válida.");
         }
     }
 

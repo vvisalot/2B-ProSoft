@@ -74,13 +74,11 @@ public class Main {
 
                 
                 i++;
-                if(i==9) break;
-
 
                 //System.out.println(vv.getUbigeoOrigen()+" "+vv.getUbigeoDestino()+" "+vv.getCantidad()+" "+vv.getIdCliente()+" "+vv.getFechaHora());
-                System.out.println("\n\n====================================");
                 System.out.println("El mejor tiempo para esta venta i "+cantVentas+" es: "+mejorTiempo);
-
+                System.out.println("====================================\n");
+                
                 if(mejorTiempo>=0){
                     cantVentas++;
                     sumaVentas+=mejorTiempo;
