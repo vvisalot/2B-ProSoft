@@ -3,7 +3,6 @@ package main;
 import Clases.*;
 import Utils.LeerDatos;
 import static Utils.LeerDatos.leerBloqueos;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +29,13 @@ public class AlgoritmoGenetico {
         this.camioniones = camioniones;
     }
 
+    public Double getTasaMutacion() {
+        return tasaMutacion;
+    }
+
+    public void setTasaMutacion(Double tasaMutacion) {
+        this.tasaMutacion = tasaMutacion;
+    }
 
     public double generarAlgoritmoGenético(int numGeneracion, Double tasaMutacion, Venta pedido, List<Camion> camioniones) throws IOException{
         //Venta pedido = new Venta(fechaEnvio, "040101", "230101", 4, "000786");
@@ -54,7 +60,7 @@ public class AlgoritmoGenetico {
 
         // Evolucionar por generaciones
         for (int gen = 0; gen < numGeneracion; gen++) {
-            poblacion = evolucionarPoblacion(poblacion);
+            poblacion = evolucionarPoblacion(poblacion,tasaMutacion,mapaTramos,bloqueos,fechaEnvio);
             //Cromosoma mejorIndividuo = seleccionarMejor(poblacion);
             //System.out.println("Generación " + gen + ": Mejor tiempo = " + mejorIndividuo.getTiempoTotal());
             
@@ -128,7 +134,7 @@ public class AlgoritmoGenetico {
                 cromosoma.setFitness();
                 cromosoma.setOrigen(pedido.getUbigeoOrigen());
                 cromosoma.setDestino(pedido.getUbigeoDestino());
-                System.out.println("Añadiendo hijo a la población inicial: " + cromosoma.getFitness());
+                //System.out.println("Añadiendo hijo a la población inicial: " + cromosoma.getFitness());
                 poblacion.add(cromosoma);  // Añadir el cromosoma a la población
             }
         }
@@ -241,54 +247,9 @@ public class AlgoritmoGenetico {
     }
 
 
-    // public static ArrayList<Cromosoma> evolucionarPoblacion(ArrayList<Cromosoma> poblacion) {
-    //     ArrayList<Cromosoma> nuevaPoblacion = new ArrayList<>();
-    //     for (Cromosoma cromosoma : poblacion) {
-    //         cromosoma.setTiempoTotal(); // Llamar al método setTiempoTotal() para cada cromosoma
-    //     }
-    //     for (int i = 0; i < poblacion.size(); i++) {
-    //         Cromosoma padre1 = seleccionarMejor(poblacion);
-    //         Cromosoma padre2 = seleccionarMejor(poblacion);
-    //         Cromosoma hijo = cruzar(padre1, padre2);
-    //         mutar(hijo);
-    //         hijo.setTiempoTotal(); //actualizar tiempo total de cromosoma
-    //         nuevaPoblacion.add(hijo);
-    //     }
-    //     return nuevaPoblacion;
-    // }
-    
-    // public static ArrayList<Cromosoma> evolucionarPoblacion(ArrayList<Cromosoma> poblacion) {
-    //     ArrayList<Cromosoma> nuevaPoblacion = new ArrayList<>();
-    //     for (Cromosoma cromosoma : poblacion) {
-    //         cromosoma.setTiempoTotal(); // Llamar al método setTiempoTotal() para cada cromosoma
-    //         cromosoma.setFitness();
-    //     }
-    //     // Elitismo: Mantén los mejores cromosomas (por ejemplo, el 10% mejor) sin alterarlos
-    //     int elitismoSize = (int) (0.1 * poblacion.size());
-    //     Collections.sort(poblacion, Comparator.comparingDouble(Cromosoma::getFitness));
-    //     //ordenar por fitness
-        
-    //     // Añadir los mejores cromosomas directamente a la nueva población
-    //     for (int i = 0; i < elitismoSize; i++) {
-    //         nuevaPoblacion.add(poblacion.get(i));
-    //     }
-        
-    //     // Generar el resto de la nueva población
-    //     for (int i = elitismoSize; i < poblacion.size(); i++) {
-    //         Cromosoma padre1 = seleccionarPorRuleta(poblacion);
-    //         Cromosoma padre2 = seleccionarPorRuleta(poblacion);
-    //         Cromosoma hijo = cruzar(padre1, padre2);
-    //         mutar(hijo);
-            
-    //         //Recalular fitness hijo
-    //         hijo.setTiempoTotal(); //actualizar tiempo total de cromosoma
-    //         hijo.setFitness();
-    //         nuevaPoblacion.add(hijo);
-    //     }
-    //     return nuevaPoblacion;
-    // }
 
-    public static ArrayList<Cromosoma> evolucionarPoblacion(ArrayList<Cromosoma> poblacion) {
+    public static ArrayList<Cromosoma> evolucionarPoblacion(ArrayList<Cromosoma> poblacion,double tasaMutacion,HashMap<String, List<Tramo>> mapaTramos, 
+            List<Bloqueo> bloqueos,LocalDateTime fechaEnvio) {
         ArrayList<Cromosoma> nuevaPoblacion = new ArrayList<>();
 
         // Actualizar el tiempo y fitness de cada cromosoma
@@ -318,7 +279,7 @@ public class AlgoritmoGenetico {
                 // Si los hijos son válidos, añadirlos a la nueva población
                 for (Cromosoma hijo : hijos) {
                     if (hijo != null) {
-                       //mutar(hijo);  // Mutar los hijos para añadir diversidad
+                        mutar(hijo,tasaMutacion,mapaTramos,bloqueos,fechaEnvio);  // Mutar los hijos para añadir diversidad
                         hijo.setTiempoTotal(); 
                         hijo.setFitness();      
                         nuevaPoblacion.add(hijo);
@@ -326,8 +287,9 @@ public class AlgoritmoGenetico {
                 }
             } else {
                 // Si no se generan hijos válidos, mutar y devolver a los padres
-                //mutar(padre1);  
-                //mutar(padre2);  
+
+                mutar(padre1,tasaMutacion,mapaTramos,bloqueos,fechaEnvio);  
+                mutar(padre2, tasaMutacion,mapaTramos,bloqueos,fechaEnvio);  
                 nuevaPoblacion.add(padre1);
                 nuevaPoblacion.add(padre2);
             }
@@ -343,31 +305,6 @@ public class AlgoritmoGenetico {
 
 
     
-    // public static Cromosoma cruzar(Cromosoma padre1, Cromosoma padre2) {
-    //     HashMap<String, Tramo> nuevaRutaMap = new HashMap<>();
-    //     List<Tramo> tramosPadre1 = new ArrayList<>(padre1.getRutaMap().values());
-    //     List<Tramo> tramosPadre2 = new ArrayList<>(padre2.getRutaMap().values());
-
-    //     // Mezclar tramos de ambos padres de manera más equitativa, evitando duplicados
-    //     for (int i = 0; i < tramosPadre1.size(); i++) {
-    //         // Alternar entre agregar tramos del padre1 y padre2
-    //         if (random.nextBoolean()) {
-    //             Tramo tramo = tramosPadre1.get(i);
-    //             String clave = tramo.getUbigeoOrigen() + "-" + tramo.getUbigeoDestino();
-    //             if (!nuevaRutaMap.containsKey(clave)) {
-    //                 nuevaRutaMap.put(clave, tramo);
-    //             }
-    //         } else if (i < tramosPadre2.size()) {
-    //             Tramo tramo = tramosPadre2.get(i);
-    //             String clave = tramo.getUbigeoOrigen() + "-" + tramo.getUbigeoDestino();
-    //             if (!nuevaRutaMap.containsKey(clave)) {
-    //                 nuevaRutaMap.put(clave, tramo);
-    //             }
-    //         }
-    //     }
-
-    //     return new Cromosoma(nuevaRutaMap, new Camion(padre1.getIdCamion()));
-    // }
 
     public static Cromosoma[] cruzar(Cromosoma padre1, Cromosoma padre2) {
         // Ordenar tramos de los padres
@@ -504,24 +441,78 @@ public class AlgoritmoGenetico {
     //     }
     // }
 
-    public static void mutar(Cromosoma individuo) {
+    public static void mutar(Cromosoma individuo,double tasaMutacion,HashMap<String, List<Tramo>> mapaTramos,
+            List<Bloqueo> bloqueos,LocalDateTime fechaEnvio) {
         
-        // Posibilidad de realizar más de una mutación (por ejemplo, entre 1 y 3 mutaciones)
-        int numMutaciones = 1 + random.nextInt(3);
-        
-        for (int m = 0; m < numMutaciones; m++) {
-            List<String> claves = new ArrayList<>(individuo.getRutaMap().keySet());
-            int i = random.nextInt(claves.size());
-            int j = random.nextInt(claves.size());
+        // Verificar si la mutación ocurre en función de la tasa de mutación
+        if (random.nextDouble() < tasaMutacion) { // Cambié la comparación
+            // Obtener los tramos del cromosoma y ordenarlos
+            List<Tramo> tramosOrdenados = ordenarTramos(individuo.getRutaMap(), individuo.getOrigen(), individuo.getDestino());
 
-            // Intercambiar tramos
-            Tramo tramo1 = individuo.getRutaMap().get(claves.get(i));
-            Tramo tramo2 = individuo.getRutaMap().get(claves.get(j));
+            // Solo mutar si hay más de 2 tramos (es decir, si hay al menos un tramo intermedio entre origen y destino)
+            if (tramosOrdenados.size() > 2) {
+                // Seleccionar un tramo aleatorio, excluyendo el origen (primer índice) y destino (último índice)
+                int indice = 1 + random.nextInt(tramosOrdenados.size() - 2); // Evitar el primer y último tramo
+                Tramo tramoSeleccionado = tramosOrdenados.get(indice);
+                Tramo tramoSiguiente = tramosOrdenados.get(indice + 1); // Tramo siguiente
 
-            // Realizar el swap
-            individuo.getRutaMap().put(claves.get(i), tramo2);
-            individuo.getRutaMap().put(claves.get(j), tramo1);
+                // Verificar si se puede eliminar el tramo seleccionado
+                if (tramoSeleccionado.getUbigeoDestino().equals(tramoSiguiente.getUbigeoOrigen())) {
+                    // Crear un nuevo tramo que conecte el tramo anterior con el siguiente
+                    if(verificarConexion(tramoSeleccionado.getUbigeoOrigen(),tramoSiguiente.getUbigeoDestino(),mapaTramos,bloqueos,fechaEnvio)){
+                        Tramo nuevoTramo = buscarTramo(tramoSeleccionado.getUbigeoOrigen(), tramoSiguiente.getUbigeoDestino(),mapaTramos);
+                        // Actualizar el mapa de rutas
+                        individuo.getRutaMap().put(nuevoTramo.getUbigeoOrigen() + "-" + nuevoTramo.getUbigeoDestino(), nuevoTramo);
+                        // Eliminar el tramo seleccionado del mapa de rutas
+                        individuo.getRutaMap().remove(tramoSeleccionado.getUbigeoOrigen() + "-" + tramoSeleccionado.getUbigeoDestino());
+                        //System.out.println("Muto");
+                    }
+                } else {
+                    // Opción: podrías manejar el caso en el que no se puede conectar, si lo deseas
+                    //System.out.println("No se puede mutar");
+                }
+            }
         }
+    }
+    
+
+        // Función para verificar si existe una conexión válida entre dos ubicaciones
+     private static boolean verificarConexion(String origen, String destino, HashMap<String, List<Tramo>> mapaTramos, List<Bloqueo> bloqueos, LocalDateTime fechaEnvio) {
+        // Verificar si existe una lista de tramos que parten desde el origen
+        if (mapaTramos.containsKey(origen)) {
+            List<Tramo> tramosDesdeOrigen = mapaTramos.get(origen);
+
+            // Buscar un tramo con el destino especificado
+            for (Tramo tramo : tramosDesdeOrigen) {
+                if (tramo.getUbigeoDestino().equals(destino)) {
+                    // Verificar si el tramo está bloqueado
+                    if (estaBloqueado(tramo, bloqueos, fechaEnvio)) {
+                        System.out.println("El tramo " + origen + " -> " + destino + " está bloqueado.");
+                        return false;
+                    } else {
+                        // Si no está bloqueado, la conexión es válida
+                        return true;
+                    }
+                }
+            }
+        }
+
+        // Si no se encuentra un tramo con ese origen y destino, retornar falso
+        //System.out.println("No se encontró un tramo entre " + origen + " y " + destino);
+        return false;
+    }
+
+    
+    public static Tramo buscarTramo(String origen, String destino, HashMap<String, List<Tramo>> mapaTramos){
+        
+        List<Tramo> tramosDesdeOrigen = mapaTramos.get(origen);
+        // Buscar un tramo con el destino especificado
+       for (Tramo tramo : tramosDesdeOrigen) {
+           if (tramo.getUbigeoDestino().equals(destino)) {
+               return tramo;
+           }
+       }
+        return null;
     }
     
     public static Cromosoma seleccionarMejor(ArrayList<Cromosoma> poblacion) {
