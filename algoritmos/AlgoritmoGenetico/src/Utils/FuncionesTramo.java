@@ -8,7 +8,7 @@ public class FuncionesTramo {
     private static final int RADIO_TIERRA_KM = 6371; // Radio de la Tierra en kilómetros
 
     // Para calcular la distancia entre dos puntos dados por latitud y longitud
-    public static double calcularDistancia(double latitud1, double longitud1, double latitud2, double longitud2) {
+    public double calcularDistancia(double latitud1, double longitud1, double latitud2, double longitud2) {
         double dLat = Math.toRadians(latitud2 - latitud1);
         double dLon = Math.toRadians(longitud2 - longitud1);
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
@@ -18,7 +18,7 @@ public class FuncionesTramo {
         return RADIO_TIERRA_KM * c; // Distancia en kilómetros
     }
     
-    public static double calcularVelocidad(String regionOrigen, String regionDestino, List<Velocidad> velocidades) {
+    public double calcularVelocidad(String regionOrigen, String regionDestino, List<Velocidad> velocidades) {
             // Busca la velocidad de la región origen-destino
             for (Velocidad vel : velocidades) {
                 if (vel.getRegionOrigen().equals(regionOrigen) && vel.getRegionDestino().equals(regionDestino)) {
@@ -33,7 +33,7 @@ public class FuncionesTramo {
             return -1;
         }
 
-    public static double calcularHoras(double distanciaTramo, int velocidadTramo) {
+    public static double calcularHoras(double distanciaTramo, double velocidadTramo) {
         return distanciaTramo/velocidadTramo; 
     }
 }

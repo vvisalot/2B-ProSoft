@@ -1,15 +1,17 @@
 package Clases;
 
-public class Oficina {
-    private String ubigeo;
-    private String departamento;
-    private String provincia;
-    private double latitud;
-    private double longitud;
-    private String regionNatural;
-    private String almacen;
+import java.util.List;
 
-    public Oficina(String ubigeo, String departamento, String provincia, double latitud, double longitud, String regionNatural, String almacen) {
+public class Oficina {
+    private String ubigeo;          //030101
+    private String departamento;    //APURIMAC
+    private String provincia;       //Abancay
+    private double latitud;         //
+    private double longitud;        //
+    private String regionNatural;   //SIERRA
+    private int almacen;         //Capacidad
+
+    public Oficina(String ubigeo, String departamento, String provincia, double latitud, double longitud, String regionNatural, int almacen) {
         this.ubigeo = ubigeo;
         this.departamento = departamento;
         this.provincia = provincia;
@@ -18,6 +20,8 @@ public class Oficina {
         this.regionNatural = regionNatural;
         this.almacen = almacen;
     }
+
+    public Oficina (){};
 
     // Getters y Setters
     public String getUbigeo() {
@@ -68,13 +72,41 @@ public class Oficina {
         this.regionNatural = regionNatural;
     }
 
-    public String getAlmacen() {
+    public int getAlmacen() {
         return almacen;
     }
 
-    public void setAlmacen(String almacen) {
+    public void setAlmacen(int almacen) {
         this.almacen = almacen;
     }
+
+    public double retornaLatitud(List<Oficina> oficinas, String ubigeo){
+        for (Oficina oficina : oficinas) {
+            if (oficina.getUbigeo().equalsIgnoreCase(ubigeo)) {
+                return oficina.latitud;
+            }
+        }
+        return -1;
+    }
+
+    public double retornaLongitud(List<Oficina> oficinas, String ubigeo){
+        for (Oficina oficina : oficinas) {
+            if (oficina.getUbigeo().equalsIgnoreCase(ubigeo)) {
+                return oficina.longitud;
+            }
+        }
+        return -1;
+    }
+
+    public String retornaRegion(List<Oficina> oficinas,String ubigeo){
+        for (Oficina oficina : oficinas) {
+            if (oficina.getUbigeo().equalsIgnoreCase(ubigeo)) {
+                return oficina.regionNatural;
+            }
+        }
+        return null;
+    }
+
 
     @Override
     public String toString() {

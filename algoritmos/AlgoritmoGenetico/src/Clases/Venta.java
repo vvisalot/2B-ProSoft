@@ -1,7 +1,7 @@
 package Clases;
 import java.time.LocalDateTime;
 
-public class Venta {
+public class Venta { //Un pedido
     private LocalDateTime fechaHora;
     private String ubigeoOrigen;
     private String ubigeoDestino;
@@ -15,6 +15,8 @@ public class Venta {
         this.cantidad = cantidad;
         this.idCliente = idCliente;
     }
+
+    public Venta(){};
 
     // Getters y Setters
     public LocalDateTime getFechaHora() {
