@@ -69,8 +69,8 @@ public class Main {
                     }
                 }
 
-                AlgoritmoGenetico algGen = new AlgoritmoGenetico(5,0.5,vv,camiones);
-                Double mejorTiempo = algGen.generarAlgoritmoGenético(5, 0.5, vv, camiones);
+                AlgoritmoGenetico algGen = new AlgoritmoGenetico(20,0.10,vv,camiones);
+                Double mejorTiempo = algGen.generarAlgoritmoGenético(20, 0.10, vv, camiones);
 
                 
                 i++;
@@ -89,11 +89,6 @@ public class Main {
             promedioVentas = sumaVentas/cantVentas;
             System.out.println("El cantidad de ventas es: "+cantVentas);
             System.out.println("El promedio de ventas es: "+promedioVentas);
-
-
-
-
-
 
 
             // Leer todos los bloqueos en la carpeta "bloqueos"
