@@ -1,12 +1,15 @@
 package Utils;
 
 import Clases.Bloqueo;
+import Clases.Camion;
 import Clases.Mantenimiento;
 import Clases.Oficina;
 import Clases.Tramo;
 import Clases.Velocidad;
 import Clases.Venta;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -19,6 +22,7 @@ import java.time.MonthDay;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LeerDatos {
 
@@ -93,6 +97,61 @@ public class LeerDatos {
         }
         return tramos;
     }
+
+    public static List<Camion> leerCamiones(String archivo) throws IOException {
+        List<Camion> camiones = new ArrayList<>();
+        List<String> lineas = Files.readAllLines(Paths.get(archivo));
+
+
+        for (String linea : lineas) {
+            // Parsear la línea: "CÓDIGO_CAMION, CAPACIDAD, UBIGEO_ORIGEN"
+            String[] datos = linea.split(",");
+            if (datos.length == 3) {
+                String codigoCamion = datos[0].trim();
+                Double capacidad = Double.parseDouble(datos[1].trim());
+                String ubigeoOrigen = datos[2].trim();
+
+                // Crear el objeto Camion y agregarlo a la lista
+                Camion camion = new Camion(codigoCamion, capacidad, ubigeoOrigen);
+
+                // Añadir el camión a la lista
+                camiones.add(camion);
+            } else {
+                System.out.println("Formato de línea incorrecto: " + linea);
+            }
+        }
+
+        return camiones;
+    }
+
+    public static List<Camion> leerCamionesConUbigeo(String archivo, String ubigeo) throws IOException {
+        List<Camion> camiones = new ArrayList<>();
+        List<String> lineas = Files.readAllLines(Paths.get(archivo));
+
+
+        for (String linea : lineas) {
+            // Parsear la línea: "CÓDIGO_CAMION, CAPACIDAD, UBIGEO_ORIGEN"
+            String[] datos = linea.split(",");
+            if (datos.length == 3) {
+                String codigoCamion = datos[0].trim();
+                Double capacidad = Double.parseDouble(datos[1].trim());
+                String ubigeoOrigen = datos[2].trim();
+
+                if(ubigeoOrigen==ubigeo){
+                    // Crear el objeto Camion y agregarlo a la lista
+                    Camion camion = new Camion(codigoCamion, capacidad, ubigeoOrigen);
+
+                    // Añadir el camión a la lista
+                    camiones.add(camion);
+                }
+            } else {
+                System.out.println("Formato de línea incorrecto: " + linea);
+            }
+        }
+
+        return camiones;
+    }
+
 
     // Leer todos los archivos de ventas en la carpeta y devolver una lista de ventas
                     //lee todos los txt de la carpeta
@@ -204,6 +263,9 @@ public class LeerDatos {
             // Parsear el tramo: "250301 => 220501"
             String[] tramos = datos[0].split("=>");
             Tramo tramoBloqueo = new Tramo(tramos[0].trim(),tramos[1].trim());
+            tramoBloqueo.setDistanciaTramo(tramos[0].trim(), tramos[1].trim());
+            tramoBloqueo.setVelocidadTramo(tramos[0].trim(), tramos[1].trim());
+            tramoBloqueo.setHorasTramo(tramoBloqueo.getDistanciaTramo(),tramoBloqueo.getVelocidadTramo());
 
             // Parsear las fechas de inicio y fin: "0101,13:32==0119,10:39"
             String[] tiempos = datos[1].split("==");

@@ -12,6 +12,31 @@ public class Bloqueo {
         this.fechaHoraFin = fechaHoraFin;
     }
 
+    public Tramo getTramo() {
+        return tramo;
+    }
+
+    public void setTramo(Tramo tramo) {
+        this.tramo = tramo;
+    }
+
+    public LocalDateTime getFechaHoraInicio() {
+        return fechaHoraInicio;
+    }
+
+    public void setFechaHoraInicio(LocalDateTime fechaHoraInicio) {
+        this.fechaHoraInicio = fechaHoraInicio;
+    }
+
+    public LocalDateTime getFechaHoraFin() {
+        return fechaHoraFin;
+    }
+
+    public void setFechaHoraFin(LocalDateTime fechaHoraFin) {
+        this.fechaHoraFin = fechaHoraFin;
+    }
+
+    
     @Override
     public String toString() {
         return "Bloqueo{" +
