@@ -1,11 +1,11 @@
 import { Button, Tabs } from "antd";
+import MapaPeru from "../components/MapaPeru";
 import Tabla from "../components/Tabla";
 
 const Planificador = () => {
 	return (
-		<div className="h-96 bg-stone-600">
-			<div className="h-full bg-stone-600" />
-			<div className="flex flex-col h-full">
+		<div className="flex h-full">
+			<div className="w-1/2">
 				<Tabs
 					defaultActiveKey="1"
 					className="w-full"
@@ -23,20 +23,23 @@ const Planificador = () => {
 									</div>
 									<Tabla />
 								</>
-							),
+							)
 						},
 						{
 							label: "Rutas",
 							key: "2",
-							children: <Tabla />,
+							children: <Tabla />
 						},
 						{
 							label: "Flota",
 							key: "3",
-							children: <Tabla />,
-						},
+							children: <Tabla />
+						}
 					]}
 				/>
+			</div>
+			<div className="w-1/2 h-full">
+				<MapaPeru />
 			</div>
 		</div>
 	);
