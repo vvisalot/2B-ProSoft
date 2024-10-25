@@ -11,6 +11,7 @@
 	},
 	"dependencies": {
 		"antd": "^5.20.6",
+		"frontend": "file:",
 		"mapbox-gl": "^3.7.0",
 		"maplibre-gl": "^4.7.1",
 		"papaparse": "^5.4.1",
