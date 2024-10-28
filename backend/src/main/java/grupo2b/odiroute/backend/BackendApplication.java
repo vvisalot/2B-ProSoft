@@ -20,12 +20,12 @@ public class BackendApplication {
         SpringApplication.run(BackendApplication.class, args);
     }
     
-    @PostConstruct
-    public void runSimulatedAnnealing() {
-        try {
-            simulatedAnnealingRunner.runSimulatedAnnealing(); // Llamar al método
-        } catch (IOException e) {
-            System.err.println("Error al ejecutar Simulated Annealing: " + e.getMessage());
-        }
-    }
+    // @PostConstruct
+    // public void runSimulatedAnnealing() {
+    //     try {
+    //         simulatedAnnealingRunner.runSimulatedAnnealing(); // Llamar al método
+    //     } catch (IOException e) {
+    //         System.err.println("Error al ejecutar Simulated Annealing: " + e.getMessage());
+    //     }
+    // }
 }
