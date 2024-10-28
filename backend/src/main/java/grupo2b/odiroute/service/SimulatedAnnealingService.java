@@ -45,7 +45,7 @@ public class SimulatedAnnealingService {
         GrafoTramos grafoTramos = GrafoTramos.getInstance();
         String filePathTramos = "src/main/resources/data/tramos.txt";  // Cambia esta ruta por la correcta
         var datosTramos = LeerDatos.leerTramosDesdeArchivo(filePathTramos, mapaOficinas, mapaBloqueos);
-        var listaTramos = datosTramos.first();
+        List<Tramo> listaTramos = datosTramos.first();
         var mapaTramos = datosTramos.second();
 
         // Agregar los tramos al grafo

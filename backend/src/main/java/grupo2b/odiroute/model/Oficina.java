@@ -35,6 +35,9 @@ public class Oficina {
     @Column(name = "capacidad", nullable = false)
     private int capacidad;
 
+    @Column(name = "activo", nullable = false)
+    private int activo;
+
     public Oficina() {
     }
     
@@ -115,6 +118,14 @@ public class Oficina {
 
     public void setRegion(String region) {
         this.region = region;
+    }
+
+    public Boolean getActivo() {
+        return activo;
+    }
+
+    public void setRegion(Boolean activo) {
+        this.activo = activo;
     }
 
     public int getAlmacen() {
