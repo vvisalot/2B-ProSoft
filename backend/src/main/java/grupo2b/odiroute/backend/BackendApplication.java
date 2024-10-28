@@ -13,8 +13,8 @@ import org.springframework.context.annotation.ComponentScan;
 @EntityScan(basePackages = {"grupo2b.odiroute"})
 @ComponentScan(basePackages = {"grupo2b.odiroute"})
 public class BackendApplication {
-    @Autowired
-    private SimulatedAnnealingService simulatedAnnealingRunner;
+    // @Autowired
+    // private SimulatedAnnealingService simulatedAnnealingRunner;
     
     public static void main(String[] args) {
         SpringApplication.run(BackendApplication.class, args);
