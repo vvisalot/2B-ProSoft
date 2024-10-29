@@ -7,11 +7,11 @@ const data = [
 ];
 
 const columns = [
-	{ title: "ID del Pedido", dataIndex: "id", key: "id" },
-	{ title: "ID del Cliente", dataIndex: "client", key: "client" },
-	{ title: "Tiempo Estimado", dataIndex: "time1", key: "time1" },
-	{ title: "Tiempo Real", dataIndex: "time2", key: "time2" },
-	{ title: "Estado de orden", dataIndex: "estado", key: "estado" },
+	{ title: "ID de Camion", dataIndex: "id", key: "id" },
+	{ title: "Tipo de Camion", dataIndex: "client", key: "client" },
+	{ title: "Próximo Mantenimiento", dataIndex: "mantenimiento", key: "mantenimiento" },
+    { title: "Estado", dataIndex: "estado", key: "estado" },
+	{ title: "Detalle", dataIndex: "time2", key: "time2" },
 	// Add more columns as needed
 ];
 

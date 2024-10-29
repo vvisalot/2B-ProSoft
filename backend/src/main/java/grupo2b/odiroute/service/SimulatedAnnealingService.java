@@ -45,7 +45,7 @@ public class SimulatedAnnealingService {
         GrafoTramos grafoTramos = GrafoTramos.getInstance();
         String filePathTramos = "src/main/resources/data/tramos.txt";  // Cambia esta ruta por la correcta
         var datosTramos = LeerDatos.leerTramosDesdeArchivo(filePathTramos, mapaOficinas, mapaBloqueos);
-        var listaTramos = datosTramos.first();
+        List<Tramo> listaTramos = datosTramos.first();
         var mapaTramos = datosTramos.second();
 
         // Agregar los tramos al grafo
@@ -63,6 +63,7 @@ public class SimulatedAnnealingService {
 
         // Inicialización de camiones
         List<Camion> camiones = Camion.inicializarCamiones(almacenesPrincipales.get(2), almacenesPrincipales.get(0), almacenesPrincipales.get(1), mapaMantenimientos);
+
 
         var reloj = RelojSimulado.getInstance();
         // Empezamos a tomar el tiempo desde la asignación de ventas a camiones
