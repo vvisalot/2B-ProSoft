@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { DatePicker, Tabs, Button } from "antd";
 import TablaFlota from "../components/TableFlota";
 import MapaPeru from "../components/MapaPeru";
+import CardLeyenda from "../cards/CardLeyenda";
 import Title from "antd/es/skeleton/Title";
 
 const Simulacion = () => {
@@ -33,6 +34,7 @@ const Simulacion = () => {
 				{/* Contenedor izquierdo */}
 				<div className="p-4 overflow-hidden" style={{ height: "490px", width: "400px", backgroundColor: '#fafafa' }}>
 					<h1 style={{ fontSize: "24px", fontWeight: '400' }}>Leyenda</h1>
+					<CardLeyenda />
 				</div>
 		
 				{/* Contenedor del mapa */}
