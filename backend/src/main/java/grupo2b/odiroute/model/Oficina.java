@@ -34,6 +34,9 @@ public class Oficina {
     
     @Column(name = "capacidad", nullable = false)
     private int capacidad;
+    
+    @Column(name = "activo", nullable = false)
+    private boolean activo = true;
 
     public Oficina() {
     }
@@ -123,6 +126,14 @@ public class Oficina {
 
     public void setAlmacen(int almacen) {
         this.capacidad = almacen;
+    }
+
+    public boolean isActivo() {
+        return activo;
+    }
+
+    public void setActivo(boolean activo) {
+        this.activo = activo;
     }
 
     @Override
