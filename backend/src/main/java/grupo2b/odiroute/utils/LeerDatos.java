@@ -283,65 +283,6 @@ public class LeerDatos {
         return ventas;
     }
 
-    public static Queue <Venta> encolarVentasDesdeArchivo(String archivo, Map <String, Oficina> mapaOficinas){
-        Queue <Venta> ventas = new LinkedList <>();
-        String nombreArchivo = archivo.substring(archivo.lastIndexOf("/") + 1);
-        int anio = Integer.parseInt(nombreArchivo.substring(6, 10));
-        int mes = Integer.parseInt(nombreArchivo.substring(10, 12));
-
-//        System.out.println("Año: " + anio + ", Mes: " + mes);
-        try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
-            String linea;
-            while ((linea = br.readLine()) != null) {
-                String[] partes = linea.split(",\\s+");
-
-                // Día y hora
-                String[] fechaHoraPartes = partes[0].split(" ");
-                int dia = Integer.parseInt(fechaHoraPartes[0]);
-                String[] horaMinutos = fechaHoraPartes[1].split(":");
-                int hora = Integer.parseInt(horaMinutos[0]);
-                int minutos = Integer.parseInt(horaMinutos[1]);
-
-                // Construimos el LocalDateTime usando el año, mes, día, hora y minutos
-                LocalDateTime fechaHora = LocalDateTime.of(anio, mes, dia, hora, minutos);
-
-                // Guardamos la hora de la primera venta leida
-                // LocalDateTime horaDelBatch = RelojSimulado.getInstance().getTiempo();
-
-                // Origen y destino
-                String[] ubicaciones = partes[1].split("=>");
-                String origen = ubicaciones[0].trim();  // Ubigeo de origen (ignorado por ahora)
-                String destino = ubicaciones[1].trim(); // Ubigeo de destino
-
-                // Cantidad
-                int cantidad = Integer.parseInt(partes[2].trim());
-
-                // ID del cliente
-                String idCliente = partes[3].trim();
-
-                // Buscar la oficina de destino en el mapa de oficinas
-                Oficina oficinaDestino = mapaOficinas.get(destino);
-                if (oficinaDestino == null) {
-                    System.out.println("No se encontró la oficina con ubigeo: " + destino);
-                    continue; // Si no se encuentra la oficina, saltamos esta línea
-                }
-
-                // Crear la venta
-                Venta venta = new Venta();
-                venta.setFechaHora(fechaHora);
-                venta.setDestino(oficinaDestino); // Asignamos la oficina del destino
-                venta.setCantidad(cantidad);
-                venta.setIdCliente(idCliente);
-
-                ventas.add(venta);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return ventas;
-    }
-
     public static void leerMantenimientos(String archivo,Map<Camion,List<LocalDateTime>> mapaMantenimientos) throws IOException {
         List<String> lineas = Files.readAllLines(Paths.get(archivo));
 

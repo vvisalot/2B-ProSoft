@@ -1,11 +1,5 @@
 import { useEffect, useState } from "react";
-import MapContainer, {
-	Marker,
-	Popup,
-	NavigationControl,
-	Source,
-	Layer
-} from "react-map-gl";
+import MapContainer, { Marker, Popup, NavigationControl } from "react-map-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import Papa from "papaparse";
 
@@ -16,69 +10,26 @@ const MapaPeru = () => {
 		zoom: 4.8
 	});
 
-	const [puntos, setPuntos] = useState([]);
-	const [tramos, setTramosList] = useState([]);
-	const [selectedPunto, setSelectedPunto] = useState(null);
-	const [coordinatesMap, setCoordinatesMap] = useState({});
-
-	const cargarCSV = (file, setDataCallback) => {
+	const cargarCSV = (file) => {
 		Papa.parse(file, {
 			header: true,
 			download: true,
 			complete: (result) => {
-				setDataCallback(result.data);
-
-				// Si estamos cargando los puntos, crear el mapa de coordenadas por `id`
-				if (setDataCallback === setPuntos) {
-					const coordsMap = {};
-					result.data.forEach((punto) => {
-						coordsMap[punto.id] = [
-							parseFloat(punto.lng),
-							parseFloat(punto.lat)
-						];
-					});
-					setCoordinatesMap(coordsMap);
-				}
+				setPuntos(result.data);
 			}
 		});
-	};
-
-	useEffect(() => {
-		cargarCSV("/src/assets/data/oficinas.csv", setPuntos); // Cargar puntos
-		cargarCSV("/src/assets/data/tramos.csv", setTramosList); // Cargar tramos
-	}, []);
-
-	// Crear un objeto GeoJSON con todas las líneas
-	const generateTramosGeoJSON = () => {
-		const features = tramos
-			.map((tramo) => {
-				const startCoords = coordinatesMap[tramo.origen];
-				const endCoords = coordinatesMap[tramo.destino];
-
-				if (startCoords && endCoords) {
-					return {
-						type: "Feature",
-						geometry: {
-							type: "LineString",
-							coordinates: [startCoords, endCoords]
-						}
-					};
-				}
-				return null;
-			})
-			.filter(Boolean);
-
-		return {
-			type: "FeatureCollection",
-			features: features
-		};
 	};
 
 	const peruBounds = [
 		[-87, -20], // Southwest coordinates
 		[-68, 1] // Northeast coordinates
 	];
+	const [puntos, setPuntos] = useState([]);
+	const [selectedPunto, setSelectedPunto] = useState(null);
 
+	useEffect(() => {
+		cargarCSV("/src/assets/data/oficinas.csv");
+	});
 	return (
 		<div className="flex justify-center items-center bg-gray-100">
 			<MapContainer
@@ -87,7 +38,7 @@ const MapaPeru = () => {
 				mapStyle="https://api.maptiler.com/maps/f6aba462-27c5-4fdf-b246-d75b229628b3/style.json?key=GxDg5CQ3nGa8uKqYsdd9" // URL de tu estilo de MapTiler
 				mapLib={import("maplibre-gl")}
 				minZoom={4.8}
-				maxZoom={10}
+				maxZoom={8}
 				maxBounds={peruBounds}
 				onMove={(evt) =>
 					setViewport({
@@ -101,6 +52,8 @@ const MapaPeru = () => {
 				{puntos.map((punto, index) => {
 					const lat = Number.parseFloat(punto.lat);
 					const lng = Number.parseFloat(punto.lng);
+
+					// console.log(`Punto ID: ${punto.id}, Lat: ${lat}, Lng: ${lng}`);
 
 					return (
 						<Marker
@@ -116,18 +69,6 @@ const MapaPeru = () => {
 						</Marker>
 					);
 				})}
-
-				{/* Un solo Source para todos los tramos */}
-				<Source id="line-source" type="geojson" data={generateTramosGeoJSON()}>
-					<Layer
-						id="line-layer"
-						type="line"
-						paint={{
-							"line-color": "#0000FF",
-							"line-width": 2
-						}}
-					/>
-				</Source>
 
 				{selectedPunto && (
 					<Popup
