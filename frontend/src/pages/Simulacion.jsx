@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { DatePicker, Tabs, Button } from "antd";
 import TablaFlota from "../components/TableFlota";
 import MapaPeru from "../components/MapaPeru";
+import Title from "antd/es/skeleton/Title";
 
 const Simulacion = () => {
 
@@ -30,12 +31,12 @@ const Simulacion = () => {
 		
 			<div className="flex flex-1">
 				{/* Contenedor izquierdo */}
-				<div className="p-4 overflow-hidden" style={{ height: "490px", width: "200px", backgroundColor: '#fafafa' }}>
-					<div>Leyenda</div>
+				<div className="p-4 overflow-hidden" style={{ height: "490px", width: "400px", backgroundColor: '#fafafa' }}>
+					<h1 style={{ fontSize: "24px", fontWeight: '400' }}>Leyenda</h1>
 				</div>
 		
 				{/* Contenedor del mapa */}
-				<div className="w-3/5 h-64 overflow-hidden" style={{ height: "490px", width: "700px" }}>
+				<div className="flex-grow h-full overflow-hidden" style={{ height: "490px", width: "100%" }}>
 					<MapaPeru />
 				</div>
 			</div>
@@ -50,10 +51,7 @@ const Simulacion = () => {
 				<Button
 					className="absolute top-[-20px] left-1/2 transform -translate-x-1/2 z-20 bg-gray-300 border-gray-300 text-black"
 					onClick={() => setIsSectionVisible(!isSectionVisible)}
-					style={{
-						backgroundColor: '#e5e7eb', // Color gris oscuro
-						borderColor: '#e5e7eb', // Mismo color que el fondo
-					}}
+					style={{ backgroundColor: '#e5e7eb', borderColor: '#e5e7eb', }}
 				>
 					{isSectionVisible ? "Ocultar" : "Mostrar"}
 				</Button>
@@ -91,11 +89,7 @@ const Simulacion = () => {
 							<div className="flex mb-4">
 								<div>
 								Fecha Inicio
-								<DatePicker className="ml-4" />
-								</div>
-								<div className="pl-4">
-								Fecha Fin
-								<DatePicker className="ml-4" />
+								<DatePicker className="ml-4" placeholder="Seleccionar fecha"/>
 								</div>
 							</div>
 							<TablaFlota />
