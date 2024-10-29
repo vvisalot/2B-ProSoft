@@ -64,6 +64,7 @@ public class SimulatedAnnealingService {
         // Inicialización de camiones
         List<Camion> camiones = Camion.inicializarCamiones(almacenesPrincipales.get(2), almacenesPrincipales.get(0), almacenesPrincipales.get(1), mapaMantenimientos);
 
+
         var reloj = RelojSimulado.getInstance();
         // Empezamos a tomar el tiempo desde la asignación de ventas a camiones
         long tiempoInicio = System.currentTimeMillis();
