@@ -29,7 +29,7 @@ const CardLeyenda = () => {
                 <LegendItem
                     icon={<MapPin className="text-gray-700" size={20} />}
                     label="Oficina"
-                    quantity="19"
+                    quantity="20"
                     color="#000000"
                 />
 
