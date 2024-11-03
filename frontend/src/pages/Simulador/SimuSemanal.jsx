@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
 import { DatePicker, Tabs, Button, Dropdown, Menu } from "antd";
-import TablaFlota from "../components/TableFlota";
-import MapaPeru from "../components/MapaPeru";
-import CardLeyenda from "../cards/CardLeyenda";
-import Semanal from "../pages/Simulador/SimuSemanal"
-import Colapso from "../pages/Simulador/SimuColapso"
+import TablaFlota from "../../components/TableFlota";
+import MapaPeru from "../../components/MapaPeru";
+import CardLeyenda from "../../cards/CardLeyenda";
+import Semanal from "../Simulador/SimuSemanal"
+import Colapso from "../Simulador/SimuColapso"
 import Title from "antd/es/skeleton/Title";
 
-const Simulacion = () => {
+const SimuSemanal = () => {
 
 	const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
 	// Estado para controlar la visibilidad de la sección inferior
@@ -126,4 +126,4 @@ const Simulacion = () => {
 	);
 };
 
-export default Simulacion;
+export default SimuSemanal;
