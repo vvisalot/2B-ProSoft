@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import MapContainer, { Marker, Popup, NavigationControl, Source, Layer } from "react-map-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import Papa from "papaparse";
-import oficinaIcon from "/src/assets/oficina.png"; // Icono para las oficinas
 import camionIcon from "/src/assets/camion.png"; // Icono para los camiones
 import rutaData from "/src/assets/data/Data.json"; // JSON para los camiones y rutas
+import oficinaIcon from "/src/assets/oficina.png"; // Icono para las oficinas
 import ControlesSimulacion from "./ControlesSimulacion"; // Importamos el componente de controles
 
 const MapaPeruSimulacion = () => {
