@@ -63,13 +63,9 @@ const App = () => {
 									children: <Planificador />,
 								},
 								{
-									label: (
-										<Dropdown overlay={simulationMenu} trigger={["click"]}>
-											<span>Simulación</span>
-										</Dropdown>
-									),
+									label: "Simulacion",
 									key: "2",
-									children: simulationPage || <Simulacion />, // Mostrar la página seleccionada o el componente Simulacion
+									children:  <Simulacion />,
 								},
 								{
 									label: "Analíticas",

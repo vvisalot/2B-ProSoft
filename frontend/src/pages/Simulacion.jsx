@@ -35,93 +35,83 @@ const Simulacion = () => {
 
 	return (
 		<div className="h-full flex flex-col relative">
-			{/* Contenedor Superior de hora */}
-			<div className="w-full flex justify-center items-center"  style={{ height: "25px", backgroundColor: '#ffd700' }}>
-
-				<div className="flex justify-between items-center">
-					<h2>Hora</h2>
-					<div className="text-lg">{currentTime}</div>
-				</div>
-			</div>
-		
 			<div className="flex flex-1">
-				{/* Contenedor izquierdo */}
-				<div className="p-4 overflow-hidden" style={{ height: "490px", width: "400px", backgroundColor: '#fafafa' }}>
+				<div className="p-4 overflow-hidden" style={{ height: "500px", width: "400px", backgroundColor: '#fafafa' }}>
 					<h1 style={{ fontSize: "24px", fontWeight: '400' }}>Leyenda</h1>
 					<CardLeyenda />
 				</div>
 		
 				{/* Contenedor del mapa */}
-				<div className="flex-grow h-full overflow-hidden" style={{ height: "490px", width: "100%" }}>
+				<div className="flex-grow h-full" style={{ height: "490px", width: "100%" }}>
 					<MapaPeruSimulacion />
 				</div>
 			</div>
 		
-			{/* Contenedor inferior con el botón y las pestañas */}
-			<div
-				className={`bg-gray-200 p-4 absolute bottom-0 w-full transition-transform duration-300 ${
-				isSectionVisible ? "translate-y-80" : "translate-y-full"
-				}`}
-				style={{ zIndex: 10 }}
-			>
-				<Button
-					className="absolute top-[-20px] left-1/2 transform -translate-x-1/2 z-20 bg-gray-300 border-gray-300 text-black"
-					onClick={() => setIsSectionVisible(!isSectionVisible)}
-					style={{ backgroundColor: '#e5e7eb', borderColor: '#e5e7eb', }}
-				>
-					{isSectionVisible ? "Ocultar" : "Mostrar"}
-				</Button>
+			{/*/!* Contenedor inferior con el botón y las pestañas *!/*/}
+			{/*<div*/}
+			{/*	className={`bg-gray-200 p-4 absolute bottom-0 w-full transition-transform duration-300 ${*/}
+			{/*	isSectionVisible ? "translate-y-80" : "translate-y-full"*/}
+			{/*	}`}*/}
+			{/*	style={{ zIndex: 10 }}*/}
+			{/*>*/}
+			{/*	<Button*/}
+			{/*		className="absolute top-[-20px] left-1/2 transform -translate-x-1/2 z-20 bg-gray-300 border-gray-300 text-black"*/}
+			{/*		onClick={() => setIsSectionVisible(!isSectionVisible)}*/}
+			{/*		style={{ backgroundColor: '#e5e7eb', borderColor: '#e5e7eb', }}*/}
+			{/*	>*/}
+			{/*		{isSectionVisible ? "Ocultar" : "Mostrar"}*/}
+			{/*	</Button>*/}
 
-				{/* Botón de Simulación con Dropdown */}
-				<Dropdown overlay={menu} trigger={['click']}>
-					<Button type="primary" style={{ marginTop: "10px" }}>Simulación</Button>
-				</Dropdown>
+			{/*	/!* Botón de Simulación con Dropdown *!/*/}
+			{/*	/!*<Dropdown overlay={menu} trigger={['click']}>*!/*/}
+			{/*	/!*	<Button type="primary" style={{ marginTop: "10px" }}>Simulación</Button>*!/*/}
+			{/*	/!*</Dropdown>*!/*/}
 
-				{isSectionVisible && (
-				<div className="mt-4">
-					<Tabs
-					defaultActiveKey="1"
-					className="w-full"
-					items={[
-						{
-						label: "Por fecha",
-						key: "1",
-						children: (
-							<>
-							<div className="flex mb-4">
-								<div>
-								Fecha Inicio
-								<DatePicker className="ml-4" placeholder="Seleccionar fecha" />
-								</div>
-								<div className="pl-4">
-								Fecha Fin
-								<DatePicker className="ml-4" placeholder="Seleccionar fecha" />
-								</div>
-							</div>
-							<TablaFlota />
-							</>
-						),
-						},
-						{
-						label: "Colapso",
-						key: "2",
-						children: (
-							<>
-							<div className="flex mb-4">
-								<div>
-								Fecha Inicio
-								<DatePicker className="ml-4" placeholder="Seleccionar fecha"/>
-								</div>
-							</div>
-							<TablaFlota />
-							</>
-						),
-						},
-					]}
-					/>
-				</div>
-				)}
-			</div>
+			{/*	{isSectionVisible && (*/}
+			{/*	<div className="mt-4">*/}
+			{/*		<Tabs*/}
+			{/*		defaultActiveKey="1"*/}
+			{/*		className="w-full"*/}
+			{/*		items={[*/}
+			{/*			{*/}
+			{/*			label: "Por fecha",*/}
+			{/*			key: "1",*/}
+			{/*			children: (*/}
+			{/*				<>*/}
+			{/*				<div className="flex mb-4">*/}
+			{/*					<div>*/}
+			{/*					Fecha Inicio*/}
+			{/*					<DatePicker className="ml-4" placeholder="Seleccionar fecha" />*/}
+			{/*					</div>*/}
+			{/*					<div className="pl-4">*/}
+			{/*					Fecha Fin*/}
+			{/*					<DatePicker className="ml-4" placeholder="Seleccionar fecha" />*/}
+			{/*					</div>*/}
+			{/*				</div>*/}
+			{/*				<TablaFlota />*/}
+			{/*				</>*/}
+			{/*			),*/}
+			{/*			},*/}
+			{/*			{*/}
+			{/*			label: "Colapso",*/}
+			{/*			key: "2",*/}
+			{/*			children: (*/}
+			{/*				<>*/}
+			{/*				<div className="flex mb-4">*/}
+			{/*					<div>*/}
+			{/*					Fecha Inicio*/}
+			{/*					<DatePicker className="ml-4" placeholder="Seleccionar fecha"/>*/}
+			{/*					</div>*/}
+			{/*				</div>*/}
+			{/*				<TablaFlota />*/}
+			{/*				</>*/}
+			{/*			),*/}
+			{/*			},*/}
+			{/*		]}*/}
+			{/*		/>*/}
+			{/*	</div>*/}
+			{/*	)}*/}
+			{/*</div>*/}
 		</div>
 	);
 };
