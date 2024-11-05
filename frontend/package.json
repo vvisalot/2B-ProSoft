@@ -10,8 +10,10 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
+		"@shadcn/ui": "^0.0.4",
 		"antd": "^5.20.6",
 		"frontend": "file:",
+		"lucide-react": "^0.454.0",
 		"mapbox-gl": "^3.7.0",
 		"maplibre-gl": "^4.7.1",
 		"papaparse": "^5.4.1",
