@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import MapContainer, { Marker, Popup, NavigationControl, Source, Layer } from "react-map-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import Papa from "papaparse";
-import oficinaIcon from "/src/assets/oficina.png"; // Icono para las oficinas
 import camionIcon from "/src/assets/camion.png"; // Icono para los camiones
 import rutaData from "/src/assets/data/Data.json"; // JSON para los camiones y rutas
+import oficinaIcon from "/src/assets/oficina.png"; // Icono para las oficinas
 import ControlesSimulacion from "./ControlesSimulacion"; // Importamos el componente de controles
 
 const MapaPeruSimulacion = () => {
@@ -62,36 +62,31 @@ const MapaPeruSimulacion = () => {
 
 	// Función para mover los camiones en sus rutas usando la lógica del JSON
 	const iniciarSimulacion = (camiones) => {
-		let tramoIndexPorCamion = camiones.map(() => 0); // Crear un array de índices por cada camión
-		let progresoTramo = 0; // Progreso del camión en el tramo actual (0 a 1)
+		let tramoIndexPorCamion = camiones.map(() => 0);
+		let progresoTramoPorCamion = camiones.map(() => 0); // Esto es nuevo para guardar el progreso de cada camión
 
 		const moverCamiones = () => {
 			camiones.forEach((camion, camionIndex) => {
 				const tramoIndex = tramoIndexPorCamion[camionIndex];
 				const tramoActual = camion.tramos[tramoIndex];
-
 				if (!tramoActual || !simulacionActiva) return; // Si no hay más tramos o está pausado
 
 				const { distancia, velocidad: velocidadTramo, origen, destino } = tramoActual;
 				const tiempoTramo = calcularTiempoTramo(distancia, velocidadTramo);
 
 				// Interpolamos la posición del camión a lo largo del tramo
-				const nuevaPosicion = interpolarPosicion(origen, destino, progresoTramo);
+				const nuevaPosicion = interpolarPosicion(origen, destino, progresoTramoPorCamion[camionIndex]);
 				setCurrentPositions((prev) => ({
 					...prev,
 					[camion.camion.codigo]: nuevaPosicion,
 				}));
 
 				// Aumentar el progreso del tramo de forma proporcional a la velocidad
-				progresoTramo += 0.01 * velocidad; // Ajustar el incremento con la velocidad
-				if (progresoTramo >= 1) {
+				progresoTramoPorCamion[camionIndex] += 0.01 * velocidad; // Ajustar el incremento con la velocidad
+				if (progresoTramoPorCamion[camionIndex] >= 1) {
 					// Si se completó el tramo, pasar al siguiente
-					setCurrentPositions((prev) => ({
-						...prev,
-						[camion.camion.codigo]: destino,
-					}));
-					progresoTramo = 0; // Reiniciar el progreso
 					tramoIndexPorCamion[camionIndex]++;
+					progresoTramoPorCamion[camionIndex] = 0;
 
 					// Si no hay más tramos, reiniciar o detener
 					if (tramoIndexPorCamion[camionIndex] >= camion.tramos.length) {
@@ -105,7 +100,7 @@ const MapaPeruSimulacion = () => {
 		if (intervalId) clearInterval(intervalId);
 
 		// Establecer el intervalo para mover los camiones continuamente
-		const newIntervalId = setInterval(moverCamiones, 50); // Control de velocidad
+		const newIntervalId = setInterval(moverCamiones, 50);
 		setIntervalId(newIntervalId);
 	};
 
