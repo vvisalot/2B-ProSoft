@@ -43,31 +43,33 @@ const SimuSemanal = () => {
                             <DatePicker placeholder="Fecha Fin" />
                         </div>
                         <CardLeyenda numCamiones={numCamiones} numRutas={numRutas} />
+
+
+                        <div
+                            className={`bg-gray-200 p-3 w-full absolute up-0 transition-transform ${isSectionVisible ? "translate-y-0" : "translate-y-full"}`}
+                            style={{ zIndex: 10 }}
+                        >
+                            <Button
+                                className="absolute top-[-20px] left-1/2 transform -translate-x-1/2"
+                                onClick={() => setIsSectionVisible(!isSectionVisible)}
+                                style={{ backgroundColor: '#e5e7eb', borderColor: '#e5e7eb', }}
+                            >
+                                {isSectionVisible ? "Ocultar" : "Mostrar detalle camiones"}
+                            </Button>
+
+                            {isSectionVisible && (
+                                <div className="mt-4">
+                                    <h1 style={{ fontSize: "1rem", fontWeight: '400' }}>Camiones</h1>
+                                    <TablaFlota scroll={{ x: 1000 }} />
+                                </div>
+                            )}
+                        </div>
+
                     </Col>
                     <Col xs={24} md={16}>
                         <MapaPeruSimulacion onUpdateStats={handleUpdateStats} />
                     </Col>
                 </Row>
-            </div>
-
-            <div
-                className={`bg-gray-200 p-4 w-full absolute bottom-0 transition-transform ${isSectionVisible ? "translate-y-0" : "translate-y-full"}`}
-                style={{ zIndex: 10 }}
-            >
-                <Button
-                    className="absolute top-[-20px] left-1/2 transform -translate-x-1/2"
-                    onClick={() => setIsSectionVisible(!isSectionVisible)}
-                    style={{ backgroundColor: '#e5e7eb', borderColor: '#e5e7eb', }}
-                >
-                    {isSectionVisible ? "Ocultar" : "Mostrar"}
-                </Button>
-
-                {isSectionVisible && (
-                    <div className="mt-4">
-                        <h1 style={{ fontSize: "1rem", fontWeight: '400' }}>Camiones</h1>
-                        <TablaFlota scroll={{ x: 1000 }} />
-                    </div>
-                )}
             </div>
         </div>
     );
