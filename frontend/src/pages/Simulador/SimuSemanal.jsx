@@ -15,6 +15,16 @@ const SimuSemanal = () => {
         return () => clearInterval(timer);
     }, []);
 
+
+    const [numCamiones, setNumCamiones] = useState(0);
+    const [numRutas, setNumRutas] = useState(0);
+
+    // Función para actualizar los estados de camiones y rutas
+    const handleUpdateStats = (camiones, rutas) => {
+        setNumCamiones(camiones);
+        setNumRutas(rutas);
+    };
+
     return (
         <div className="h-full flex flex-col relative">
             <div className="w-full flex justify-center items-center" style={{ height: "5vh", backgroundColor: '#ffd700' }}>
@@ -32,10 +42,10 @@ const SimuSemanal = () => {
                             <DatePicker placeholder="Fecha Inicio" className="mr-4" />
                             <DatePicker placeholder="Fecha Fin" />
                         </div>
-                        <CardLeyenda />
+                        <CardLeyenda numCamiones={numCamiones} numRutas={numRutas} />
                     </Col>
                     <Col xs={24} md={16}>
-                        <MapaPeruSimulacion />
+                        <MapaPeruSimulacion onUpdateStats={handleUpdateStats} />
                     </Col>
                 </Row>
             </div>
