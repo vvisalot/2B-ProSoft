@@ -38,8 +38,6 @@ public class Oficina {
     @Column(name = "activo", nullable = false)
     private boolean activo = true;
 
-    @Column(name = "activo", nullable = false)
-    private int activo;
 
     public Oficina() {
     }
