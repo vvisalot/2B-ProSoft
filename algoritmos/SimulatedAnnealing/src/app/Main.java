@@ -67,7 +67,7 @@ public class Main {
         long tiempoInicio = System.currentTimeMillis();
 
         // Loop de un dia
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < 28; i++) { //TODO: CAMBIAR EL ARCHIVO VENTAS DE PRUEBA PARA QUE SOPORTE UNA SEMANA
             // Mantenimiento de camiones
             for (Camion c : camiones) {
                 //Revisar si esta en mantenimiento, si ya paso los días de mantenimiento vuelve a estar disponible
@@ -119,11 +119,11 @@ public class Main {
 
             // </editor-fold>
 
-            System.out.println(solucion);
             Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
                     .create();
             String json = gson.toJson(solucion);
-            System.out.println(json);
+            System.out.println(json); //TODO: GUARDAR ESTE JSON EN UN ARCHIVO DE VERDAD
+            
             var tiempoPromedioRuta = tiempoTotal / camionesConPaquetes;
 
             System.out.printf("Hora de salida de los camiones: %02d:%02d - %02d:%02d%n",
