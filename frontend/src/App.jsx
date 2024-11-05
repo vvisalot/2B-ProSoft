@@ -11,10 +11,9 @@ import logo from "./assets/odipark.svg";
 
 const App = () => {
 	const [isLandingPage, setIsLandingPage] = useState(true);
-	const [selectedTab, setSelectedTab] = useState("1"); // Estado para controlar la pestaña seleccionada
-	const [simulationPage, setSimulationPage] = useState(null); // Estado para controlar la página de simulación seleccionada
+	const [selectedTab, setSelectedTab] = useState("1");
+	const [simulationPage, setSimulationPage] = useState(null);
 
-	// Función para manejar la selección de la opción en el menú desplegable
 	const handleMenuClick = (e) => {
 		if (e.key === "1") {
 			setSimulationPage(<SimuSemanal />);
@@ -23,24 +22,19 @@ const App = () => {
 			setSimulationPage(<SimuColapso />);
 			message.success("Redirigiendo a Simulación de Colapso");
 		}
-		setSelectedTab("2"); // Cambia a la pestaña de Simulación
+		setSelectedTab("2");
 	};
 
-	// Menú desplegable para la pestaña de Simulación
-	const simulationMenu = (
-		<Menu onClick={handleMenuClick}>
-			<Menu.Item key="1">Simulación Semanal</Menu.Item>
-			<Menu.Item key="2">Simulación de Colapso</Menu.Item>
-		</Menu>
-	);
+	const simulationMenuItems = [
+		{ label: "Simulación Semanal", key: "1" },
+		{ label: "Simulación de Colapso", key: "2" }
+	];
 
 	return (
 		<Layout style={{ height: "100vh" }}>
 			{isLandingPage ? (
-				// Mostrar la landing page si el estado isLandingPage es true
 				<LandingPage onEnter={() => setIsLandingPage(false)} />
 			) : (
-				// Mostrar la aplicación si el estado isLandingPage es false
 				<div className="min-h-screen flex flex-col">
 					<Header className="bg-gray-700 text-white pl-6 pr-6 pt-4 pb-4 flex items-center">
 						<img
@@ -53,7 +47,8 @@ const App = () => {
 
 					<Content className="flex-grow flex bg-white">
 						<Tabs
-							defaultActiveKey="1"
+							activeKey={selectedTab}
+							onChange={(key) => setSelectedTab(key)}
 							className="ml-6 mr-6 w-full flex-grow"
 							items={[
 								{
@@ -63,11 +58,10 @@ const App = () => {
 								},
 								{
 									label: (
-										<Dropdown overlay={simulationMenu} trigger={["hover"]}>
+										<Dropdown menu={{ items: simulationMenuItems, onClick: handleMenuClick }} trigger={["hover"]}>
 											<span style={{ cursor: "pointer" }}>Simulación</span>
 										</Dropdown>
 									),
-									label: "Simulacion",
 									key: "2",
 									children: simulationPage, 
 								},
