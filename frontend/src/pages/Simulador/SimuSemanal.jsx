@@ -1,4 +1,4 @@
-import { Button, DatePicker } from "antd";
+import { Button, DatePicker, Row, Col } from "antd";
 import { useEffect, useState } from "react";
 import CardLeyenda from "../../cards/CardLeyenda";
 import MapaPeruSimulacion from "../../components/MapaPeruSimulacion";
@@ -12,53 +12,40 @@ const SimuSemanal = () => {
         const timer = setInterval(() => {
             setCurrentTime(new Date().toLocaleTimeString());
         }, 1000);
-        return () => clearInterval(timer); // Limpiar intervalo en desmontaje
+        return () => clearInterval(timer);
     }, []);
 
     return (
         <div className="h-full flex flex-col relative">
-            {/* Contenedor Superior de hora */}
-            <div className="w-full flex justify-center items-center" style={{ height: "25px", backgroundColor: '#ffd700' }}>
+            <div className="w-full flex justify-center items-center" style={{ height: "5vh", backgroundColor: '#ffd700' }}>
                 <div className="flex justify-between items-center w-full max-w-3xl">
-                    <div className="text-lg">
-                        <span>Fecha: {new Date().toLocaleDateString()}</span>
-                    </div>
-                    <div className="text-lg">
-                        <span>Hora: {currentTime}</span>
-                    </div>
+                    <span>Fecha: {new Date().toLocaleDateString()}</span>
+                    <span>Hora: {currentTime}</span>
                 </div>
             </div>
 
-            <div className="flex flex-1">
-                {/* Contenedor izquierdo */}
-                <div className="p-4 overflow-y-auto" style={{ height: "490px", width: "450px", backgroundColor: '#fafafa' }}>
-                    <h1 style={{ fontSize: "24px", fontWeight: '400' }}>Simulación Semanal</h1>
-                    <div className="flex mb-4">
-                        <div>
-                            Fecha Inicio
-                            <DatePicker className="ml-4" placeholder="Seleccionar fecha" />
+            <div className="flex-1 p-4">
+                <Row gutter={[16, 16]}>
+                    <Col xs={24} md={8}>
+                        <h1 style={{ fontSize: "1.5rem", fontWeight: '400' }}>Simulación Semanal</h1>
+                        <div className="flex mb-4">
+                            <DatePicker placeholder="Fecha Inicio" className="mr-4" />
+                            <DatePicker placeholder="Fecha Fin" />
                         </div>
-                        <div className="pl-4">
-                            Fecha Fin
-                            <DatePicker className="ml-4" placeholder="Seleccionar fecha" />
-                        </div>
-                    </div>
-                    <CardLeyenda />
-                </div>
-
-                {/* Contenedor del mapa */}
-                <div className="flex-grow h-full overflow-hidden" style={{ height: "490px", width: "100%" }}>
-                    <MapaPeruSimulacion />
-                </div>
+                        <CardLeyenda />
+                    </Col>
+                    <Col xs={24} md={16}>
+                        <MapaPeruSimulacion />
+                    </Col>
+                </Row>
             </div>
 
-            {/* Contenedor inferior con el botón y las pestañas, ahora debajo del mapa */}
             <div
-                className={`bg-gray-200 p-4 w-full transition-transform duration-300 absolute bottom-0 ${isSectionVisible ? "translate-y-0" : "translate-y-full"}`}
+                className={`bg-gray-200 p-4 w-full absolute bottom-0 transition-transform ${isSectionVisible ? "translate-y-0" : "translate-y-full"}`}
                 style={{ zIndex: 10 }}
             >
                 <Button
-                    className="absolute top-[-20px] left-1/2 transform -translate-x-1/2 z-20 bg-gray-300 border-gray-300 text-black"
+                    className="absolute top-[-20px] left-1/2 transform -translate-x-1/2"
                     onClick={() => setIsSectionVisible(!isSectionVisible)}
                     style={{ backgroundColor: '#e5e7eb', borderColor: '#e5e7eb', }}
                 >
@@ -67,8 +54,8 @@ const SimuSemanal = () => {
 
                 {isSectionVisible && (
                     <div className="mt-4">
-                        <h1 style={{ fontSize: "16px", fontWeight: '400' }}>Camiones</h1>
-                        <TablaFlota />
+                        <h1 style={{ fontSize: "1rem", fontWeight: '400' }}>Camiones</h1>
+                        <TablaFlota scroll={{ x: 1000 }} />
                     </div>
                 )}
             </div>
