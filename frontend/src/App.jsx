@@ -4,7 +4,6 @@ import { Content, Header } from "antd/es/layout/layout";
 import Analiticas from "./pages/Analiticas";
 import Configuracion from "./pages/Configuracion";
 import Planificador from "./pages/Planificador";
-import Simulacion from "./pages/Simulacion";
 import SimuSemanal from "./pages/Simulador/SimuSemanal";
 import SimuColapso from "./pages/Simulador/SimuColapso";
 import LandingPage from "./pages/LandingPage"; 
@@ -63,9 +62,14 @@ const App = () => {
 									children: <Planificador />,
 								},
 								{
+									label: (
+										<Dropdown overlay={simulationMenu} trigger={["hover"]}>
+											<span style={{ cursor: "pointer" }}>Simulación</span>
+										</Dropdown>
+									),
 									label: "Simulacion",
 									key: "2",
-									children:  <Simulacion />,
+									children: simulationPage, 
 								},
 								{
 									label: "Analíticas",
