@@ -11,7 +11,6 @@ const columns = [
 	{ title: "Tipo de Camion", dataIndex: "client", key: "client" },
 	{ title: "Próximo Mantenimiento", dataIndex: "mantenimiento", key: "mantenimiento" },
     { title: "Estado", dataIndex: "estado", key: "estado" },
-	{ title: "Detalle", dataIndex: "time2", key: "time2" },
 	// Add more columns as needed
 ];
 
