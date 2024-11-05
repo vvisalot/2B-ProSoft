@@ -7,7 +7,7 @@ import rutaData from "/src/assets/data/Data.json"; // JSON para los camiones y r
 import oficinaIcon from "/src/assets/oficina.png"; // Icono para las oficinas
 import ControlesSimulacion from "./ControlesSimulacion"; // Importamos el componente de controles
 
-const MapaPeruSimulacion = () => {
+const MapaPeruSimulacion = ({ onUpdateStats }) => {
 	const [viewport, setViewport] = useState({
 		latitude: -9.19, // Centrar en Perú
 		longitude: -75.0152,
@@ -134,6 +134,71 @@ const MapaPeruSimulacion = () => {
 	const reducirSimulacion = () => {
 		setVelocidad((prev) => Math.max(prev / 2, 0.25));
 	};
+
+
+	//Constantes para sacar el numero de camiones que ira en leyenda
+	const [numCamiones, setNumCamiones] = useState(0);
+    const [numRutas, setNumRutas] = useState(0);
+
+	useEffect(() => {
+        // Simulando una función que obtiene camiones y rutas visibles.
+        // Reemplaza esto con la lógica real para contar camiones y rutas en el mapa.
+        const camiones = obtenerCamionesVisibles(); // Ejemplo de función
+        const rutas = obtenerRutasVisibles(); // Ejemplo de función
+
+        setNumCamiones(camiones.length);
+        setNumRutas(rutas.length);
+
+        // Llama a onUpdateStats para pasar los datos al componente padre
+        onUpdateStats(camiones.length, rutas.length);
+    }, []);
+
+	// Función para verificar si un punto (latitud y longitud) está dentro de los límites visibles del mapa
+	const estaDentroDeLimites = (latitud, longitud, viewport) => {
+		return (
+			latitud >= viewport.latitude - viewport.zoom * 2 &&
+			latitud <= viewport.latitude + viewport.zoom * 2 &&
+			longitud >= viewport.longitude - viewport.zoom * 2 &&
+			longitud <= viewport.longitude + viewport.zoom * 2
+		);
+	};
+
+	// Función para obtener los camiones visibles dentro del área del mapa
+	const obtenerCamionesVisibles = () => {
+		return camiones.filter((camion) => {
+			const posicionActual = currentPositions[camion.camion.codigo];
+			if (!posicionActual) return false;
+			const { latitud, longitud } = posicionActual;
+			return estaDentroDeLimites(latitud, longitud, viewport);
+		});
+	};
+
+	// Función para obtener las rutas visibles dentro del área del mapa
+	const obtenerRutasVisibles = () => {
+		return camiones.filter((camion) => {
+			return camion.tramos.some((tramo) => {
+				const { origen, destino } = tramo;
+				// Verificar si el origen o destino del tramo está dentro de los límites visibles
+				return (
+					estaDentroDeLimites(origen.latitud, origen.longitud, viewport) ||
+					estaDentroDeLimites(destino.latitud, destino.longitud, viewport)
+				);
+			});
+		});
+	};
+
+	// Llama a las funciones y actualiza los valores de camiones y rutas visibles
+	useEffect(() => {
+		const camionesVisibles = obtenerCamionesVisibles();
+		const rutasVisibles = obtenerRutasVisibles();
+
+		setNumCamiones(camionesVisibles.length);
+		setNumRutas(rutasVisibles.length);
+
+		// Llama a onUpdateStats para pasar los datos al componente padre
+		onUpdateStats(camionesVisibles.length, rutasVisibles.length);
+	}, [viewport, currentPositions, camiones]);
+
 
 	return (
 		<div className="flex flex-col justify-center items-center bg-gray-100">
