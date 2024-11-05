@@ -1,11 +1,11 @@
-import { useState, useEffect } from "react";
-import { DatePicker, Tabs, Button, Dropdown } from "antd";
-import TablaFlota from "../../components/TableFlota";
-import MapaPeru from "../../components/MapaPeru";
-import CardLeyenda from "../../cards/CardLeyenda";
-import Semanal from "../Simulador/SimuSemanal"
-import Colapso from "../Simulador/SimuColapso"
+import { Button, DatePicker, Dropdown, Tabs } from "antd";
 import Title from "antd/es/skeleton/Title";
+import { useEffect, useState } from "react";
+import CardLeyenda from "../../cards/CardLeyenda";
+import MapaPeruSimulacion from "../../components/MapaPeruSimulacion";
+import TablaFlota from "../../components/TableFlota";
+import Colapso from "../Simulador/SimuColapso"
+import Semanal from "../Simulador/SimuSemanal"
 
 const SimuColapso = () => {
 
@@ -53,7 +53,7 @@ const SimuColapso = () => {
 		
 				{/* Contenedor del mapa */}
 				<div className="flex-grow h-full overflow-hidden" style={{ height: "490px", width: "100%" }}>
-					<MapaPeru />
+					<MapaPeruSimulacion />
 				</div>
 			</div>
 		

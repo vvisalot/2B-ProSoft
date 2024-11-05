@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import MapContainer, { Marker, Popup, NavigationControl } from "react-map-gl";
+import MapContainer, { Marker, Popup, NavigationControl, Source, Layer } from "react-map-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import Papa from "papaparse";
+import camionIcon from "/src/assets/camion.png"; 
+import rutaData from "/src/assets/data/Data.json";
 
 const MapaPeru = () => {
 	const [viewport, setViewport] = useState({
 		latitude: -9.19, // Centrar en Perú
 		longitude: -75.0152,
-		zoom: 4.8
+		zoom: 5
 	});
 
 	const cargarCSV = (file) => {
@@ -48,7 +50,7 @@ const MapaPeru = () => {
 					})
 				}
 			>
-				{/* Iterar sobre los puntos para agregar los marcadores */}
+				{/* Iterar sobre los puntos para agregar los marcadores*/ }
 				{puntos.map((punto, index) => {
 					const lat = Number.parseFloat(punto.lat);
 					const lng = Number.parseFloat(punto.lng);

@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { DatePicker, Button } from "antd";
-import TablaFlota from "../../components/TableFlota";
-import MapaPeru from "../../components/MapaPeru";
+import { Button, DatePicker } from "antd";
+import { useEffect, useState } from "react";
 import CardLeyenda from "../../cards/CardLeyenda";
+import MapaPeruSimulacion from "../../components/MapaPeruSimulacion";
+import TablaFlota from "../../components/TableFlota";
 
 const SimuSemanal = () => {
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
@@ -48,7 +48,7 @@ const SimuSemanal = () => {
 
                 {/* Contenedor del mapa */}
                 <div className="flex-grow h-full overflow-hidden" style={{ height: "490px", width: "100%" }}>
-                    <MapaPeru />
+                    <MapaPeruSimulacion />
                 </div>
             </div>
 
