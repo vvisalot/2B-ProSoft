@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
-import { DatePicker, Tabs, Button } from "antd";
+import { DatePicker, Tabs, Button, Dropdown, Menu } from "antd";
 import TablaFlota from "../components/TableFlota";
 import MapaPeru from "../components/MapaPeru";
+import CardLeyenda from "../cards/CardLeyenda";
+import Semanal from "../pages/Simulador/SimuSemanal"
+import Colapso from "../pages/Simulador/SimuColapso"
 import Title from "antd/es/skeleton/Title";
 
 const Simulacion = () => {
@@ -18,6 +21,18 @@ const Simulacion = () => {
 		return () => clearInterval(timer); // Limpiar intervalo en desmontaje
 	}, []);
 
+
+	const menu = (
+		<Menu>
+			<Menu.Item key="1">
+				<span>Opción 1</span>
+			</Menu.Item>
+			<Menu.Item key="2">
+				<span>Opción 2</span>
+			</Menu.Item>
+		</Menu>
+	);
+
 	return (
 		<div className="h-full flex flex-col relative">
 			{/* Contenedor Superior de hora */}
@@ -33,6 +48,7 @@ const Simulacion = () => {
 				{/* Contenedor izquierdo */}
 				<div className="p-4 overflow-hidden" style={{ height: "490px", width: "400px", backgroundColor: '#fafafa' }}>
 					<h1 style={{ fontSize: "24px", fontWeight: '400' }}>Leyenda</h1>
+					<CardLeyenda />
 				</div>
 		
 				{/* Contenedor del mapa */}
@@ -55,6 +71,11 @@ const Simulacion = () => {
 				>
 					{isSectionVisible ? "Ocultar" : "Mostrar"}
 				</Button>
+
+				{/* Botón de Simulación con Dropdown */}
+				<Dropdown overlay={menu} trigger={['click']}>
+					<Button type="primary" style={{ marginTop: "10px" }}>Simulación</Button>
+				</Dropdown>
 
 				{isSectionVisible && (
 				<div className="mt-4">
