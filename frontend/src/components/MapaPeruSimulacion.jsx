@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import MapContainer, { Marker, Popup, NavigationControl, Source, Layer } from "react-map-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import Papa from "papaparse";
@@ -16,7 +16,7 @@ const MapaPeruSimulacion = () => {
 
 	const [simulacionActiva, setSimulacionActiva] = useState(true); // Estado de Pausa/Reanudar
 	const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
-	const [intervalId, setIntervalId] = useState(null); // Para manejar el intervalo de simulación
+	const intervalRef = useRef(null); // Ref para manejar el intervalo
 	const [resetSimulacion, setResetSimulacion] = useState(false); // Para manejar el reinicio de la simulación
 
 	const cargarCSV = (file) => {
@@ -40,12 +40,21 @@ const MapaPeruSimulacion = () => {
 	const [currentPositions, setCurrentPositions] = useState({}); // Posiciones actuales de los camiones
 	const [selectedCamion, setSelectedCamion] = useState(null); // Para manejar qué camión está seleccionado
 
+	// Referencias para guardar el estado de cada camión
+	const tramoIndexRef = useRef([]);
+	const progresoTramoRef = useRef([]);	
+
 	useEffect(() => {
 		cargarCSV("/src/assets/data/oficinas.csv"); // Cargar las oficinas del CSV
 		setCamiones(rutaData); // Cargar los camiones y rutas desde el JSON
-		if (!resetSimulacion) iniciarSimulacion(rutaData); // Iniciar la simulación de los camiones
-		return () => clearInterval(intervalId); // Limpiar el intervalo al desmontar el componente
-	}, [resetSimulacion]); // Recalcular solo si se reinicia la simulación
+
+		// Inicializar referencias de progreso para cada camión
+		tramoIndexRef.current = rutaData.map(() => 0);
+		progresoTramoRef.current = rutaData.map(() => 0);
+
+	 	iniciarSimulacion(rutaData); // Iniciar la simulación de los camiones
+		return () => clearInterval(intervalRef.current); // Limpiar el intervalo al desmontar el componente
+	}, []); 
 
 	// Función para calcular el tiempo total que tarda un tramo (en ms) ajustado por la velocidad
 	const calcularTiempoTramo = (distancia, velocidadTramo) => {
@@ -60,81 +69,70 @@ const MapaPeruSimulacion = () => {
 		return { latitud, longitud };
 	};
 
-	// Función para mover los camiones en sus rutas usando la lógica del JSON
-	const iniciarSimulacion = (camiones) => {
-		let tramoIndexPorCamion = camiones.map(() => 0); // Crear un array de índices por cada camión
-		let progresoTramo = 0; // Progreso del camión en el tramo actual (0 a 1)
+	const moverCamiones = () => {
+		camiones.forEach((camion, camionIndex) => {
+			const tramoIndex = tramoIndexRef.current[camionIndex];
+			const tramoActual = camion.tramos[tramoIndex];
 
-		const moverCamiones = () => {
-			camiones.forEach((camion, camionIndex) => {
-				const tramoIndex = tramoIndexPorCamion[camionIndex];
-				const tramoActual = camion.tramos[tramoIndex];
+			if (!tramoActual) return;
 
-				if (!tramoActual || !simulacionActiva) return; // Si no hay más tramos o está pausado
+			const { distancia, velocidad: velocidadTramo, origen, destino } = tramoActual;
+			const tiempoTramo = calcularTiempoTramo(distancia, velocidadTramo);
 
-				const { distancia, velocidad: velocidadTramo, origen, destino } = tramoActual;
-				const tiempoTramo = calcularTiempoTramo(distancia, velocidadTramo);
+			const nuevaPosicion = interpolarPosicion(origen, destino, progresoTramoRef.current[camionIndex]);
+			setCurrentPositions((prev) => ({
+				...prev,
+				[camion.camion.codigo]: nuevaPosicion,
+			}));
 
-				// Interpolamos la posición del camión a lo largo del tramo
-				const nuevaPosicion = interpolarPosicion(origen, destino, progresoTramo);
-				setCurrentPositions((prev) => ({
-					...prev,
-					[camion.camion.codigo]: nuevaPosicion,
-				}));
+			progresoTramoRef.current[camionIndex] += 0.01 * velocidad;
+			if (progresoTramoRef.current[camionIndex] >= 1) {
+				tramoIndexRef.current[camionIndex]++;
+				progresoTramoRef.current[camionIndex] = 0;
 
-				// Aumentar el progreso del tramo de forma proporcional a la velocidad
-				progresoTramo += 0.01 * velocidad; // Ajustar el incremento con la velocidad
-				if (progresoTramo >= 1) {
-					// Si se completó el tramo, pasar al siguiente
-					setCurrentPositions((prev) => ({
-						...prev,
-						[camion.camion.codigo]: destino,
-					}));
-					progresoTramo = 0; // Reiniciar el progreso
-					tramoIndexPorCamion[camionIndex]++;
-
-					// Si no hay más tramos, reiniciar o detener
-					if (tramoIndexPorCamion[camionIndex] >= camion.tramos.length) {
-						tramoIndexPorCamion[camionIndex] = 0;
-					}
+				if (tramoIndexRef.current[camionIndex] >= camion.tramos.length) {
+					tramoIndexRef.current[camionIndex] = 0;
 				}
-			});
-		};
-
-		// Reiniciar el intervalo si ya existe uno
-		if (intervalId) clearInterval(intervalId);
-
-		// Establecer el intervalo para mover los camiones continuamente
-		const newIntervalId = setInterval(moverCamiones, 50); // Control de velocidad
-		setIntervalId(newIntervalId);
+			}
+		});
 	};
 
-	// Función para pausar la simulación (limpia el intervalo activo)
+	const iniciarSimulacion = () => {
+		if (intervalRef.current) clearInterval(intervalRef.current);
+		intervalRef.current = setInterval(moverCamiones, 50);
+	};
+
+	useEffect(() => {
+		if (simulacionActiva) {
+			iniciarSimulacion();
+		} else {
+			clearInterval(intervalRef.current);
+		}
+		return () => clearInterval(intervalRef.current);
+	}, [simulacionActiva, velocidad]);
+
 	const pausarSimulacion = () => {
-		clearInterval(intervalId);
-		setSimulacionActiva(false); // Cambiar el estado de simulación
+		setSimulacionActiva(false);
 	};
 
-	// Función para reanudar la simulación
 	const reanudarSimulacion = () => {
 		setSimulacionActiva(true);
 	};
 
-	// Función para reiniciar la simulación
 	const reiniciarSimulacion = () => {
-		setResetSimulacion(true); // Forzamos el reinicio
-		setCurrentPositions({}); // Limpiamos las posiciones
-		setTimeout(() => setResetSimulacion(false), 100); // Reiniciar la simulación después de limpiar
+		clearInterval(intervalRef.current);
+		tramoIndexRef.current = camiones.map(() => 0);
+		progresoTramoRef.current = camiones.map(() => 0);
+		setCurrentPositions({});
+		setSimulacionActiva(true);
 	};
 
-	// Función para acelerar la simulación
 	const acelerarSimulacion = () => {
-		setVelocidad((prev) => Math.min(prev * 2, 16)); // Incrementar velocidad hasta un máximo de 16x
+		setVelocidad((prev) => Math.min(prev * 2, 16));
 	};
 
-	// Función para retroceder la simulación (reducir velocidad)
 	const reducirSimulacion = () => {
-		setVelocidad((prev) => Math.max(prev / 2, 0.25)); // Reducir velocidad hasta un mínimo de 0.25x
+		setVelocidad((prev) => Math.max(prev / 2, 0.25));
 	};
 
 	return (
