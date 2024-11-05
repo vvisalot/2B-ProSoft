@@ -3,12 +3,17 @@ package app;
 import algorithm.AsignadorVentas;
 import algorithm.GrafoTramos;
 import algorithm.SimulatedAnnealing;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import dto.Solucion;
 import model.*;
 import utils.LeerDatos;
+import utils.LocalDateTimeAdapter;
 import utils.RelojSimulado;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,27 +83,47 @@ public class Main {
                 }
             }
 
+            // <editor-fold desc="ENDPOINT REGISTRAR VENTAS">
             // Asignamos las ventas a los camiones
             var mapaCamionesPorCentral = AsignadorVentas.asignarVentasGreedy(camiones, ventas, almacenesPrincipales, grafoTramos);
+            // </editor-fold>
 
             // Planificamos una ruta para cada camión
-            var tiempoTotal = 0.0;
-            var camionesConPaquetes = 0;
+            var tiempoTotal = 0.0; //innecesario
+            var camionesConPaquetes = 0; //innecesario
+
+            // <editor-fold desc="ENDPOINT SIMULACION">
+            //Este loop corre cada vez que se tiene que
+            var solucion = new ArrayList<Solucion>();
             for (var entry : mapaCamionesPorCentral.entrySet()) {
                 for (var camion : entry.getValue()) {
                     if (camion.getPaquetes().isEmpty()) {
                         continue;
                     }
-                    tiempoTotal += SimulatedAnnealing.calcular(camion.getPaquetes(), camion, reloj, almacenesPrincipales);
-                    camionesConPaquetes++;
+                    var solucionCamion = SimulatedAnnealing.calcular(camion.getPaquetes(), camion, reloj, almacenesPrincipales);
+                    solucion.add(solucionCamion);
+                    tiempoTotal += solucionCamion.tiempoTotal(); //innecesario
+                    camionesConPaquetes++; //innecesario
                 }
             }
 
             //Actualizar posicion de los camiones para siguiente ejecucion
-            // TODO: Revisar si la hora del siguiente batch es despues de regresoAlmacen del camion
-//            for(Camion c :camiones){
+            for(Camion c :camiones) {
+                if(c.getEnRuta()){
+                    if (c.getRegresoAlmacen().isBefore(reloj.getTiempoSiguienteBatch())){
+                        c.setEnRuta(false);
+                        c.setCargaActual(0);
+                    }
+                }
+            }
 
+            // </editor-fold>
 
+            System.out.println(solucion);
+            Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                    .create();
+            String json = gson.toJson(solucion);
+            System.out.println(json);
             var tiempoPromedioRuta = tiempoTotal / camionesConPaquetes;
 
             System.out.printf("Hora de salida de los camiones: %02d:%02d - %02d:%02d%n",

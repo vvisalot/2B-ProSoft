@@ -33,4 +33,13 @@ public class RelojSimulado {
         this.tiempo = this.tiempo.plusHours(INTERVALO);
         this.tiempoSiguienteBatch = this.tiempo.plusHours(6);
     }
+
+    public void actualizarReloj(String fechaHora){
+        try {
+            this.tiempo = LocalDateTime.parse(fechaHora, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        } catch (Exception e) {
+            this.tiempo = LocalDateTime.now();
+        }
+        this.tiempoSiguienteBatch = this.tiempo.plusHours(INTERVALO);
+    }
 }

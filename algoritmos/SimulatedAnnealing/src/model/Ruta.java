@@ -5,7 +5,6 @@ import algorithm.GrafoTramos;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 public class Ruta {
 
@@ -15,7 +14,8 @@ public class Ruta {
     private final GrafoTramos grafoTramos = GrafoTramos.getInstance();
     private final MapaVelocidad mapaVelocidad = MapaVelocidad.getInstance();
     private Oficina puntoPartida;
-    private final double TIEMPO_DESCARGA = 1;
+    private static final double TIEMPO_EN_OFICINA = 2;
+    private static final double TIEMPO_DESCARGA = 1;
 
     public Ruta(Oficina puntoPartida) {
         for (int i = 0; i < RutaManager.cantidadPaquetes(); i++) {
@@ -27,6 +27,8 @@ public class Ruta {
     public Ruta(List<Tramo> tramos) {
         this.rutaRecorrida = tramos;
     }
+
+    public Ruta() {}
 
     public Ruta(Oficina puntoInicial, Oficina almacenRetorno){
         var paqueteVacioInicial = new Paquete(new Venta(puntoInicial),0);
@@ -88,7 +90,34 @@ public class Ruta {
                 // Get the distance between the two cities
 
                 tiempoRuta += calcularTiempoRuta(paqueteActual, paqueteSiguiente);
-                tiempoRuta += TIEMPO_DESCARGA;
+                tiempoRuta += paqueteIndex != cantidadPaquetes() -1 ? TIEMPO_EN_OFICINA : TIEMPO_DESCARGA;
+            }
+            tiempo = tiempoRuta;
+        }
+        return tiempo;
+    }
+
+    public double getTiempoRegreso(){
+        if (tiempo == 0.0) {
+            double tiempoRuta = 0.0;
+            // Loop through our tour's cities
+            for (int paqueteIndex=0; paqueteIndex < cantidadPaquetes() && cantidadPaquetes()>1; paqueteIndex++) {
+                // Get city we're traveling from
+                Paquete paqueteActual = getPaquete(paqueteIndex);
+                // City we're traveling to
+                Paquete paqueteSiguiente;
+                // Check we're not on our tour's last city, if we are set our
+                // tour's final destination city to our starting city
+                if(paqueteIndex+1 < cantidadPaquetes()){
+                    paqueteSiguiente = getPaquete(paqueteIndex+1);
+                }
+                else{
+                    paqueteSiguiente = getPaquete(0);
+                }
+                // Get the distance between the two cities
+
+                tiempoRuta += calcularTiempoRuta(paqueteActual, paqueteSiguiente);
+                tiempoRuta += TIEMPO_EN_OFICINA;
             }
             tiempo = tiempoRuta;
         }
@@ -160,7 +189,11 @@ public class Ruta {
         this.rutaRecorrida = ruta;
     }
     //TODO: Desmarcar los tramos como finales
-
+    public void desmarcarTramos(){
+        for(Tramo tramo: rutaRecorrida){
+            tramo.setEsFinal(false);
+        }
+    }
     public List<Tramo> getRutaRecorrida(){
         return this.rutaRecorrida;
     }
