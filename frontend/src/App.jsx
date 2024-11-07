@@ -8,6 +8,7 @@ import SimuSemanal from "./pages/Simulador/SimuSemanal";
 import SimuColapso from "./pages/Simulador/SimuColapso";
 import LandingPage from "./pages/LandingPage"; 
 import logo from "./assets/odipark.svg";
+import Simulador from "./pages/Simulador.jsx";
 
 const App = () => {
 	const [isLandingPage, setIsLandingPage] = useState(true);
@@ -32,9 +33,9 @@ const App = () => {
 
 	return (
 		<Layout style={{ height: "100vh" }}>
-			{isLandingPage ? (
-				<LandingPage onEnter={() => setIsLandingPage(false)} />
-			) : (
+			{/*{isLandingPage ? (*/}
+			{/*	<LandingPage onEnter={() => setIsLandingPage(false)} />*/}
+			{/*) : (*/}
 				<div className="min-h-screen flex flex-col">
 					<Header className="bg-gray-700 text-white pl-6 pr-6 pt-4 pb-4 flex items-center">
 						<img
@@ -57,13 +58,9 @@ const App = () => {
 									children: <Planificador />,
 								},
 								{
-									label: (
-										<Dropdown menu={{ items: simulationMenuItems, onClick: handleMenuClick }} trigger={["hover"]}>
-											<span style={{ cursor: "pointer" }}>Simulación</span>
-										</Dropdown>
-									),
+									label:"Simulacion",
 									key: "2",
-									children: simulationPage, 
+									children: <Simulador/>,
 								},
 								{
 									label: "Analíticas",
@@ -79,7 +76,7 @@ const App = () => {
 						/>
 					</Content>
 				</div>
-			)}
+			{/*)}*/}
 		</Layout>
 	);
 };
