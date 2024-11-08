@@ -1,18 +1,8 @@
 import { Table } from "antd";
 
-const data = [
-	{ id: 1, name: "John", age: 25 },
-	{ id: 2, name: "Jane", age: 30 },
-	{ id: 3, name: "Bob", age: 35 },
-];
 
 const columns = [
-	{ title: "ID de Camion", dataIndex: "id", key: "id" },
-	{ title: "Tipo de Camion", dataIndex: "client", key: "client" },
 	{ title: "Próximo Mantenimiento", dataIndex: "mantenimiento", key: "mantenimiento" },
-    { title: "Estado", dataIndex: "estado", key: "estado" },
-	{ title: "Detalle", dataIndex: "time2", key: "time2" },
-	// Add more columns as needed
 ];
 
 const Tabla = () => {

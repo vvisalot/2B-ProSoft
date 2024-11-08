@@ -17,6 +17,8 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 public class BackendApplication {
     @Autowired
     private SimulatedAnnealingService simulatedAnnealingRunner;
+//    @Autowired
+//    private SimulatedAnnealingService simulatedAnnealingRunner;
     
     public static void main(String[] args) {
         SpringApplication.run(BackendApplication.class, args);
@@ -30,4 +32,12 @@ public class BackendApplication {
             System.err.println("Error al ejecutar Simulated Annealing: " + e.getMessage());
         }
     }
+//    @PostConstruct
+//    public void runSimulatedAnnealing() {
+//        try {
+//            simulatedAnnealingRunner.runSimulatedAnnealing(); // Llamar al método
+//        } catch (IOException e) {
+//            System.err.println("Error al ejecutar Simulated Annealing: " + e.getMessage());
+//        }
+//    }
 }
