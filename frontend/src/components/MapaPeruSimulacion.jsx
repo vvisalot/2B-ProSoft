@@ -32,34 +32,31 @@ const MapaPeruSimulacion = ({onUpdateStats}) => {
 
     const [puntos, setPuntos] = useState([]); // Para almacenar las oficinas del CSV
     const [selectedPunto, setSelectedPunto] = useState(null); // Para manejar el popup de las oficinas
-    const [camiones, setCamiones] = useState([]); // Para almacenar los camiones y rutas del JSON
+    const [rutas, setRutas] = useState([]); // Cambiado a "rutas" para almacenar rutas y camiones del JSON
     const [currentPositions, setCurrentPositions] = useState({}); // Posiciones actuales de los camiones
     const [selectedCamion, setSelectedCamion] = useState(null); // Para manejar qué camión está seleccionado
 
     // Referencias para guardar el estado de cada camión
     const tramoIndexRef = useRef([]);
     const progresoTramoRef = useRef([]);
-
-    useEffect(() => {
-        cargarCSV("/src/assets/data/oficinas.csv"); // Cargar las oficinas del CSV
-        setCamiones(rutaData); // Cargar los camiones y rutas desde el JSON
-
-        // Inicializar referencias de progreso para cada camión
-        tramoIndexRef.current = rutaData.map(() => 0);
-        progresoTramoRef.current = rutaData.map(() => 0);
-        return () => clearInterval(intervalRef.current); // Limpiar el intervalo al desmontar el componente
-    }, []);
-
     //</editor-fold>
 
+    useEffect(() => {
+        cargarCSV("/src/assets/data/oficinas.csv");
+        setRutas(rutaData);
+
+        tramoIndexRef.current = rutaData.map(() => 0);
+        progresoTramoRef.current = rutaData.map(() => 0.01);
+
+        return () => clearInterval(intervalRef.current);
+    }, []);
+
     //<editor-fold desc="Movimiento de camiones">
-    // Función para calcular el tiempo total que tarda un tramo (en ms) ajustado por la velocidad
     const calcularTiempoTramo = (distancia, velocidadTramo) => {
-        const tiempoTramo = (distancia / velocidadTramo) * 1000; // 1 km = 1 segundo
-        return tiempoTramo / velocidad; // Ajustar con el multiplicador de velocidad
+        const tiempoTramo = (distancia / velocidadTramo) * 1000;
+        return tiempoTramo / velocidad;
     };
 
-    // Función para interpolar entre dos puntos (origen y destino) con un factor de progresión
     const interpolarPosicion = (origen, destino, factor) => {
         const latitud = origen.latitud + (destino.latitud - origen.latitud) * factor;
         const longitud = origen.longitud + (destino.longitud - origen.longitud) * factor;
@@ -67,28 +64,35 @@ const MapaPeruSimulacion = ({onUpdateStats}) => {
     };
 
     const moverCamiones = () => {
-        camiones.forEach((camion, camionIndex) => {
-            const tramoIndex = tramoIndexRef.current[camionIndex];
-            const tramoActual = camion.tramos[tramoIndex];
+        rutas.forEach((ruta, rutaIndex) => {
+            const {codigo} = ruta.camion;
+            const tramoIndex = tramoIndexRef.current[rutaIndex];
+            const tramoActual = ruta.tramos[tramoIndex];
 
             if (!tramoActual) return;
 
             const {distancia, velocidad: velocidadTramo, origen, destino} = tramoActual;
             const tiempoTramo = calcularTiempoTramo(distancia, velocidadTramo);
 
-            const nuevaPosicion = interpolarPosicion(origen, destino, progresoTramoRef.current[camionIndex]);
+            const nuevaPosicion = interpolarPosicion(origen, destino, progresoTramoRef.current[rutaIndex]);
+
             setCurrentPositions((prev) => ({
                 ...prev,
-                [camion.camion.codigo]: nuevaPosicion,
+                [codigo]: nuevaPosicion,
             }));
 
-            progresoTramoRef.current[camionIndex] += 0.01 * velocidad;
-            if (progresoTramoRef.current[camionIndex] >= 1) {
-                tramoIndexRef.current[camionIndex]++;
-                progresoTramoRef.current[camionIndex] = 0;
+            const incrementoProgreso = (1 / tiempoTramo) * velocidad;
+            progresoTramoRef.current[rutaIndex] += incrementoProgreso;
 
-                if (tramoIndexRef.current[camionIndex] >= camion.tramos.length) {
-                    tramoIndexRef.current[camionIndex] = 0;
+            if (progresoTramoRef.current[rutaIndex] >= 1) {
+                tramoIndexRef.current[rutaIndex]++;
+                progresoTramoRef.current[rutaIndex] = 0.01;
+
+                console.log(`Camión ${codigo} - Cambia al tramo: ${tramoIndexRef.current[rutaIndex]}`);
+
+                if (tramoIndexRef.current[rutaIndex] >= ruta.tramos.length) {
+                    tramoIndexRef.current[rutaIndex] = 0;
+                    console.log(`Camión ${codigo} ha completado todos los tramos y vuelve al inicio.`);
                 }
             }
         });
@@ -99,15 +103,16 @@ const MapaPeruSimulacion = ({onUpdateStats}) => {
     const [simulacionActiva, setSimulacionActiva] = useState(false);
     const [simulacionIniciada, setSimulacionIniciada] = useState(false);
     const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
-    const intervalRef = useRef(null); // Ref para manejar el intervalo
+    const intervalRef = useRef(null);
 
     const iniciarSimulacion = () => {
         setSimulacionActiva(true);
         setSimulacionIniciada(true);
         iniciarSimulacionInterval();
     }
+
     const iniciarSimulacionInterval = () => {
-        if(intervalRef.current) clearInterval(intervalRef.current);
+        if (intervalRef.current) clearInterval(intervalRef.current);
         intervalRef.current = setInterval(moverCamiones, 1000 / velocidad);
     };
 
@@ -122,15 +127,15 @@ const MapaPeruSimulacion = ({onUpdateStats}) => {
     };
 
     const pararSimulacion = () => {
-        setSimulacionIniciada(false)
         setSimulacionIniciada(false);
-        clearInterval(intervalRef.current)
-        resetearSimulacion()
+        setSimulacionActiva(false);
+        clearInterval(intervalRef.current);
+        resetearSimulacion();
     };
 
     const resetearSimulacion = () => {
-        tramoIndexRef.current= camiones.map(() => 0);
-        progresoTramoRef.current= camiones.map(() => 0);
+        tramoIndexRef.current = rutas.map(() => 0);
+        progresoTramoRef.current = rutas.map(() => 0);
         setCurrentPositions({})
     }
 
@@ -144,53 +149,15 @@ const MapaPeruSimulacion = ({onUpdateStats}) => {
 
     //</editor-fold>
 
-    //<editor-fold desc="Visibilidad de puntos, camiones y rutas">
-    // Función para verificar si un punto (latitud y longitud) está dentro de los límites visibles del mapa
-    const estaDentroDeLimites = (latitud, longitud, viewport) => {
-        return (
-            latitud >= viewport.latitude - viewport.zoom * 2 &&
-            latitud <= viewport.latitude + viewport.zoom * 2 &&
-            longitud >= viewport.longitude - viewport.zoom * 2 &&
-            longitud <= viewport.longitude + viewport.zoom * 2
-        );
-    };
-
-    // Función para obtener los camiones visibles dentro del área del mapa
-    const obtenerCamionesVisibles = () => {
-        return camiones.filter((camion) => {
-            const posicionActual = currentPositions[camion.camion.codigo];
-            if (!posicionActual) return false;
-            const {latitud, longitud} = posicionActual;
-            return estaDentroDeLimites(latitud, longitud, viewport);
-        });
-    };
-
-    // Función para obtener las rutas visibles dentro del área del mapa
-    const obtenerRutasVisibles = () => {
-        return camiones.filter((camion) => {
-            return camion.tramos.some((tramo) => {
-                const {origen, destino} = tramo;
-                // Verificar si el origen o destino del tramo está dentro de los límites visibles
-                return (
-                    estaDentroDeLimites(origen.latitud, origen.longitud, viewport) ||
-                    estaDentroDeLimites(destino.latitud, destino.longitud, viewport)
-                );
-            });
-        });
-    };
-
-    //</editor-fold>
-
     return (
         <div className="flex flex-col justify-center items-center bg-gray-100">
-            {/* Renderizar el componente de controles de simulación */}
             <ControlesSimulacion
                 simulacionActiva={simulacionActiva}
                 simulacionIniciada={simulacionIniciada}
                 pausarSimulacion={pausarSimulacion}
                 iniciarSimulacion={iniciarSimulacion}
                 reanudarSimulacion={reanudarSimulacion}
-                pararSimulacion={pararSimulacion} // Agregar el botón de reinicio
+                pararSimulacion={pararSimulacion}
                 acelerarSimulacion={acelerarSimulacion}
                 reducirSimulacion={reducirSimulacion}
                 velocidad={velocidad}
@@ -212,7 +179,6 @@ const MapaPeruSimulacion = ({onUpdateStats}) => {
                     })
                 }
             >
-                {/* Mostrar las oficinas desde el CSV con íconos personalizados */}
                 {puntos.map((punto, index) => {
                     const lat = Number.parseFloat(punto.lat);
                     const lng = Number.parseFloat(punto.lng);
@@ -228,7 +194,7 @@ const MapaPeruSimulacion = ({onUpdateStats}) => {
                             }}
                         >
                             <img
-                                src={oficinaIcon} // Usar ícono para las oficinas
+                                src={oficinaIcon}
                                 alt={`Oficina ${punto.departamento}`}
                                 style={{width: "20px", height: "20px"}}
                             />
@@ -236,72 +202,82 @@ const MapaPeruSimulacion = ({onUpdateStats}) => {
                     );
                 })}
 
-                {/* Mostrar Popup al hacer clic en una oficina */}
-                {selectedPunto && (
-                    <Popup
-                        latitude={Number.parseFloat(selectedPunto.lat)}
-                        longitude={Number.parseFloat(selectedPunto.lng)}
-                        onClose={() => setSelectedPunto(null)}
-                        closeOnClick={true}
-                    >
-                        <div>
-                            <p>Departamento: {selectedPunto.departamento}</p>
-                            <p>Ciudad: {selectedPunto.ciudad}</p>
-                            <p>Ubigeo: {selectedPunto.ubigeo}</p>
-                        </div>
-                    </Popup>
-                )}
-
-                {/* Mostrar los camiones y sus rutas desde el JSON */}
-                {camiones.map((camion, camionIndex) => (
-                    <div key={camion.camion.codigo}>
-                        {/* Mostrar marcador solo en la posición actual del camión */}
-                        {currentPositions[camion.camion.codigo] && (
-                            <Marker
-                                latitude={currentPositions[camion.camion.codigo].latitud}
-                                longitude={currentPositions[camion.camion.codigo].longitud}
-                                anchor="center"
-                                onClick={() => setSelectedCamion(camion.camion.codigo)} // Resaltar el camión al hacer clic
-                            >
-                                <img
-                                    src={camionIcon} // Usar ícono para los camiones
-                                    alt={`Camión ${camion.camion.codigo}`}
-                                    style={{width: "24px", height: "24px"}}
-                                />
-                            </Marker>
-                        )}
-
-                        {/* Mostrar ruta completa del camión como línea */}
-                        <Source
-                            id={`ruta-${camion.camion.codigo}`}
-                            type="geojson"
-                            data={{
-                                type: "Feature",
-                                geometry: {
-                                    type: "LineString",
-                                    coordinates: camion.tramos.map((tramo) => [
-                                        tramo.origen.longitud,
-                                        tramo.origen.latitud
-                                    ])
-                                }
-                            }}
-                        >
-                            <Layer
-                                id={`route-${camion.camion.codigo}`}
-                                type="line"
-                                paint={{
-                                    "line-color": "#FF0000", // Color de la ruta
-                                    "line-width": 4,
-                                    "line-opacity":
-                                        selectedCamion === null || selectedCamion === camion.camion.codigo
-                                            ? 1
-                                            : 0.2, // Resaltar la ruta del camión seleccionado y reducir opacidad en las demás
+                {simulacionIniciada && rutas.map((ruta, rutaIndex) => {
+                    const {codigo} = ruta.camion; // Usar "codigo" directamente
+                    return (
+                        <div key={codigo}>
+                            {currentPositions[codigo] && (
+                                <Marker
+                                    latitude={currentPositions[codigo].latitud}
+                                    longitude={currentPositions[codigo].longitud}
+                                    anchor="center"
+                                    onClick={() => setSelectedCamion(codigo)}
+                                >
+                                    <img
+                                        src={camionIcon}
+                                        alt={`Camión ${codigo}`}
+                                        style={{width: "24px", height: "24px"}}
+                                    />
+                                </Marker>
+                            )}
+                            <Source
+                                id={`ruta-punteada-${codigo}`}
+                                type="geojson"
+                                data={{
+                                    type: "Feature",
+                                    geometry: {
+                                        type: "LineString",
+                                        coordinates: ruta.tramos.map((tramo) => [
+                                            tramo.origen.longitud,
+                                            tramo.origen.latitud
+                                        ])
+                                    }
                                 }}
-                            />
-                        </Source>
-                    </div>
-                ))}
+                            >
+                                <Layer
+                                    id={`route-dotted-${codigo}`}
+                                    type="line"
+                                    paint={{
+                                        "line-color": "#555555",
+                                        "line-width": 2,
+                                        "line-dasharray": [1, 2]
+                                    }}
+                                />
+                            </Source>
 
+                            <Source
+                                id={`ruta-progresiva-${codigo}`}
+                                type="geojson"
+                                data={{
+                                    type: "Feature",
+                                    geometry: {
+                                        type: "LineString",
+                                        coordinates: ruta.tramos.slice(0, tramoIndexRef.current[rutaIndex] + 1)
+                                            .map((tramo, idx) => {
+                                                if (idx === tramoIndexRef.current[rutaIndex]) {
+                                                    const progreso = progresoTramoRef.current[rutaIndex];
+                                                    return [
+                                                        tramo.origen.longitud + progreso * (tramo.destino.longitud - tramo.origen.longitud),
+                                                        tramo.origen.latitud + progreso * (tramo.destino.latitud - tramo.origen.latitud)
+                                                    ];
+                                                }
+                                                return [tramo.destino.longitud, tramo.destino.latitud];
+                                            })
+                                    }
+                                }}
+                            >
+                                <Layer
+                                    id={`route-progress-${codigo}`}
+                                    type="line"
+                                    paint={{
+                                        "line-color": "#FF0000",
+                                        "line-width": 2
+                                    }}
+                                />
+                            </Source>
+                        </div>
+                    );
+                })}
                 <NavigationControl position="top-right"/>
             </MapContainer>
         </div>

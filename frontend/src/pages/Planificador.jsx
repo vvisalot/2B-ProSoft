@@ -41,7 +41,7 @@ const Planificador = () => {
 
 			{/* Contenedor de la mitad derecha */}
 			<div className="w-full lg:w-1/2 h-full">
-				<MapaPeru />
+				{/*<MapaPeru />*/}
 			</div>
 		</div>
 	);
