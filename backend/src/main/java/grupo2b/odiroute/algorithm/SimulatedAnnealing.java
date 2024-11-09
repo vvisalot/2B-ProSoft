@@ -6,7 +6,6 @@ import grupo2b.odiroute.model.Oficina;
 import grupo2b.odiroute.model.Paquete;
 import grupo2b.odiroute.model.Ruta;
 import grupo2b.odiroute.model.RutaManager;
-import grupo2b.odiroute.model.Tramo;
 import grupo2b.odiroute.utils.RelojSimulado;
 
 import java.time.LocalDateTime;
@@ -20,8 +19,6 @@ public class SimulatedAnnealing {
     private static final double TIEMPO_EN_OFICINA = 2;
     private final GrafoTramos grafoTramos = GrafoTramos.getInstance();
 
-    public static double calcular(List<Paquete> paquetes, Camion camion, RelojSimulado reloj,
-                                  List<Oficina> almacenesPrincipales) {
     public static grupo2b.odiroute.dto.Solucion calcular(List<Paquete> paquetes, Camion camion, RelojSimulado reloj,
                                     List<Oficina> almacenesPrincipales) {
         RutaManager.limpiarPaquetes();
@@ -30,7 +27,6 @@ public class SimulatedAnnealing {
         }
 
         double temp = 100000;
-        double coolingRate = 0.003;
         double coolingRate = 0.03;
         Ruta currentSolution;
         Ruta best;
@@ -107,8 +103,6 @@ public class SimulatedAnnealing {
         Oficina almacenRegreso = null;
         Ruta rutaRegreso = new Ruta();
         for (Oficina almacen : almacenesPrincipales) {
-            var ruta = new Ruta(posicionFinal, almacen);
-            var tiempoRegreso = ruta.getTiempoTotal();
             rutaRegreso = new Ruta(posicionFinal, almacen);
             var tiempoRegreso = rutaRegreso.getTiempoTotal();
             if (tiempoRegreso < mejorTiempo) {
@@ -116,7 +110,6 @@ public class SimulatedAnnealing {
                 almacenRegreso = almacen;
             }
         }
-        hoursToAdd = mejorTiempo;
         //System.out.println(rutaRegreso);
 
         camion.setAlmacenCarga(almacenRegreso);
@@ -176,8 +169,6 @@ public class SimulatedAnnealing {
         hoursToAdd = bestTime + mejorTiempo;
         wholeHours = (long) hoursToAdd;
         minutes = (long) ((hoursToAdd - wholeHours) * 60);
-        camion.setRegresoAlmacen(fechaEntregaUltimoPaquete.plusHours(wholeHours).plusMinutes(minutes));
-        camion.setAlmacenCarga(almacenRegreso);
         camion.setRegresoAlmacen(reloj.getTiempo().plusHours(wholeHours).plusMinutes(minutes));
 
         var solucion = new grupo2b.odiroute.dto.Solucion(
@@ -189,7 +180,6 @@ public class SimulatedAnnealing {
 
 //        System.out.println("Tiempo Final solución: " + best.getTiempoTotal());
         System.out.println("Ruta: " + best);
-        return bestTime + mejorTiempo;
         return solucion;
     }
 
@@ -218,12 +208,10 @@ public class SimulatedAnnealing {
             ruta.construirRutaMarcada();
             var rutaEvaluar = ruta.getRutaRecorrida();
             var tiempoEnRuta = 0.0;
-            for (Tramo tramo : rutaEvaluar) {
             for (int i = 0; i< rutaEvaluar.size(); i++) {
                 var tramo = rutaEvaluar.get(i);
                 var velocidad = mapaVelocidad.obtenerVelocidad(tramo.getOrigen().getRegion(), tramo.getDestino().getRegion());
                 tiempoEnRuta += tramo.getDistancia() / velocidad;
-                tiempoEnRuta += TIEMPO_DESCARGA;
                 tiempoEnRuta += i != rutaEvaluar.size() -1 ? TIEMPO_EN_OFICINA: TIEMPO_DESCARGA;
                 if (tramo.getEsFinal() && tramo.getDestino().getRegion().equals("COSTA") && tiempoEnRuta >= 24.0) {
                     ruta.desmarcarTramos();
@@ -236,7 +224,6 @@ public class SimulatedAnnealing {
             ruta.construirRutaMarcada();
             var rutaEvaluar = ruta.getRutaRecorrida();
             var tiempoEnRuta = 0.0;
-            for (Tramo tramo : rutaEvaluar) {
             for (int i = 0; i< rutaEvaluar.size(); i++) {
                 var tramo = rutaEvaluar.get(i);
                 var velocidad = mapaVelocidad.obtenerVelocidad(tramo.getOrigen().getRegion(), tramo.getDestino().getRegion());
@@ -255,7 +242,6 @@ public class SimulatedAnnealing {
             ruta.desmarcarTramos();
             return false;
         }
-        //TODO:Desmarcar las rutas
         ruta.desmarcarTramos();
         return true;
     }
