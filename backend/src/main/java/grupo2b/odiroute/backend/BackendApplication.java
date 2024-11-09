@@ -15,8 +15,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @ComponentScan(basePackages = {"grupo2b.odiroute"})
 @EnableJpaRepositories(basePackages = "grupo2b.odiroute.repository")
 public class BackendApplication {
-    @Autowired
-    private SimulatedAnnealingService simulatedAnnealingRunner;
 //    @Autowired
 //    private SimulatedAnnealingService simulatedAnnealingRunner;
     
@@ -24,14 +22,6 @@ public class BackendApplication {
         SpringApplication.run(BackendApplication.class, args);
     }
     
-    @PostConstruct
-    public void runSimulatedAnnealing() {
-        try {
-            simulatedAnnealingRunner.runSimulatedAnnealing(); // Llamar al método
-        } catch (IOException e) {
-            System.err.println("Error al ejecutar Simulated Annealing: " + e.getMessage());
-        }
-    }
 //    @PostConstruct
 //    public void runSimulatedAnnealing() {
 //        try {

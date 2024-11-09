@@ -50,7 +50,6 @@ public class SimulatedAnnealingService {
         }
 
         GrafoTramos grafoTramos = GrafoTramos.getInstance();
-        String filePathTramos = "src/main/resources/data/tramos.txt";  // Cambia esta ruta por la correcta
         String filePathTramos = "src/main/resources/data/tramos.txt";
         var datosTramos = LeerDatos.leerTramosDesdeArchivo(filePathTramos, mapaOficinas, mapaBloqueos);
         List<Tramo> listaTramos = datosTramos.first();
@@ -78,17 +77,13 @@ public class SimulatedAnnealingService {
         long tiempoInicio = System.currentTimeMillis();
         soluciones.clear();
 
-        // Loop de un día
-        for (int i = 0; i < 4; i++) {
         for (int i = 0; i < 4; i++) { //TODO: CAMBIAR EL ARCHIVO VENTAS DE PRUEBA PARA QUE SOPORTE UNA SEMANA
             // Mantenimiento de camiones
             for (Camion c : camiones) {
-                // Revisar si está en mantenimiento, si ya pasó los días de mantenimiento vuelve a estar disponible
                 //Revisar si esta en mantenimiento, si ya paso los días de mantenimiento vuelve a estar disponible
                 if (c.getEnMantenimiento() && reloj.getTiempo().equals(c.getFechaUltimoMantenimiento().plusDays(DIAS_MANTENIMIENTO))) {
                     c.setEnMantenimiento(false);
                 }
-                // Revisar si el camión se tiene que quedar por mantenimiento
                 //Revisar si el camión se tiene que quedar por mantenimiento
                 for (LocalDateTime fechaMantenimieto : c.getMantenimientosProgramados()) {
                     if (fechaMantenimieto.equals(reloj.getTiempo())) {
@@ -102,8 +97,6 @@ public class SimulatedAnnealingService {
             var mapaCamionesPorCentral = AsignadorVentas.asignarVentasGreedy(camiones, ventas, almacenesPrincipales, grafoTramos);
 
             // Planificamos una ruta para cada camión
-            var tiempoTotal = 0.0;
-            var camionesConPaquetes = 0;
             var tiempoTotal = 0.0; //innecesario
             var camionesConPaquetes = 0; //innecesario
 
@@ -113,8 +106,6 @@ public class SimulatedAnnealingService {
                     if (camion.getPaquetes().isEmpty()) {
                         continue;
                     }
-                    tiempoTotal += SimulatedAnnealing.calcular(camion.getPaquetes(), camion, reloj, almacenesPrincipales);
-                    camionesConPaquetes++;
                     var solucionCamion = SimulatedAnnealing.calcular(camion.getPaquetes(), camion, reloj, almacenesPrincipales);
                     soluciones.add(solucionCamion);
                     tiempoTotal += solucionCamion.tiempoTotal(); //innecesario

@@ -198,7 +198,6 @@ public class Ruta {
         this.rutaRecorrida = ruta;
     }
     //TODO: Desmarcar los tramos como finales
-
     public void desmarcarTramos(){
         for(Tramo tramo: rutaRecorrida){
             tramo.setEsFinal(false);
