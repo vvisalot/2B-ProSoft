@@ -6,6 +6,7 @@ import {useState} from "react";
 
 const MapaSimulacion = ({
                             simulacionActiva,
+                            simulacionIniciada,
                             velocidad,
                             rutas,
                             puntos,
@@ -54,14 +55,14 @@ const MapaSimulacion = ({
             ))}
 
             {/* Marcadores de camiones */}
-            {simulacionActiva && Object.entries(currentPositions).map(([codigo, posicion]) => (
+            {simulacionIniciada && Object.entries(currentPositions).map(([codigo, posicion]) => (
                 <Marker key={codigo} latitude={posicion.latitud} longitude={posicion.longitud}>
                     <img src={camionIcon} alt={`Camión ${codigo}`} style={{width: "24px", height: "24px"}}/>
                 </Marker>
             ))}
 
             {/* Líneas de rutas y progreso de rutas */}
-            {simulacionActiva && rutas.map((ruta, rutaIndex) => (
+            {simulacionIniciada && rutas.map((ruta, rutaIndex) => (
                 <div key={rutaIndex}>
                     {/* Línea de ruta completa (dotted) */}
                     <Source

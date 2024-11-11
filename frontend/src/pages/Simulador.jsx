@@ -2,7 +2,8 @@ import {useEffect, useRef, useState} from "react";
 import MapaSimulacion from "/src/components/MapaSimulacion";
 import ControlesSimulacion from "../components/ControlesSimulacion.jsx";
 import rutaData from "/src/assets/data/Data.json";
-import Papa from "papaparse"; // Asegúrate de importar Papa Parse
+import Papa from "papaparse";
+import TablaSimulacion from "../components/TablaSimulacion.jsx"; // Asegúrate de importar Papa Parse
 
 const Simulador = () => {
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
@@ -32,7 +33,9 @@ const Simulador = () => {
     }, []);
 
     useEffect(() => {
-        handleUpdateStats(rutaData.length, rutaData.reduce((acc, ruta) => acc + ruta.tramos.length, 0));
+        handleUpdateStats(
+            rutaData.length,
+            rutaData.reduce((acc, ruta) => acc + ruta.tramos.length, 0));
     }, []);
 
     // Cargar el CSV de oficinas
@@ -109,11 +112,19 @@ const Simulador = () => {
     };
 
     const acelerarSimulacion = () => {
-        setVelocidad((prev) => Math.min(prev * 2, 16));
+        setVelocidad((prev) => {
+            const nuevaVelocidad = Math.min(prev * 2, 16)
+            iniciarSimulacionInterval()
+            return nuevaVelocidad
+        });
     };
 
     const reducirSimulacion = () => {
-        setVelocidad((prev) => Math.max(prev / 2, 0.25));
+        setVelocidad((prev) => {
+            const nuevaVelocidad = Math.max(prev / 2, 0.25)
+            iniciarSimulacionInterval()
+            return nuevaVelocidad
+        });
     };
 
     const moverCamiones = () => {
@@ -150,10 +161,16 @@ const Simulador = () => {
         });
     };
     return (
-        <div className="relative h-fit flex flex-col items-center justify-center">
-            <div className="relative w-[99vw] h-[92vh] m-auto border border-gray-300 shadow-lg rounded-lg">
+        <div className="h-fit flex p-2">
+            <div className="w-2/6">
+                <TablaSimulacion data={rutas}/>
+            </div>
+
+
+            <div className="relative w-4/6 h-[92vh] m-auto border border-gray-300 shadow-lg rounded-lg">
                 <MapaSimulacion
                     simulacionActiva={simulacionActiva}
+                    simulacionIniciada={simulacionIniciada}
                     velocidad={velocidad}
                     rutas={rutas}
                     puntos={puntos} // Pasamos los puntos al mapa
