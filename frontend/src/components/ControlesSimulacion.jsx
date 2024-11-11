@@ -1,10 +1,10 @@
 const ControlesSimulacion = ({
                                  simulacionActiva,
-                                 simulacionIniciada, // Nuevo estado para verificar si ya inició
+                                 simulacionIniciada,
                                  pausarSimulacion,
                                  reanudarSimulacion,
-                                 iniciarSimulacion, // Nueva función para iniciar la simulación
-                                 pararSimulacion, // Nueva función para parar la simulación
+                                 iniciarSimulacion,
+                                 pararSimulacion, // Actúa como reinicio
                                  acelerarSimulacion,
                                  reducirSimulacion,
                                  velocidad,
@@ -16,11 +16,12 @@ const ControlesSimulacion = ({
                 <button
                     className="px-4 py-2 text-black"
                     onClick={reducirSimulacion}
+                    disabled={!simulacionIniciada} // Desactivar si no ha iniciado
                 >
                     0.5x
                 </button>
 
-                {/* Botón de Iniciar/Reanudar/Pausar */}
+                {/* Botón de Play/Pause */}
                 <button
                     className="px-4 py-2 flex items-center space-x-2"
                     onClick={simulacionIniciada ? (simulacionActiva ? pausarSimulacion : reanudarSimulacion) : iniciarSimulacion}
@@ -32,18 +33,20 @@ const ControlesSimulacion = ({
                     />
                 </button>
 
-                {/* Botón de parar la simulación */}
+                {/* Botón de Parar (reinicia la simulación) */}
                 <button
                     className="px-4 py-2"
                     onClick={pararSimulacion}
+                    disabled={!simulacionIniciada} // Desactivar si no ha iniciado
                 >
-                    <img src="/src/assets/icons/parar.png" alt="Parar" className="w-5 h-5"/>
+                    <img src="/src/assets/icons/parar.png" alt="Parar" className="w-5 h-5" />
                 </button>
 
                 {/* Botón para aumentar la velocidad */}
                 <button
                     className="px-4 py-2 text-black rounded-lg"
                     onClick={acelerarSimulacion}
+                    disabled={!simulacionIniciada} // Desactivar si no ha iniciado
                 >
                     2x
                 </button>
