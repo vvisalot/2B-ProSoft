@@ -92,6 +92,11 @@ const MapaPeruSimulacion = ({onUpdateStats}) => {
 		});
 	};
 
+    const [simulacionActiva, setSimulacionActiva] = useState(false);
+    const [simulacionIniciada, setSimulacionIniciada] = useState(false);
+    const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
+    const intervalRef = useRef(null);
+
     const iniciarSimulacion = () => {
         setSimulacionActiva(true);
         setSimulacionIniciada(true);
