@@ -6,25 +6,28 @@ import grupo2b.odiroute.model.Oficina;
 import grupo2b.odiroute.model.Paquete;
 import grupo2b.odiroute.model.Ruta;
 import grupo2b.odiroute.model.RutaManager;
-import grupo2b.odiroute.model.Tramo;
 import grupo2b.odiroute.utils.RelojSimulado;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
 public class SimulatedAnnealing {
     private static final MapaVelocidad mapaVelocidad = MapaVelocidad.getInstance();
     private static final double TIEMPO_DESCARGA = 1;
+    private static final double TIEMPO_EN_OFICINA = 2;
     private final GrafoTramos grafoTramos = GrafoTramos.getInstance();
 
-    public static double calcular(List<Paquete> paquetes, Camion camion, RelojSimulado reloj,
-                                  List<Oficina> almacenesPrincipales) {
+    public static grupo2b.odiroute.dto.Solucion calcular(List<Paquete> paquetes, Camion camion, RelojSimulado reloj,
+                                    List<Oficina> almacenesPrincipales) {
         RutaManager.limpiarPaquetes();
         for (var paquete : paquetes) {
             RutaManager.agregarPaquete(paquete);
         }
 
         double temp = 100000;
-        double coolingRate = 0.003;
+        double coolingRate = 0.03;
         Ruta currentSolution;
         Ruta best;
         double time;
@@ -83,6 +86,7 @@ public class SimulatedAnnealing {
             }
             temp *= 1 - coolingRate;
         }
+        best.construirRutaMarcada();
         var posicionFinal = best.getPaquetesEntregados().get(best.getPaquetesEntregados().size() - 1).getVenta().getDestino();
         camion.setPosicionFinal(posicionFinal);
 
@@ -97,22 +101,86 @@ public class SimulatedAnnealing {
         //Escoger almacén de retorno
         var mejorTiempo = Double.MAX_VALUE;
         Oficina almacenRegreso = null;
+        Ruta rutaRegreso = new Ruta();
         for (Oficina almacen : almacenesPrincipales) {
-            var ruta = new Ruta(posicionFinal, almacen);
-            var tiempoRegreso = ruta.getTiempoTotal();
+            rutaRegreso = new Ruta(posicionFinal, almacen);
+            var tiempoRegreso = rutaRegreso.getTiempoTotal();
             if (tiempoRegreso < mejorTiempo) {
                 mejorTiempo = tiempoRegreso;
                 almacenRegreso = almacen;
             }
         }
-        hoursToAdd = mejorTiempo;
+        //System.out.println(rutaRegreso);
+
+        camion.setAlmacenCarga(almacenRegreso);
+        var paquetesAEntregar = new ArrayList<grupo2b.odiroute.dto.Paquete>();
+
+        for(int i = 1; i < best.getPaquetesEntregados().size();i++){
+            var paquete = best.getPaquetesEntregados().get(i);
+            var destino = paquete.getVenta().getDestino();
+            paquetesAEntregar.add(new grupo2b.odiroute.dto.Paquete(
+                    paquete.getVenta().getCodigo(),
+                    paquete.getVenta().getFechaHora(),
+                    new grupo2b.odiroute.dto.Oficina(destino.getLatitud(),destino.getLongitud()),
+                    paquete.getCantidad(),
+                    paquete.getVenta().getCantidad(),
+                    paquete.getVenta().getIdCliente()
+            ));
+        }
+        var camionSolucion = new grupo2b.odiroute.dto.Camion(camion.getCodigo(),camion.getTipo(),camion.getCapacidad(),camion.getCargaActual(),paquetesAEntregar);
+        var tramosSolucion = new ArrayList<grupo2b.odiroute.dto.Tramo>();
+        LocalDateTime tiempoActual = reloj.getTiempo();
+        for (int i=0;  i< best.getRutaRecorrida().size(); i++) {
+            var tramo = best.getRutaRecorrida().get(i);
+            var origen = tramo.getOrigen();
+            var destino = tramo.getDestino();
+            var velocidad = mapaVelocidad.obtenerVelocidad(origen.getRegion(), destino.getRegion());
+            tramosSolucion.add(new grupo2b.odiroute.dto.Tramo(
+                    new grupo2b.odiroute.dto.Oficina(origen.getLatitud(),origen.getLongitud()),
+                    new grupo2b.odiroute.dto.Oficina(destino.getLatitud(),destino.getLongitud()),
+                    tramo.getDistancia(),
+                    velocidad,
+                    tiempoActual,
+                    tiempoActual = tiempoActual.plusMinutes((long) (tramo.getDistancia() * 60 / velocidad)),
+                    i != best.getRutaRecorrida().size() -1 ? (int) TIEMPO_EN_OFICINA: (int) TIEMPO_DESCARGA,
+                    tramo.getEsFinal()
+            ));
+            tiempoActual = tiempoActual.plusHours((long) TIEMPO_EN_OFICINA);
+        }
+        best.desmarcarTramos();
+        for (int i=0;  i< rutaRegreso.getRutaRecorrida().size(); i++) {
+            var tramo = rutaRegreso.getRutaRecorrida().get(i);
+            var origen = tramo.getOrigen();
+            var destino = tramo.getDestino();
+            var velocidad = mapaVelocidad.obtenerVelocidad(origen.getRegion(), destino.getRegion());
+            tramosSolucion.add(new grupo2b.odiroute.dto.Tramo(
+                    new grupo2b.odiroute.dto.Oficina(origen.getLatitud(),origen.getLongitud()),
+                    new grupo2b.odiroute.dto.Oficina(destino.getLatitud(),destino.getLongitud()),
+                    tramo.getDistancia(),
+                    velocidad,
+                    tiempoActual,
+                    tiempoActual = tiempoActual.plusMinutes((long) (tramo.getDistancia() * 60.0 / (double) velocidad)),
+                    (int) TIEMPO_EN_OFICINA,
+                    tramo.getEsFinal()
+            ));
+            tiempoActual = tiempoActual.plusHours((long) TIEMPO_EN_OFICINA);
+        }
+
+        hoursToAdd = bestTime + mejorTiempo;
         wholeHours = (long) hoursToAdd;
         minutes = (long) ((hoursToAdd - wholeHours) * 60);
-        camion.setRegresoAlmacen(fechaEntregaUltimoPaquete.plusHours(wholeHours).plusMinutes(minutes));
-        camion.setAlmacenCarga(almacenRegreso);
+        camion.setRegresoAlmacen(reloj.getTiempo().plusHours(wholeHours).plusMinutes(minutes));
+
+        var solucion = new grupo2b.odiroute.dto.Solucion(
+                camionSolucion,
+                tramosSolucion,
+                hoursToAdd
+        );
+
+
 //        System.out.println("Tiempo Final solución: " + best.getTiempoTotal());
         System.out.println("Ruta: " + best);
-        return bestTime + mejorTiempo;
+        return solucion;
     }
 
     public static double acceptanceProbability(double currentTime, double newTime, double temperature) {
@@ -140,33 +208,41 @@ public class SimulatedAnnealing {
             ruta.construirRutaMarcada();
             var rutaEvaluar = ruta.getRutaRecorrida();
             var tiempoEnRuta = 0.0;
-            for (Tramo tramo : rutaEvaluar) {
+            for (int i = 0; i< rutaEvaluar.size(); i++) {
+                var tramo = rutaEvaluar.get(i);
                 var velocidad = mapaVelocidad.obtenerVelocidad(tramo.getOrigen().getRegion(), tramo.getDestino().getRegion());
                 tiempoEnRuta += tramo.getDistancia() / velocidad;
-                tiempoEnRuta += TIEMPO_DESCARGA;
+                tiempoEnRuta += i != rutaEvaluar.size() -1 ? TIEMPO_EN_OFICINA: TIEMPO_DESCARGA;
                 if (tramo.getEsFinal() && tramo.getDestino().getRegion().equals("COSTA") && tiempoEnRuta >= 24.0) {
+                    ruta.desmarcarTramos();
                     return true;
                 }
             }
+            ruta.desmarcarTramos();
             return false;
         } else if (tiempo <= 72.0) {
             ruta.construirRutaMarcada();
             var rutaEvaluar = ruta.getRutaRecorrida();
             var tiempoEnRuta = 0.0;
-            for (Tramo tramo : rutaEvaluar) {
+            for (int i = 0; i< rutaEvaluar.size(); i++) {
+                var tramo = rutaEvaluar.get(i);
                 var velocidad = mapaVelocidad.obtenerVelocidad(tramo.getOrigen().getRegion(), tramo.getDestino().getRegion());
                 tiempoEnRuta += tramo.getDistancia() / velocidad;
+                tiempoEnRuta += i != rutaEvaluar.size() -1 ? TIEMPO_EN_OFICINA: TIEMPO_DESCARGA;
                 if (tramo.getEsFinal()) {
                     if (tramo.getDestino().getRegion().equals("COSTA") && tiempoEnRuta >= 24.0) {
+                        ruta.desmarcarTramos();
                         return true;
                     } else if (tramo.getDestino().getRegion().equals("SIERRA") && tiempoEnRuta >= 48.0) {
+                        ruta.desmarcarTramos();
                         return true;
                     }
                 }
             }
+            ruta.desmarcarTramos();
             return false;
         }
-        //TODO:Desmarcar las rutas
+        ruta.desmarcarTramos();
         return true;
     }
 }

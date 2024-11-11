@@ -57,53 +57,40 @@ const MapaPeruSimulacion = ({onUpdateStats}) => {
         return tiempoTramo / velocidad;
     };
 
-    const interpolarPosicion = (origen, destino, factor) => {
-        const latitud = origen.latitud + (destino.latitud - origen.latitud) * factor;
-        const longitud = origen.longitud + (destino.longitud - origen.longitud) * factor;
-        return {latitud, longitud};
-    };
+	// Función para interpolar entre dos puntos (origen y destino) con un factor de progresión
+	const interpolarPosicion = (origen, destino, factor) => {
+		const latitud = origen.latitud + (destino.latitud - origen.latitud) * factor;
+		const longitud = origen.longitud + (destino.longitud - origen.longitud) * factor;
+		return { latitud, longitud };
+	};
 
-    const moverCamiones = () => {
-        rutas.forEach((ruta, rutaIndex) => {
-            const {codigo} = ruta.camion;
-            const tramoIndex = tramoIndexRef.current[rutaIndex];
-            const tramoActual = ruta.tramos[tramoIndex];
+	const moverCamiones = () => {
+		camiones.forEach((camion, camionIndex) => {
+			const tramoIndex = tramoIndexRef.current[camionIndex];
+			const tramoActual = camion.tramos[tramoIndex];
 
             if (!tramoActual) return;
 
-            const {distancia, velocidad: velocidadTramo, origen, destino} = tramoActual;
-            const tiempoTramo = calcularTiempoTramo(distancia, velocidadTramo);
+			const { distancia, velocidad: velocidadTramo, origen, destino } = tramoActual;
+			const tiempoTramo = calcularTiempoTramo(distancia, velocidadTramo);
 
-            const nuevaPosicion = interpolarPosicion(origen, destino, progresoTramoRef.current[rutaIndex]);
+			const nuevaPosicion = interpolarPosicion(origen, destino, progresoTramoRef.current[camionIndex]);
+			setCurrentPositions((prev) => ({
+				...prev,
+				[camion.camion.codigo]: nuevaPosicion,
+			}));
 
-            setCurrentPositions((prev) => ({
-                ...prev,
-                [codigo]: nuevaPosicion,
-            }));
+			progresoTramoRef.current[camionIndex] += 0.01 * velocidad;
+			if (progresoTramoRef.current[camionIndex] >= 1) {
+				tramoIndexRef.current[camionIndex]++;
+				progresoTramoRef.current[camionIndex] = 0;
 
-            const incrementoProgreso = (1 / tiempoTramo) * velocidad;
-            progresoTramoRef.current[rutaIndex] += incrementoProgreso;
-
-            if (progresoTramoRef.current[rutaIndex] >= 1) {
-                tramoIndexRef.current[rutaIndex]++;
-                progresoTramoRef.current[rutaIndex] = 0.01;
-
-                console.log(`Camión ${codigo} - Cambia al tramo: ${tramoIndexRef.current[rutaIndex]}`);
-
-                if (tramoIndexRef.current[rutaIndex] >= ruta.tramos.length) {
-                    tramoIndexRef.current[rutaIndex] = 0;
-                    console.log(`Camión ${codigo} ha completado todos los tramos y vuelve al inicio.`);
-                }
-            }
-        });
-    };
-    //</editor-fold>
-
-    //<editor-fold desc="Controles de la Simulacion">
-    const [simulacionActiva, setSimulacionActiva] = useState(false);
-    const [simulacionIniciada, setSimulacionIniciada] = useState(false);
-    const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
-    const intervalRef = useRef(null);
+				if (tramoIndexRef.current[camionIndex] >= camion.tramos.length) {
+					tramoIndexRef.current[camionIndex] = 0;
+				}
+			}
+		});
+	};
 
     const iniciarSimulacion = () => {
         setSimulacionActiva(true);
