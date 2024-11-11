@@ -37,7 +37,6 @@ const ControlesSimulacion = ({
                 <button
                     className="px-4 py-2"
                     onClick={pararSimulacion}
-                    disabled={!simulacionIniciada} // Desactivar si no ha iniciado
                 >
                     <img src="/src/assets/icons/parar.png" alt="Parar" className="w-5 h-5" />
                 </button>
@@ -46,7 +45,6 @@ const ControlesSimulacion = ({
                 <button
                     className="px-4 py-2 text-black rounded-lg"
                     onClick={acelerarSimulacion}
-                    disabled={!simulacionIniciada} // Desactivar si no ha iniciado
                 >
                     2x
                 </button>

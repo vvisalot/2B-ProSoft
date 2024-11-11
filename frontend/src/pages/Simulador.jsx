@@ -18,14 +18,12 @@ const Simulador = () => {
     const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
     const intervalRef = useRef(null);
 
-    // Estado para almacenar rutas y puntos de oficinas
     const [rutas, setRutas] = useState();
     const [puntos, setPuntos] = useState([]);
+    const [currentPositions, setCurrentPositions] = useState({});
 
-    // Referencias para el estado de cada camión en movimiento
     const tramoIndexRef = useRef([]);
     const progresoTramoRef = useRef([]);
-    const [currentPositions, setCurrentPositions] = useState({});
 
     useEffect(() => {
         // Actualizar la hora cada segundo
@@ -58,9 +56,10 @@ const Simulador = () => {
         setRutas(rutaData);
         tramoIndexRef.current = rutaData.map(() => 0);
         progresoTramoRef.current = rutaData.map(() => 0.01);
-
-        handleUpdateStats(rutaData.length, rutaData.reduce((acc, ruta) => acc + ruta.tramos.length, 0));
-        return () => clearInterval(intervalRef.current);
+        handleUpdateStats(
+            rutaData.length,
+            rutaData.reduce((acc, ruta) => acc + ruta.tramos.length, 0)
+        );
     }, []);
 
 
@@ -78,7 +77,7 @@ const Simulador = () => {
 
     const iniciarSimulacionInterval = () => {
         if (intervalRef.current) clearInterval(intervalRef.current);
-        intervalRef.current = setInterval(moverCamiones, 1000 / velocidad);
+        intervalRef.current = setInterval(moverCamiones, 200 / velocidad); // Ajuste de intervalo según velocidad actual
     };
 
     const pausarSimulacion = () => {
@@ -95,7 +94,7 @@ const Simulador = () => {
         setSimulacionIniciada(false);
         setSimulacionActiva(false);
         clearInterval(intervalRef.current);
-        setSimulacionTerminada(true);
+        resetearSimulacion(); // Reinicia los estados a su valor inicial
     };
 
     const reiniciarSimulacion = () => {
@@ -118,11 +117,19 @@ const Simulador = () => {
 
 
     const acelerarSimulacion = () => {
-        setVelocidad((prev) => Math.min(prev * 2, 16));
+        setVelocidad((prev) => {
+            const nuevaVelocidad = Math.min(prev * 2, 16);
+            iniciarSimulacionInterval(); // Reinicia el intervalo con la nueva velocidad
+            return nuevaVelocidad;
+        });
     };
 
     const reducirSimulacion = () => {
-        setVelocidad((prev) => Math.max(prev / 2, 0.25));
+        setVelocidad((prev) => {
+            const nuevaVelocidad = Math.max(prev / 2, 0.25);
+            iniciarSimulacionInterval(); // Reinicia el intervalo con la nueva velocidad
+            return nuevaVelocidad;
+        });
     };
 
     const [camionesActivos, setCamionesActivos] = useState({})
@@ -141,7 +148,6 @@ const Simulador = () => {
     };
 
 
-    // Modificación en moverCamiones para verificar si todos los camiones han terminado
     const moverCamiones = () => {
         rutas.forEach((ruta, rutaIndex) => {
             const {codigo} = ruta.camion;
@@ -154,7 +160,7 @@ const Simulador = () => {
             if (!tramoActual) return;
 
             const {distancia, velocidad: velocidadTramo, origen, destino} = tramoActual;
-            const tiempoTramo = (distancia / velocidadTramo) * 1000 / velocidad;
+            const tiempoTramo = (distancia / velocidadTramo) * 1000;
             const progreso = progresoTramoRef.current[rutaIndex];
 
             const nuevaPosicion = {
@@ -167,6 +173,7 @@ const Simulador = () => {
                 [codigo]: nuevaPosicion,
             }));
 
+            // APLICACIÓN DE VELOCIDAD EN EL PROGRESO SIN ALTERAR EL INTERVALO
             progresoTramoRef.current[rutaIndex] += (1 / tiempoTramo) * velocidad;
 
             if (progresoTramoRef.current[rutaIndex] >= 1) {
@@ -185,16 +192,16 @@ const Simulador = () => {
                         return updated;
                     });
 
-                    // Verificar si todos los camiones han finalizado su recorrido
                     const allFinished = Object.values(camionesActivos).every((activo) => !activo);
                     if (allFinished) {
-                        pararSimulacion(); // Finalizar simulación cuando todos los camiones hayan terminado
-                        setSimulacionTerminada(true); // Mostrar mensaje de simulación terminada
+                        pararSimulacion();
+                        setSimulacionTerminada(true);
                     }
                 }
             }
         });
     };
+
     return (
         <div className="h-fit flex p-2">
             <div className="w-2/6">
