@@ -1,7 +1,7 @@
 import { Button, DatePicker, Row, Col } from "antd";
 import { useEffect, useState } from "react";
 import CardLeyenda from "../../cards/CardLeyenda";
-import MapaPeruSimulacion from "../../components/MapaPeruSimulacion";
+import MapaSimulacion from "../../components/MapaSimulacion.jsx";
 import TablaFlota from "../../components/TableFlota";
 
 const SimuSemanal = () => {
@@ -67,7 +67,7 @@ const SimuSemanal = () => {
 
                     </Col>
                     <Col xs={24} md={16}>
-                        <MapaPeruSimulacion onUpdateStats={handleUpdateStats} />
+                        <MapaSimulacion onUpdateStats={handleUpdateStats} />
                     </Col>
                 </Row>
             </div>

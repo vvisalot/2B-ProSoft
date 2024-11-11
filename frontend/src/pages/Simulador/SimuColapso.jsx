@@ -2,7 +2,7 @@ import { Button, DatePicker, Dropdown, Tabs } from "antd";
 import Title from "antd/es/skeleton/Title";
 import { useEffect, useState } from "react";
 import CardLeyenda from "../../cards/CardLeyenda";
-import MapaPeruSimulacion from "../../components/MapaPeruSimulacion";
+import MapaSimulacion from "../../components/MapaSimulacion.jsx";
 import TablaFlota from "../../components/TableFlota";
 import Colapso from "../Simulador/SimuColapso"
 import Semanal from "../Simulador/SimuSemanal"
@@ -53,7 +53,7 @@ const SimuColapso = () => {
 		
 				{/* Contenedor del mapa */}
 				<div className="flex-grow h-full overflow-hidden" style={{ height: "490px", width: "100%" }}>
-					<MapaPeruSimulacion />
+					<MapaSimulacion />
 				</div>
 			</div>
 		
