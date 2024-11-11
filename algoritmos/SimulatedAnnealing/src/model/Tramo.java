@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class Tramo {
-    private List<Bloqueo> bloqueos = null;
+    private List<Bloqueo> bloqueos = new ArrayList<>();
     private double distancia;
 
     private Oficina origen;
@@ -64,13 +64,6 @@ public class Tramo {
     }
 
     public double getDistancia() {
-        double lat1 = this.origen.getLatitud();
-        double lat2 = this.destino.getLatitud();
-        double lon1 = this.origen.getLongitud();
-        double lon2 = this.destino.getLongitud();
-
-        distancia = CalculaDistancia.calcular(lat1, lon1, lat2, lon2);
-
         return distancia;
     }
 

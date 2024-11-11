@@ -1,8 +1,10 @@
 import {useEffect, useRef, useState} from "react";
 import MapaSimulacion from "/src/components/MapaSimulacion";
 import ControlesSimulacion from "../components/ControlesSimulacion.jsx";
+import rutasSemanales from "/src/assets/data/Semana.json";
 import rutaData from "/src/assets/data/Data.json";
-import Papa from "papaparse"; // Asegúrate de importar Papa Parse
+import Papa from "papaparse";
+import TablaSimulacion from "../components/TablaSimulacion.jsx"; // Asegúrate de importar Papa Parse
 
 const Simulador = () => {
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
@@ -15,7 +17,7 @@ const Simulador = () => {
     const intervalRef = useRef(null);
 
     // Estado para almacenar rutas y puntos de oficinas
-    const [rutas, setRutas] = useState(rutaData);
+    const [rutas, setRutas] = useState();
     const [puntos, setPuntos] = useState([]);
 
     // Referencias para el estado de cada camión en movimiento
@@ -31,18 +33,6 @@ const Simulador = () => {
         return () => clearInterval(timer);
     }, []);
 
-    useEffect(() => {
-        handleUpdateStats(rutaData.length, rutaData.reduce((acc, ruta) => acc + ruta.tramos.length, 0));
-    }, []);
-
-    // Cargar el CSV de oficinas
-    const cargarCSV = (file) => {
-        Papa.parse(file, {
-            header: true, download: true, complete: (result) => {
-                setPuntos(result.data);
-            }
-        });
-    };
 
     useEffect(() => {
         // Ruta al archivo CSV de oficinas
@@ -59,8 +49,19 @@ const Simulador = () => {
         tramoIndexRef.current = rutaData.map(() => 0);
         progresoTramoRef.current = rutaData.map(() => 0.01);
 
+        handleUpdateStats(rutaData.length, rutaData.reduce((acc, ruta) => acc + ruta.tramos.length, 0));
         return () => clearInterval(intervalRef.current);
     }, []);
+
+
+    // Cargar el CSV de oficinas
+    const cargarCSV = (file) => {
+        Papa.parse(file, {
+            header: true, download: true, complete: (result) => {
+                setPuntos(result.data);
+            }
+        });
+    };
 
     // Función para actualizar los estados de camiones y rutas
     const handleUpdateStats = (camiones, rutas) => {
@@ -149,9 +150,17 @@ const Simulador = () => {
             }
         });
     };
+
     return (
-        <div className="relative h-fit flex flex-col items-center justify-center">
-            <div className="relative w-[99vw] h-[92vh] m-auto border border-gray-300 shadow-lg rounded-lg">
+        <div className="h-fit flex p-2">
+            <div className="w-2/6">
+                {/*<TablaSimulacion data={rutas}/>*/}
+                <button>
+                    <span>BOTONCITO</span>
+                </button>
+            </div>
+
+            <div className="relative w-4/6 h-[92vh] m-auto border border-gray-300 shadow-lg rounded-lg">
                 <MapaSimulacion
                     simulacionActiva={simulacionActiva}
                     velocidad={velocidad}

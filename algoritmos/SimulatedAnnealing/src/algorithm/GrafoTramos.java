@@ -7,10 +7,13 @@ import utils.CalculaDistancia;
 import utils.RelojSimulado;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 public class GrafoTramos {
     private final HashMap<Tramo, Set<Tramo>> grafo = new HashMap<Tramo, Set<Tramo>>();
+    private final HashMap<Tramo, Tramo> grafoReverseLookup = new HashMap<Tramo, Tramo>();
+    private final HashMap<Oficina, Set<Oficina>> oficinasCercanas = new HashMap<Oficina, Set<Oficina>>();
     private static GrafoTramos instance;
     private final RelojSimulado relojSimulado = RelojSimulado.getInstance();
 
@@ -95,22 +98,29 @@ public class GrafoTramos {
 
     private boolean estaBloqueado(List<Bloqueo> bloqueos){
 //        return false;
-        for(Bloqueo b : bloqueos){
-            if(b.getFechaHoraInicio().isAfter(relojSimulado.getTiempo()) && b.getFechaHoraInicio().isBefore(relojSimulado.getTiempoSiguienteBatch())
-                || b.getFechaHoraInicio().isBefore(relojSimulado.getTiempo()) && b.getFechaHoraFin().isAfter(relojSimulado.getTiempoSiguienteBatch())
-                || b.getFechaHoraFin().isAfter(relojSimulado.getTiempo()) && b.getFechaHoraFin().isBefore(relojSimulado.getTiempoSiguienteBatch())
-            ){
-                return true;
-            }
-        }
+//        for(Bloqueo b : bloqueos){
+//            if(b.getFechaHoraInicio().isAfter(relojSimulado.getTiempo()) && b.getFechaHoraInicio().isBefore(relojSimulado.getTiempoSiguienteBatch())
+//                || b.getFechaHoraInicio().isBefore(relojSimulado.getTiempo()) && b.getFechaHoraFin().isAfter(relojSimulado.getTiempoSiguienteBatch())
+//                || b.getFechaHoraFin().isAfter(relojSimulado.getTiempo()) && b.getFechaHoraFin().isBefore(relojSimulado.getTiempoSiguienteBatch())
+//            ){
+//                return true;
+//            }
+//        }
         return false;
     }
 
     private List<Tramo> buscarTramosConOrigen(Oficina origen) {
         // Busca los tramos que salen de la oficina de origen en el grafo
         List<Tramo> tramos = new ArrayList<>();
-        for (Tramo tramo : grafo.keySet()) {
-            if (tramo.getOrigen().equals(origen) && !estaBloqueado(tramo.getBloqueos())){
+        var oficinasDestino = oficinasCercanas.get(origen);
+        var tramosConOrigen = new ArrayList<Tramo>();
+        for(Oficina destino : oficinasDestino){
+            tramosConOrigen.add(new Tramo(origen,destino));
+        }
+        var tramosAEvaluar = tramosConOrigen.stream().map(grafoReverseLookup::get) // Retrieve the exact key reference from the map
+                .collect(Collectors.toSet());
+        for (Tramo tramo : tramosAEvaluar) {
+            if (!estaBloqueado(tramo.getBloqueos())){
                 tramos.add(tramo);
             }
         }
@@ -163,6 +173,19 @@ public class GrafoTramos {
         for (Tramo tramo : grafo.keySet()) {
             System.out.println("Tramo: " + tramo.getOrigen().getCodigo() + " => " + tramo.getDestino().getCodigo()
                     + " | Distancia: " + tramo.getDistancia());
+        }
+    }
+
+    public void precalcularOficinasCercanas(){
+        for (Tramo tramo : grafo.keySet()) {
+            oficinasCercanas.computeIfAbsent(tramo.getOrigen(), k -> new HashSet<>());
+            oficinasCercanas.get(tramo.getOrigen()).add(tramo.getDestino());
+        }
+    }
+
+    public void precalcularReverseLookup(){
+        for (Tramo tramo : grafo.keySet()) {
+            grafoReverseLookup.put(tramo,tramo);
         }
     }
 }

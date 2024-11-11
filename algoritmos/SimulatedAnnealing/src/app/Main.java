@@ -51,7 +51,8 @@ public class Main {
         for (Tramo tramo : listaTramos) {
             grafoTramos.agregarArista(tramo, mapaTramos.get(tramo.getDestino().getCodigo()));
         }
-
+        grafoTramos.precalcularOficinasCercanas();
+        grafoTramos.precalcularReverseLookup();
         //Lectura de ventas
         String archivoVentas = "resources/ventas.historico.proyectado/ventas200001.txt";
         List<Venta> ventas = LeerDatos.leerVentasDesdeArchivo(archivoVentas, mapaOficinas);
@@ -66,9 +67,14 @@ public class Main {
         // Empezamos a tomar el tiempo desde la asignacion de ventas a camiones
         long tiempoInicio = System.currentTimeMillis();
 
+        var solucionUnaSemana = new ArrayList<ArrayList<Solucion>>();
         // Loop de un dia
         for (int i = 0; i < 28; i++) { //TODO: CAMBIAR EL ARCHIVO VENTAS DE PRUEBA PARA QUE SOPORTE UNA SEMANA
             // Mantenimiento de camiones
+            System.out.println("Loop " + (i+1) + ":");
+//            if(i==7){
+//                System.out.println();
+//            }
             for (Camion c : camiones) {
                 //Revisar si esta en mantenimiento, si ya paso los días de mantenimiento vuelve a estar disponible
                 if (c.getEnMantenimiento() && reloj.getTiempo().equals(c.getFechaUltimoMantenimiento().plusDays(DIAS_MANTENIMIENTO))) {
@@ -101,9 +107,11 @@ public class Main {
                         continue;
                     }
                     var solucionCamion = SimulatedAnnealing.calcular(camion.getPaquetes(), camion, reloj, almacenesPrincipales);
-                    solucion.add(solucionCamion);
-                    tiempoTotal += solucionCamion.tiempoTotal(); //innecesario
-                    camionesConPaquetes++; //innecesario
+                    if(solucionCamion!= null){
+                        solucion.add(solucionCamion);
+                        tiempoTotal += solucionCamion.tiempoTotal(); //innecesario
+                        camionesConPaquetes++; //innecesario
+                    }
                 }
             }
 
@@ -113,37 +121,39 @@ public class Main {
                     if (c.getRegresoAlmacen().isBefore(reloj.getTiempoSiguienteBatch())){
                         c.setEnRuta(false);
                         c.setCargaActual(0);
+                        c.setPaquetes(new ArrayList<>());
                     }
                 }
             }
-
+            solucionUnaSemana.add(solucion);
             // </editor-fold>
-
-            Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-                    .create();
-            String json = gson.toJson(solucion);
-            System.out.println(json); //TODO: GUARDAR ESTE JSON EN UN ARCHIVO DE VERDAD
-            
-            var tiempoPromedioRuta = tiempoTotal / camionesConPaquetes;
-
-            System.out.printf("Hora de salida de los camiones: %02d:%02d - %02d:%02d%n",
-                    reloj.getTiempo().getHour(), reloj.getTiempo().getMinute(),
-                    reloj.getTiempoSiguienteBatch().getHour(), reloj.getTiempoSiguienteBatch().getMinute());
-            for (var entry : mapaCamionesPorCentral.entrySet()) {
-                System.out.println("\tDe la oficina central " + entry.getKey().getCodigo() + " ubicada en  "
-                        + entry.getKey().getDepartamento() + " salen los siguientes camiones:");
-                for (var camion : entry.getValue()) {
-                    if (camion.getPaquetes().isEmpty()) {
-                        continue;
-                    }
-                    System.out.println("\t\t" + camion);
-                }
-            }
-            System.out.printf("\nTiempo promedio de ruta: %.2f\n\n%n", tiempoPromedioRuta);
+//
+//            var tiempoPromedioRuta = tiempoTotal / camionesConPaquetes;
+//
+//            System.out.printf("Hora de salida de los camiones: %02d:%02d - %02d:%02d%n",
+//                    reloj.getTiempo().getHour(), reloj.getTiempo().getMinute(),
+//                    reloj.getTiempoSiguienteBatch().getHour(), reloj.getTiempoSiguienteBatch().getMinute());
+//            for (var entry : mapaCamionesPorCentral.entrySet()) {
+//                System.out.println("\tDe la oficina central " + entry.getKey().getCodigo() + " ubicada en  "
+//                        + entry.getKey().getDepartamento() + " salen los siguientes camiones:");
+//                for (var camion : entry.getValue()) {
+//                    if (camion.getPaquetes().isEmpty()) {
+//                        continue;
+//                    }
+//                    System.out.println("\t\t" + camion);
+//                }
+//            }
+//            System.out.printf("\nTiempo promedio de ruta: %.2f\n\n%n", tiempoPromedioRuta);
             reloj.pasarCicloDeEntregas();
         }
+
+
+        Gson gson = new GsonBuilder().registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                .create();
+        String json = gson.toJson(solucionUnaSemana);
+        System.out.println(json); //TODO: GUARDAR ESTE JSON EN UN ARCHIVO DE VERDAD
         // Obtenemos el tiempo de ejecucion del programa
-            long tiempoFin = System.currentTimeMillis();
-            System.out.println("Tiempo de ejecución: " + (tiempoFin - tiempoInicio) + " ms");
+//            long tiempoFin = System.currentTimeMillis();
+//            System.out.println("Tiempo de ejecución: " + (tiempoFin - tiempoInicio) + " ms");
     }
 }

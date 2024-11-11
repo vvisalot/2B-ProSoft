@@ -3,7 +3,7 @@ import Title from "antd/es/skeleton/Title";
 import { useEffect, useState } from "react";
 import CardLeyenda from "../../cards/CardLeyenda";
 import MapaSimulacion from "../../components/MapaSimulacion.jsx";
-import TablaFlota from "../../components/TableFlota";
+import TablaFlota from "../../components/TablaFlota.jsx";
 import Colapso from "../Simulador/SimuColapso"
 import Semanal from "../Simulador/SimuSemanal"
 

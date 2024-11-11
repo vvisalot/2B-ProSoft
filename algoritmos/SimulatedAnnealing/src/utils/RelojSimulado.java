@@ -10,7 +10,7 @@ public class RelojSimulado {
     private final int INTERVALO = 6;
     private RelojSimulado() {
         try {
-            this.tiempo = LocalDateTime.parse("2000-01-01 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            this.tiempo = LocalDateTime.parse("2000-01-14 00:00:00", DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         } catch (Exception e) {
             this.tiempo = LocalDateTime.now();
         }        

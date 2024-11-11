@@ -111,7 +111,12 @@ public class LeerDatos {
 
                 if (oficinaOrigen != null && oficinaDestino != null) {
                     //TODO: Revisar si es necesario agregar la distancia
-                    Tramo tramo = new Tramo(oficinaOrigen, oficinaDestino, 0);
+                    double lat1 = oficinaOrigen.getLatitud();
+                    double lat2 = oficinaDestino.getLatitud();
+                    double lon1 = oficinaOrigen.getLongitud();
+                    double lon2 = oficinaDestino.getLongitud();
+                    var distancia = CalculaDistancia.calcular(lat1, lon1, lat2, lon2);
+                    Tramo tramo = new Tramo(oficinaOrigen, oficinaDestino, distancia);
                     if(mapaBloqueos.containsKey(tramo)){
                         tramo.setBloqueos(mapaBloqueos.get(tramo));
                     }

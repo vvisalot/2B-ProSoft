@@ -1,6 +1,6 @@
 import { Button, Tabs } from "antd";
 import MapaPeru from "../components/MapaPeru";
-import Tabla from "../components/Tabla";
+import TablaSimulacion from "../components/TablaSimulacion.jsx";
 
 const Planificador = () => {
 	return (
@@ -13,7 +13,7 @@ const Planificador = () => {
 				</Button>
 				<Button> Importar Pedidos </Button>
 				</div>
-				<Tabla />
+				<TablaSimulacion />
 
 			</div>
 		</div>

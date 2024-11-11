@@ -20,7 +20,7 @@ public class RutaManager {
     }
 
     public static void limpiarPaquetes(){
-        paquetesAEntregar.clear();
+        paquetesAEntregar = new ArrayList<>();
     }
 
     public static void agregarPuntoInicial(Paquete paquete){

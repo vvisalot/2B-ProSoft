@@ -27,15 +27,14 @@ public class SimulatedAnnealing {
         Ruta currentSolution;
         Ruta best;
         double time;
-        do {
-            currentSolution = new Ruta(camion.getPosicionFinal());
-            currentSolution.generateIndividual();
+        boolean rutaInvalida;
+        currentSolution = new Ruta(camion.getPosicionFinal());
+        currentSolution.generateIndividual();
 //        System.out.println("Total time of initial solution: " + currentSolution.getTiempoTotal());
- //       System.out.println("Ruta: " + currentSolution);
+//       System.out.println("Ruta: " + currentSolution);
 
-            best = new Ruta(currentSolution.getPaquetesEntregados(), camion.getPosicionFinal());
-            time = best.getTiempoTotal();
-        } while (esRutaInvalida(best, time));
+        best = new Ruta(currentSolution.getPaquetesEntregados(), camion.getPosicionFinal());
+        time = best.getTiempoTotal();
 
         double bestTime = time;
         while (temp > 1) {
@@ -50,6 +49,7 @@ public class SimulatedAnnealing {
 
             // Nos aseguramos de que las posiciones sean diferentes
             while (rutaPos1 == rutaPos2) {
+//                System.out.println("ATORADO " + newSolution.cantidadPaquetes());
                 rutaPos2 = randomInt(1, newSolution.cantidadPaquetes());
             }
 
@@ -82,6 +82,11 @@ public class SimulatedAnnealing {
             }
             temp *= 1 - coolingRate;
         }
+        if (esRutaInvalida(best, bestTime)){
+            System.out.println("COLAPSO");
+            esRutaInvalida(best, bestTime);
+            return null;
+        }
         best.construirRutaMarcada();
         var posicionFinal = best.getPaquetesEntregados().get(best.getPaquetesEntregados().size() - 1).getVenta().getDestino();
         camion.setPosicionFinal(posicionFinal);
@@ -106,7 +111,7 @@ public class SimulatedAnnealing {
                 almacenRegreso = almacen;
             }
         }
-        System.out.println(rutaRegreso);
+//        System.out.println(rutaRegreso);
 
 
 
