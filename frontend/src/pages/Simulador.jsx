@@ -4,6 +4,7 @@ import ControlesSimulacion from "../components/ControlesSimulacion.jsx";
 import rutaData from "/src/assets/data/Data.json";
 import Papa from "papaparse";
 import TablaSimulacion from "../components/TablaSimulacion.jsx"; // Asegúrate de importar Papa Parse
+import {Modal, Button} from "antd";
 
 const Simulador = () => {
     const almacenesPrincipales = ["150101", "130101", "040101"];
@@ -13,6 +14,8 @@ const Simulador = () => {
 
     const [simulacionActiva, setSimulacionActiva] = useState(false);
     const [simulacionIniciada, setSimulacionIniciada] = useState(false);
+    const [simulacionTerminada, setSimulacionTerminada] = useState(false);
+
     const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
     const intervalRef = useRef(null);
 
@@ -103,8 +106,15 @@ const Simulador = () => {
     const pararSimulacion = () => {
         setSimulacionIniciada(false);
         setSimulacionActiva(false);
+        setSimulacionTerminada(false);
         clearInterval(intervalRef.current);
         resetearSimulacion();
+    };
+
+    const detenerSimulacion = () => {
+        setSimulacionActiva(false);
+        clearInterval(intervalRef.current);
+        setSimulacionTerminada(true);
     };
 
     const resetearSimulacion = () => {
@@ -136,6 +146,8 @@ const Simulador = () => {
     };
 
     const moverCamiones = () => {
+        let allFinished = true;
+
         rutas.forEach((ruta, rutaIndex) => {
             const {codigo} = ruta.camion;
             const tramoIndex = tramoIndexRef.current[rutaIndex];
@@ -163,11 +175,28 @@ const Simulador = () => {
                 progresoTramoRef.current[rutaIndex] = 0.01;
 
                 if (tramoIndexRef.current[rutaIndex] >= ruta.tramos.length) {
-                    tramoIndexRef.current[rutaIndex] = 0;
+                    setCurrentPositions((prev) => {
+                        const updated = {...prev};
+                        delete updated[codigo];
+                        return updated;
+                    });
+                    tramoIndexRef.current[rutaIndex] = -1; // Marcar el camión como terminado
+                } else {
+                    allFinished = false;
                 }
+            } else {
+                allFinished = false;
             }
         });
+        // Si todos los camiones han terminado, mostrar el modal
+        if (allFinished) detenerSimulacion()
     };
+
+    // Función para cerrar el modal y ver la simulación terminada
+    const verSimulacionTerminada = () => {
+        setSimulacionTerminada(false);
+    };
+
     return (
         <div className="h-fit flex p-2">
             <div className="w-2/6">
@@ -201,6 +230,31 @@ const Simulador = () => {
                     />
                 </div>
             </div>
+
+            {/* Modal de Simulación Terminada */}
+            <Modal
+                title="La simulacion ha terminado"
+                open={simulacionTerminada}
+                closable={false}
+                maskClosable={false}
+                footer={[
+                    <Button key="ver" onClick={verSimulacionTerminada}>
+                        Ver rutas
+                    </Button>,
+                    <Button
+                        key="reiniciar"
+                        type="primary"
+                        onClick={() => {
+                            pararSimulacion();
+                            setSimulacionTerminada(false);
+                        }}
+                    >
+                        Reiniciar simulación
+                    </Button>,
+                ]}
+            >
+                <p>Puedes ver las rutas recorridas o reiniciar la simulación.</p>
+            </Modal>
         </div>
     );
 };

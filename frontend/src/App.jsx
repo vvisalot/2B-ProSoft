@@ -33,7 +33,7 @@ const App = () => {
                         <Route path="/Planificador" element={<Planificador/>}/>
                         <Route path="/Simulador" element={<Simulador/>}/>
                         {/* Ruta por defecto */}
-                        <Route path="/" element={<Planificador/>}/>
+                        <Route path="/" element={<Simulador/>}/>
                     </Routes>
             </Content>
         </Router>
