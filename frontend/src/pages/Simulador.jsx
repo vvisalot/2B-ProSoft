@@ -6,6 +6,7 @@ import Papa from "papaparse";
 import TablaSimulacion from "../components/TablaSimulacion.jsx"; // Asegúrate de importar Papa Parse
 
 const Simulador = () => {
+    const almacenesPrincipales = ["150101", "130101", "040101"];
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
     const [numCamiones, setNumCamiones] = useState(0);
     const [numRutas, setNumRutas] = useState(0);
@@ -41,8 +42,15 @@ const Simulador = () => {
     // Cargar el CSV de oficinas
     const cargarCSV = (file) => {
         Papa.parse(file, {
-            header: true, download: true, complete: (result) => {
-                setPuntos(result.data);
+            header: true,
+            download: true,
+            complete: (result) => {
+                const data = result.data.map((oficina) => ({
+                    ...oficina,
+                    almacenPrincipal: almacenesPrincipales.includes(oficina.id),
+                }));
+                setPuntos(data);
+                console.log("Puntos cargados:", data);
             }
         });
     };

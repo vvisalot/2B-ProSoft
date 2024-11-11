@@ -5,7 +5,6 @@ const columnasFlota = [
 	{ title: "Tipo", dataIndex: "tipo", key: "tipo" },
 	{ title: "Capacidad", dataIndex: "capacidad", key: "capacidad" },
 	{ title: "Carga Actual", dataIndex: "cargaActual", key: "cargaActual" },
-	{ title: "Estado", dataIndex: "estado", key: "estado" },
 ];
 
 
@@ -16,7 +15,6 @@ const TablaFlota = ({data}) => {
 		tipo: item.camion.tipo,
 		capacidad: item.camion.capacidad,
 		cargaActual: item.camion.cargaActual,
-		estado: item.camion.estado,
 	}));
 
 	return (

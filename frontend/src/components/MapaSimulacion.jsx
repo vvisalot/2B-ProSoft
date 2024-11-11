@@ -1,7 +1,9 @@
 import MapContainer, {Marker, NavigationControl, Source, Layer} from "react-map-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import camionIcon from "/src/assets/camion.png";
-import oficinaIcon from "/src/assets/oficina.png";
+import camionIcon from "/src/assets/icons/camion.png";
+import almacenPrincipalIcon from "/src/assets/icons/storage.png";
+import oficinaIcon from "/src/assets/icons/oficina.png";
+
 import {useState} from "react";
 
 const MapaSimulacion = ({
@@ -43,14 +45,18 @@ const MapaSimulacion = ({
             }
             attributionControl={false}
         >
+            {/* Marcadores de oficinas */}
             {puntos.map((punto, index) => (
                 <Marker
                     key={index}
                     latitude={parseFloat(punto.lat)}
                     longitude={parseFloat(punto.lng)}
                 >
-                    <img src={oficinaIcon} alt={`Oficina ${punto.departamento}`}
-                         style={{width: "20px", height: "20px"}}/>
+                    <img
+                        src={punto.almacenPrincipal ? almacenPrincipalIcon : oficinaIcon}
+                        alt={`Oficina ${punto.departamento}`}
+                        style={{width: "20px", height: "20px"}}
+                    />
                 </Marker>
             ))}
 
