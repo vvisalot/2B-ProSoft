@@ -1,6 +1,6 @@
 import { Button, Tabs } from "antd";
 import MapaPeru from "../components/MapaPeru";
-import TablaSimulacion from "../components/TablaSimulacion.jsx";
+import TablaSimulacion from "../components/Simulador/TablaSimulacion.jsx";
 import PedidosPage from "../pages/Pedidos";
 import RutasPage from "../pages/Rutas";
 import FlotaPage from "../pages/Flota";

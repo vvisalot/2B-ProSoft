@@ -1,8 +1,8 @@
 import { Button, DatePicker, Row, Col } from "antd";
 import { useEffect, useState } from "react";
 import CardLeyenda from "../../cards/CardLeyenda";
-import MapaSimulacion from "../../components/MapaSimulacion.jsx";
-import TablaFlota from "../../components/TablaFlota.jsx";
+import MapaSimulacion from "../../components/Simulador/MapaSimulacion.jsx";
+import TablaFlota from "../../components/Simulador/TablaFlota.jsx";
 
 const SimuSemanal = () => {
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());

@@ -1,10 +1,14 @@
-import { Button, Modal } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+import { Button, Input, Modal } from "antd";
+import { Upload } from "antd";
+
+import axios from "axios";
 import Papa from "papaparse";
 import { useEffect, useRef, useState } from "react";
 import rutaData from "/src/assets/data/Data.json";
-import MapaSimulacion from "/src/components/MapaSimulacion";
-import ControlesSimulacion from "../components/ControlesSimulacion.jsx";
-import TablaSimulacion from "../components/TablaSimulacion.jsx"; // Asegúrate de importar Papa Parse
+import MapaSimulacion from "/src/components/Simulador/MapaSimulacion";
+import ControlesSimulacion from "../components/Simulador/ControlesSimulacion.jsx";
+import TablaSimulacion from "../components/Simulador/TablaSimulacion.jsx"; // Asegúrate de importar Papa Parse
 
 const Simulador = () => {
 	const almacenesPrincipales = ["150101", "130101", "040101"];
@@ -64,20 +68,20 @@ const Simulador = () => {
 	useEffect(() => {
 		// Ruta al archivo CSV de oficinas
 		cargarCSV("/src/assets/data/oficinas.csv");
-		rutaData.forEach((ruta) => {
-			let fix = { ...ruta.tramos[0] };
+		for (const ruta of rutaData) {
+			const fix = { ...ruta.tramos[0] };
 			fix.destino = { ...fix.origen };
 			fix.distancia = 0;
 			fix.tiempoLlegada = fix.tiempoSalida;
 			fix.tiempoEspera = 0;
 			ruta.tramos.unshift(fix);
-		});
+		}
 		setRutas(rutaData);
 		tramoIndexRef.current = rutaData.map(() => 0);
 		progresoTramoRef.current = rutaData.map(() => 0.01);
 
 		return () => clearInterval(intervalRef.current);
-	}, []);
+	});
 
 	// Función para actualizar los estados de camiones y rutas
 	const handleUpdateStats = (camiones, rutas) => {
@@ -214,10 +218,65 @@ const Simulador = () => {
 		if (allFinished) detenerSimulacion();
 	};
 
+	// PARA SUBIR UN ARCHIVO
+	const [selectedFile, setSelectedFile] = useState(null);
+
+	const handleFileChange = (event) => {
+		const file = event.target.files[0];
+		if (file) {
+			setSelectedFile(file);
+			handleSubmit();
+		}
+	};
+	// Función para manejar el envío del archivo
+	const handleSubmit = async () => {
+		if (!selectedFile) {
+			message.error("Por favor selecciona un archivo antes de enviar.");
+			return;
+		}
+		const formData = new FormData();
+		formData.append("archivo", selectedFile);
+
+		try {
+			const response = await axios.post(
+				"http://localhost:8080/api/simulated-annealing/soluciones",
+				formData,
+				{
+					headers: {
+						"Content-Type": "multipart/form-data"
+					}
+				}
+			);
+
+			message.success("Archivo cargado exitosamente");
+			console.log("Respuesta del servidor:", response.data);
+			// Guardar las soluciones en el estado
+			setSoluciones(response.data);
+		} catch (error) {
+			message.error("Error al cargar el archivo.");
+			console.error("Error en la solicitud:", error);
+		}
+	};
+
 	return (
 		<div className="h-fit flex p-2">
 			<div className="w-2/6">
-				<TablaSimulacion data={rutas} />
+				<Upload
+					type="file"
+					style={{
+						width: "80%",
+						marginBottom: "20px",
+						padding: "20px"
+					}}
+					onChange={handleFileChange}
+					accept=".txt"
+				>
+					<Button icon={<UploadOutlined />}>Subir archivo</Button>
+				</Upload>
+
+				<div className="mt-4">
+					<TablaSimulacion data={rutas} />
+				</div>
 			</div>
 
 			<div className="relative w-4/6 h-[92vh] m-auto border border-gray-300 shadow-lg rounded-lg">

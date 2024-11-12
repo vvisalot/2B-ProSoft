@@ -1,6 +1,6 @@
 import { Button, Tabs } from "antd";
 import MapaPeru from "../components/MapaPeru";
-import TablaSimulacion from "../components/TablaSimulacion.jsx";
+import TablaSimulacion from "../components/Simulador/TablaSimulacion.jsx";
 
 const Planificador = () => {
 	return (

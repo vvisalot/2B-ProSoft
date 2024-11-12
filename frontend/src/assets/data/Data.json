@@ -4,22 +4,22 @@
             "codigo": "C011",
             "tipo": "C",
             "capacidad": 30,
-            "cargaActual": 12,
+            "cargaActual": 30,
             "paquetes": [
                 {
-                    "codigo": "2cb53b88-d85b-424e-9c5a-93392915b50d",
-                    "fechaHoraPedido": "2000-01-01T03:23:00",
+                    "codigo": "df5ef237-9ccb-4ecd-9305-1cd4f4304d51",
+                    "fechaHoraPedido": "2000-01-14T05:45:00",
                     "destino": {
-                        "latitud": -4.8315686,
-                        "longitud": -76.5545112
+                        "latitud": -8.8649466,
+                        "longitud": -77.35749107
                     },
-                    "cantidadEntregada": 3,
-                    "cantidadTotal": 3,
-                    "idCliente": "000913"
+                    "cantidadEntregada": 18,
+                    "cantidadTotal": 21,
+                    "idCliente": "000144"
                 },
                 {
-                    "codigo": "c14d111e-785b-483a-b2d3-5b8b0cca78a3",
-                    "fechaHoraPedido": "2000-01-01T03:02:00",
+                    "codigo": "98ba4ca0-f960-4655-98fd-c60c9957c87d",
+                    "fechaHoraPedido": "2000-01-14T03:02:00",
                     "destino": {
                         "latitud": -8.60439329,
                         "longitud": -77.14935042
@@ -27,6 +27,17 @@
                     "cantidadEntregada": 9,
                     "cantidadTotal": 9,
                     "idCliente": "000066"
+                },
+                {
+                    "codigo": "8f6814e9-9939-4eff-bc4c-b3e7ff500930",
+                    "fechaHoraPedido": "2000-01-14T03:23:00",
+                    "destino": {
+                        "latitud": -4.8315686,
+                        "longitud": -76.5545112
+                    },
+                    "cantidadEntregada": 3,
+                    "cantidadTotal": 3,
+                    "idCliente": "000913"
                 }
             ]
         },
@@ -37,114 +48,106 @@
                     "longitud": -79.02868652
                 },
                 "destino": {
-                    "latitud": -6.03466877,
-                    "longitud": -76.97466665
+                    "latitud": -8.8649466,
+                    "longitud": -77.35749107
                 },
-                "distancia": 323.59188704858366,
-                "velocidad": 53.0,
-                "tiempoSalida": "2000-01-01T00:00:00",
-                "tiempoLlegada": "2000-01-01T06:06:00",
-                "tiempoEspera": 2,
-                "seDejaraElPaquete": false
-            },
-            {
-                "origen": {
-                    "latitud": -6.03466877,
-                    "longitud": -76.97466665
-                },
-                "destino": {
-                    "latitud": -4.8315686,
-                    "longitud": -76.5545112
-                },
-                "distancia": 141.63245792103888,
-                "velocidad": 65.0,
-                "tiempoSalida": "2000-01-01T08:06:00",
-                "tiempoLlegada": "2000-01-01T10:16:00",
+                "distancia": 201.97357783715168,
+                "velocidad": 70.0,
+                "tiempoSalida": "2000-01-14T00:00:00",
+                "tiempoLlegada": "2000-01-14T02:53:00",
                 "tiempoEspera": 2,
                 "seDejaraElPaquete": true
             },
             {
                 "origen": {
-                    "latitud": -4.8315686,
-                    "longitud": -76.5545112
-                },
-                "destino": {
-                    "latitud": -7.1804106,
-                    "longitud": -76.72644242
-                },
-                "distancia": 261.8703373871227,
-                "velocidad": 65.0,
-                "tiempoSalida": "2000-01-01T12:16:00",
-                "tiempoLlegada": "2000-01-01T16:17:00",
-                "tiempoEspera": 2,
-                "seDejaraElPaquete": false
-            },
-            {
-                "origen": {
-                    "latitud": -7.1804106,
-                    "longitud": -76.72644242
+                    "latitud": -8.8649466,
+                    "longitud": -77.35749107
                 },
                 "destino": {
                     "latitud": -8.60439329,
                     "longitud": -77.14935042
                 },
-                "distancia": 165.0484873327377,
+                "distancia": 36.91460750329931,
+                "velocidad": 50.0,
+                "tiempoSalida": "2000-01-14T04:53:00",
+                "tiempoLlegada": "2000-01-14T05:37:00",
+                "tiempoEspera": 2,
+                "seDejaraElPaquete": true
+            },
+            {
+                "origen": {
+                    "latitud": -8.60439329,
+                    "longitud": -77.14935042
+                },
+                "destino": {
+                    "latitud": -6.0626084,
+                    "longitud": -77.16777252
+                },
+                "distancia": 282.6408853465375,
                 "velocidad": 55.0,
-                "tiempoSalida": "2000-01-01T18:17:00",
-                "tiempoLlegada": "2000-01-01T21:17:00",
+                "tiempoSalida": "2000-01-14T07:37:00",
+                "tiempoLlegada": "2000-01-14T12:45:00",
+                "tiempoEspera": 2,
+                "seDejaraElPaquete": false
+            },
+            {
+                "origen": {
+                    "latitud": -6.0626084,
+                    "longitud": -77.16777252
+                },
+                "destino": {
+                    "latitud": -4.8315686,
+                    "longitud": -76.5545112
+                },
+                "distancia": 152.79270224627535,
+                "velocidad": 65.0,
+                "tiempoSalida": "2000-01-14T14:45:00",
+                "tiempoLlegada": "2000-01-14T17:06:00",
                 "tiempoEspera": 1,
                 "seDejaraElPaquete": true
-            },
-            {
-                "origen": {
-                    "latitud": -8.60439329,
-                    "longitud": -77.14935042
-                },
-                "destino": {
-                    "latitud": -11.46702028,
-                    "longitud": -76.62473724
-                },
-                "distancia": 323.4498503578385,
-                "velocidad": 50.0,
-                "tiempoSalida": "2000-01-01T23:17:00",
-                "tiempoLlegada": "2000-01-02T05:45:00",
-                "tiempoEspera": 2,
-                "seDejaraElPaquete": false
-            },
-            {
-                "origen": {
-                    "latitud": -11.46702028,
-                    "longitud": -76.62473724
-                },
-                "destino": {
-                    "latitud": -12.06034168,
-                    "longitud": -77.14068058
-                },
-                "distancia": 86.64365513169814,
-                "velocidad": 70.0,
-                "tiempoSalida": "2000-01-02T07:45:00",
-                "tiempoLlegada": "2000-01-02T08:59:00",
-                "tiempoEspera": 2,
-                "seDejaraElPaquete": false
-            },
-            {
-                "origen": {
-                    "latitud": -12.06034168,
-                    "longitud": -77.14068058
-                },
-                "destino": {
-                    "latitud": -12.04591952,
-                    "longitud": -77.03049615
-                },
-                "distancia": 12.088690382776978,
-                "velocidad": 70.0,
-                "tiempoSalida": "2000-01-02T10:59:00",
-                "tiempoLlegada": "2000-01-02T11:09:00",
-                "tiempoEspera": 2,
-                "seDejaraElPaquete": false
             }
         ],
-        "tiempoTotal": 37.14726908139026
+        "tiempoTotal": 48.02926643655073
+    },
+    {
+        "camion": {
+            "codigo": "C012",
+            "tipo": "C",
+            "capacidad": 30,
+            "cargaActual": 3,
+            "paquetes": [
+                {
+                    "codigo": "df5ef237-9ccb-4ecd-9305-1cd4f4304d51",
+                    "fechaHoraPedido": "2000-01-14T05:45:00",
+                    "destino": {
+                        "latitud": -8.8649466,
+                        "longitud": -77.35749107
+                    },
+                    "cantidadEntregada": 3,
+                    "cantidadTotal": 21,
+                    "idCliente": "000144"
+                }
+            ]
+        },
+        "tramos": [
+            {
+                "origen": {
+                    "latitud": -8.11176389,
+                    "longitud": -79.02868652
+                },
+                "destino": {
+                    "latitud": -8.8649466,
+                    "longitud": -77.35749107
+                },
+                "distancia": 201.97357783715168,
+                "velocidad": 70.0,
+                "tiempoSalida": "2000-01-14T00:00:00",
+                "tiempoLlegada": "2000-01-14T02:53:00",
+                "tiempoEspera": 1,
+                "seDejaraElPaquete": true
+            }
+        ],
+        "tiempoTotal": 18.541347304980096
     },
     {
         "camion": {
@@ -154,8 +157,8 @@
             "cargaActual": 18,
             "paquetes": [
                 {
-                    "codigo": "55e5c4f6-df31-4060-955b-ce3061b1ef56",
-                    "fechaHoraPedido": "2000-01-01T02:01:00",
+                    "codigo": "7dca6cb1-b336-4dec-8651-73b1e6b2dd1a",
+                    "fechaHoraPedido": "2000-01-14T02:01:00",
                     "destino": {
                         "latitud": -13.94619465,
                         "longitud": -72.1744466
@@ -165,8 +168,8 @@
                     "idCliente": "000133"
                 },
                 {
-                    "codigo": "2d780fc9-19c7-4852-a1cb-66d105272d65",
-                    "fechaHoraPedido": "2000-01-01T00:27:00",
+                    "codigo": "fd733008-c422-4efa-a82f-d5c290d2099f",
+                    "fechaHoraPedido": "2000-01-14T00:27:00",
                     "destino": {
                         "latitud": -18.0137008,
                         "longitud": -70.2507964
@@ -189,8 +192,8 @@
                 },
                 "distancia": 281.1660488633163,
                 "velocidad": 50.0,
-                "tiempoSalida": "2000-01-01T00:00:00",
-                "tiempoLlegada": "2000-01-01T05:37:00",
+                "tiempoSalida": "2000-01-14T00:00:00",
+                "tiempoLlegada": "2000-01-14T05:37:00",
                 "tiempoEspera": 2,
                 "seDejaraElPaquete": true
             },
@@ -205,8 +208,8 @@
                 },
                 "distancia": 281.1660488633163,
                 "velocidad": 50.0,
-                "tiempoSalida": "2000-01-01T07:37:00",
-                "tiempoLlegada": "2000-01-01T13:14:00",
+                "tiempoSalida": "2000-01-14T07:37:00",
+                "tiempoLlegada": "2000-01-14T13:14:00",
                 "tiempoEspera": 2,
                 "seDejaraElPaquete": false
             },
@@ -221,8 +224,8 @@
                 },
                 "distancia": 158.23115212611248,
                 "velocidad": 70.0,
-                "tiempoSalida": "2000-01-01T15:14:00",
-                "tiempoLlegada": "2000-01-01T17:29:00",
+                "tiempoSalida": "2000-01-14T15:14:00",
+                "tiempoLlegada": "2000-01-14T17:29:00",
                 "tiempoEspera": 2,
                 "seDejaraElPaquete": false
             },
@@ -237,90 +240,10 @@
                 },
                 "distancia": 70.07355418989826,
                 "velocidad": 70.0,
-                "tiempoSalida": "2000-01-01T19:29:00",
-                "tiempoLlegada": "2000-01-01T20:29:00",
+                "tiempoSalida": "2000-01-14T19:29:00",
+                "tiempoLlegada": "2000-01-14T20:29:00",
                 "tiempoEspera": 1,
                 "seDejaraElPaquete": true
-            },
-            {
-                "origen": {
-                    "latitud": -18.0137008,
-                    "longitud": -70.2507964
-                },
-                "destino": {
-                    "latitud": -16.62491755,
-                    "longitud": -72.71161298
-                },
-                "distancia": 303.4469447469736,
-                "velocidad": 70.0,
-                "tiempoSalida": "2000-01-01T22:29:00",
-                "tiempoLlegada": "2000-01-02T02:49:00",
-                "tiempoEspera": 2,
-                "seDejaraElPaquete": false
-            },
-            {
-                "origen": {
-                    "latitud": -16.62491755,
-                    "longitud": -72.71161298
-                },
-                "destino": {
-                    "latitud": -14.8275594,
-                    "longitud": -74.93704615
-                },
-                "distancia": 310.9227608688516,
-                "velocidad": 70.0,
-                "tiempoSalida": "2000-01-02T04:49:00",
-                "tiempoLlegada": "2000-01-02T09:15:00",
-                "tiempoEspera": 2,
-                "seDejaraElPaquete": false
-            },
-            {
-                "origen": {
-                    "latitud": -14.8275594,
-                    "longitud": -74.93704615
-                },
-                "destino": {
-                    "latitud": -11.91846227,
-                    "longitud": -75.3129636
-                },
-                "distancia": 326.02244088195863,
-                "velocidad": 50.0,
-                "tiempoSalida": "2000-01-02T11:15:00",
-                "tiempoLlegada": "2000-01-02T17:46:00",
-                "tiempoEspera": 2,
-                "seDejaraElPaquete": false
-            },
-            {
-                "origen": {
-                    "latitud": -11.91846227,
-                    "longitud": -75.3129636
-                },
-                "destino": {
-                    "latitud": -12.06034168,
-                    "longitud": -77.14068058
-                },
-                "distancia": 199.42412399205787,
-                "velocidad": 50.0,
-                "tiempoSalida": "2000-01-02T19:46:00",
-                "tiempoLlegada": "2000-01-02T23:45:00",
-                "tiempoEspera": 2,
-                "seDejaraElPaquete": false
-            },
-            {
-                "origen": {
-                    "latitud": -12.06034168,
-                    "longitud": -77.14068058
-                },
-                "destino": {
-                    "latitud": -12.04591952,
-                    "longitud": -77.03049615
-                },
-                "distancia": 12.088690382776978,
-                "velocidad": 70.0,
-                "tiempoSalida": "2000-01-03T01:45:00",
-                "tiempoLlegada": "2000-01-03T01:55:00",
-                "tiempoEspera": 2,
-                "seDejaraElPaquete": false
             }
         ],
         "tiempoTotal": 33.4877390806852
