@@ -3,11 +3,10 @@ import MapContainer, {Marker, Popup, NavigationControl, Source, Layer} from "rea
 import "maplibre-gl/dist/maplibre-gl.css";
 import Papa from "papaparse";
 import camionIcon from "/src/assets/camion.png"; // Icono para los camiones
-import rutaData from "/src/assets/data/Data.json"; // JSON para los camiones y rutas
 import oficinaIcon from "/src/assets/oficina.png"; // Icono para las oficinas
 import ControlesSimulacion from "./ControlesSimulacion"; // Importamos el componente de controles
 
-const MapaPeruSimulacion = ({onUpdateStats}) => {
+const MapaPeruSimulacion = ({soluciones,onUpdateStats}) => {
     //<editor-fold desc="Mapa inicial y su informacion">
     const [viewport, setViewport] = useState({
         latitude: -9.19, // Centrar en Perú
@@ -32,7 +31,7 @@ const MapaPeruSimulacion = ({onUpdateStats}) => {
 
     const [puntos, setPuntos] = useState([]); // Para almacenar las oficinas del CSV
     const [selectedPunto, setSelectedPunto] = useState(null); // Para manejar el popup de las oficinas
-    const [camiones, setCamiones] = useState([]); // Para almacenar los camiones y rutas del JSON
+    const [camiones, setCamiones] = useState([]); // Para almacenar los camiones y rutas generadas
     const [currentPositions, setCurrentPositions] = useState({}); // Posiciones actuales de los camiones
     const [selectedCamion, setSelectedCamion] = useState(null); // Para manejar qué camión está seleccionado
 
@@ -41,14 +40,19 @@ const MapaPeruSimulacion = ({onUpdateStats}) => {
     const progresoTramoRef = useRef([]);
 
     useEffect(() => {
-        cargarCSV("/src/assets/data/oficinas.csv"); // Cargar las oficinas del CSV
-        setCamiones(rutaData); // Cargar los camiones y rutas desde el JSON
-
-        // Inicializar referencias de progreso para cada camión
-        tramoIndexRef.current = rutaData.map(() => 0);
-        progresoTramoRef.current = rutaData.map(() => 0);
-        return () => clearInterval(intervalRef.current); // Limpiar el intervalo al desmontar el componente
+        cargarCSV("/src/assets/data/oficinas.csv"); // Cargar las oficinas al montar el componente
     }, []);
+
+    
+    // Cargar soluciones en camiones al inicio o cuando cambien las soluciones
+    useEffect(() => {
+        if (soluciones && soluciones.length > 0) {
+            setCamiones(soluciones); // Guardar soluciones en camiones
+            tramoIndexRef.current = soluciones.map(() => 0);
+            progresoTramoRef.current = soluciones.map(() => 0);
+            return () => clearInterval(intervalRef.current); // Limpiar el intervalo al desmontar el componente
+        }
+    }, [soluciones]);
 
     //</editor-fold>
 
