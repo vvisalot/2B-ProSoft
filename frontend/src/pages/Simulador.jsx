@@ -43,8 +43,9 @@ const Simulador = () => {
                     <Col xs={24} md={8}>
                         <h1 style={{ fontSize: "1.5rem", fontWeight: '400' }}>Simulación Semanal</h1>
                         <CardLeyenda numCamiones={numCamiones} numRutas={numRutas} />
-						<h1 style={{ fontSize: "1.2rem", fontWeight: '400' }}>__________________________</h1>
-						<h1 style={{ fontSize: "1.2rem", fontWeight: '400' }}>Flota</h1>
+						<div style={{ fontSize: "1.2rem", fontWeight: '400' }}>
+							<h1 style={{ fontSize: "1.2rem", fontWeight: '400' }}>Flota</h1>
+						</div>
                         <TablaFlota />
                     </Col>
                     <Col xs={24} md={16}>

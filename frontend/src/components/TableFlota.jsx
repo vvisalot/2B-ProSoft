@@ -17,7 +17,7 @@ const Tabla = () => {
 	// Simular datos de tabla con JSON y formatear los datos de los camiones para la tabla
 	useEffect(() => {
 		const formattedData = rutaData.map((entry) => ({
-			key: entry.camion.codigo, // codigo como identificador
+			key: `${entry.camion.codigo}-${entry.camion.capacidad}`, // codigo como identificador
 			codigo: entry.camion.codigo,
 			tipo: entry.camion.tipo,
 			capacidad: entry.camion.capacidad,

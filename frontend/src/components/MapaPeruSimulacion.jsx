@@ -33,6 +33,7 @@ const MapaPeruSimulacion = ({onUpdateStats}) => {
     const [puntos, setPuntos] = useState([]); // Para almacenar las oficinas del CSV
     const [selectedPunto, setSelectedPunto] = useState(null); // Para manejar el popup de las oficinas
     const [rutas, setRutas] = useState([]); // Cambiado a "rutas" para almacenar rutas y camiones del JSON
+    const [camiones, setCamiones] = useState([]);
     const [currentPositions, setCurrentPositions] = useState({}); // Posiciones actuales de los camiones
     const [selectedCamion, setSelectedCamion] = useState(null); // Para manejar qué camión está seleccionado
 
