@@ -15,9 +15,20 @@ const Simulador = () => {
         return () => clearInterval(timer);
     }, []);
 
-
     const [numCamiones, setNumCamiones] = useState(0);
     const [numRutas, setNumRutas] = useState(0);
+
+    useEffect(() => {
+        // Cargar datos desde el archivo JSON al montar el componente
+        fetch('/src/assets/data/Data.json')
+            .then(response => response.json())
+            .then(data => {
+                // Asignar valores a numCamiones y numRutas desde el JSON
+                setNumCamiones(data.camiones);
+                setNumRutas(data.rutas);
+            })
+            .catch(error => console.error("Error cargando datos JSON:", error));
+    }, []);
 
     // Función para actualizar los estados de camiones y rutas
     const handleUpdateStats = (camiones, rutas) => {
@@ -31,10 +42,10 @@ const Simulador = () => {
                 <Row gutter={[16, 16]}>
                     <Col xs={24} md={8}>
                         <h1 style={{ fontSize: "1.5rem", fontWeight: '400' }}>Simulación Semanal</h1>
-
                         <CardLeyenda numCamiones={numCamiones} numRutas={numRutas} />
-
-
+						<h1 style={{ fontSize: "1.2rem", fontWeight: '400' }}>__________________________</h1>
+						<h1 style={{ fontSize: "1.2rem", fontWeight: '400' }}>Flota</h1>
+                        <TablaFlota />
                     </Col>
                     <Col xs={24} md={16}>
                         <MapaPeruSimulacion onUpdateStats={handleUpdateStats} />
