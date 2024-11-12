@@ -1,226 +1,206 @@
 import { Button, Modal } from "antd";
 import Papa from "papaparse";
 import { useEffect, useRef, useState } from "react";
+import CardLeyenda from "/src/cards/CardLeyenda";
 import rutaData from "/src/assets/data/Data.json";
 import MapaSimulacion from "/src/components/MapaSimulacion";
 import ControlesSimulacion from "../components/ControlesSimulacion.jsx";
-import TablaSimulacion from "../components/TablaSimulacion.jsx"; // Asegúrate de importar Papa Parse
+import TablaSimulacion from "../components/TablaSimulacion.jsx"; 
 
 const Simulador = () => {
-	const almacenesPrincipales = ["150101", "130101", "040101"];
-	const [currentTime, setCurrentTime] = useState(
-		new Date().toLocaleTimeString()
-	);
-	const [numCamiones, setNumCamiones] = useState(0);
-	const [numRutas, setNumRutas] = useState(0);
+    const almacenesPrincipales = ["150101", "130101", "040101"];
+    const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+    const [numCamiones, setNumCamiones] = useState(0);
+    const [numRutas, setNumRutas] = useState(0);
+    const [simulacionActiva, setSimulacionActiva] = useState(false);
+    const [simulacionIniciada, setSimulacionIniciada] = useState(false);
+    const [simulacionTerminada, setSimulacionTerminada] = useState(false);
+    const [resetRequerido, setResetRequerido] = useState(false); 
+    const [velocidad, setVelocidad] = useState(1); 
+    const intervalRef = useRef(null);
 
-	const [simulacionActiva, setSimulacionActiva] = useState(false);
-	const [simulacionIniciada, setSimulacionIniciada] = useState(false);
-	const [simulacionTerminada, setSimulacionTerminada] = useState(false);
-	const [resetRequerido, setResetRequerido] = useState(false); // Nuevo estado
+    const [rutas, setRutas] = useState(rutaData);
+    const [puntos, setPuntos] = useState([]);
 
-	const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
-	const intervalRef = useRef(null);
+    const tramoIndexRef = useRef([]);
+    const progresoTramoRef = useRef([]);
+    const [currentPositions, setCurrentPositions] = useState({});
 
-	// Estado para almacenar rutas y puntos de oficinas
-	const [rutas, setRutas] = useState(rutaData);
-	const [puntos, setPuntos] = useState([]);
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentTime(new Date().toLocaleTimeString());
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
 
-	// Referencias para el estado de cada camión en movimiento
-	const tramoIndexRef = useRef([]);
-	const progresoTramoRef = useRef([]);
-	const [currentPositions, setCurrentPositions] = useState({});
+    useEffect(() => {
+        handleUpdateStats(rutaData.length, rutaData.reduce((acc, ruta) => acc + ruta.tramos.length, 0));
+    }, []);
 
-	useEffect(() => {
-		// Actualizar la hora cada segundo
-		const timer = setInterval(() => {
-			setCurrentTime(new Date().toLocaleTimeString());
-		}, 1000);
-		return () => clearInterval(timer);
-	}, []);
+    const cargarCSV = (file) => {
+        Papa.parse(file, {
+            header: true,
+            download: true,
+            complete: (result) => {
+                const data = result.data.map((oficina) => ({
+                    ...oficina,
+                    almacenPrincipal: almacenesPrincipales.includes(oficina.id)
+                }));
+                setPuntos(data);
+            }
+        });
+    };
 
-	useEffect(() => {
-		handleUpdateStats(
-			rutaData.length,
-			rutaData.reduce((acc, ruta) => acc + ruta.tramos.length, 0)
-		);
-	}, []);
+    useEffect(() => {
+        cargarCSV("/src/assets/data/oficinas.csv");
+        rutaData.forEach((ruta) => {
+            let fix = { ...ruta.tramos[0] };
+            fix.destino = { ...fix.origen };
+            fix.distancia = 0;
+            fix.tiempoLlegada = fix.tiempoSalida;
+            fix.tiempoEspera = 0;
+            ruta.tramos.unshift(fix);
+        });
+        setRutas(rutaData);
+        tramoIndexRef.current = rutaData.map(() => 0);
+        progresoTramoRef.current = rutaData.map(() => 0.01);
+        return () => clearInterval(intervalRef.current);
+    }, []);
 
-	// Cargar el CSV de oficinas
-	const cargarCSV = (file) => {
-		Papa.parse(file, {
-			header: true,
-			download: true,
-			complete: (result) => {
-				const data = result.data.map((oficina) => ({
-					...oficina,
-					almacenPrincipal: almacenesPrincipales.includes(oficina.id)
-				}));
-				setPuntos(data);
-			}
-		});
-	};
+    const handleUpdateStats = (camiones, rutas) => {
+        setNumCamiones(camiones);
+        setNumRutas(rutas);
+    };
 
-	useEffect(() => {
-		// Ruta al archivo CSV de oficinas
-		cargarCSV("/src/assets/data/oficinas.csv");
-		rutaData.forEach((ruta) => {
-			let fix = { ...ruta.tramos[0] };
-			fix.destino = { ...fix.origen };
-			fix.distancia = 0;
-			fix.tiempoLlegada = fix.tiempoSalida;
-			fix.tiempoEspera = 0;
-			ruta.tramos.unshift(fix);
-		});
-		setRutas(rutaData);
-		tramoIndexRef.current = rutaData.map(() => 0);
-		progresoTramoRef.current = rutaData.map(() => 0.01);
+    const verSimulacionTerminada = () => {
+        setSimulacionIniciada(false);
+        setSimulacionTerminada(false);
+        setResetRequerido(true);
+    };
 
-		return () => clearInterval(intervalRef.current);
-	}, []);
+    const iniciarSimulacion = () => {
+        if (resetRequerido) {
+            pararSimulacion();
+            setResetRequerido(false);
+        }
+        setSimulacionTerminada(false);
+        setSimulacionActiva(true);
+        setSimulacionIniciada(true);
+        iniciarSimulacionInterval();
+    };
 
-	// Función para actualizar los estados de camiones y rutas
-	const handleUpdateStats = (camiones, rutas) => {
-		setNumCamiones(camiones);
-		setNumRutas(rutas);
-	};
+    const iniciarSimulacionInterval = () => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        intervalRef.current = setInterval(moverCamiones, 1000 / velocidad);
+    };
 
-	// Función para cerrar el modal y ver la simulación terminada
-	const verSimulacionTerminada = () => {
-		setSimulacionIniciada(false);
-		setSimulacionTerminada(false);
-		setResetRequerido(true);
-	};
+    const pausarSimulacion = () => {
+        setSimulacionActiva(false);
+        clearInterval(intervalRef.current);
+    };
 
-	const iniciarSimulacion = () => {
-		if (resetRequerido) {
-			pararSimulacion();
-			setResetRequerido(false);
-		}
-		setSimulacionTerminada(false);
-		setSimulacionActiva(true);
-		setSimulacionIniciada(true);
-		iniciarSimulacionInterval();
-	};
+    const reanudarSimulacion = () => {
+        setSimulacionActiva(true);
+        iniciarSimulacionInterval();
+    };
 
-	const iniciarSimulacionInterval = () => {
-		if (intervalRef.current) clearInterval(intervalRef.current);
-		intervalRef.current = setInterval(moverCamiones, 1000 / velocidad);
-	};
+    const pararSimulacion = () => {
+        setSimulacionIniciada(false);
+        setSimulacionActiva(false);
+        setSimulacionTerminada(false);
+        setResetRequerido(false);
+        clearInterval(intervalRef.current);
+        resetearSimulacion();
+    };
 
-	const pausarSimulacion = () => {
-		setSimulacionActiva(false);
-		clearInterval(intervalRef.current);
-	};
+    const detenerSimulacion = () => {
+        setSimulacionActiva(false);
+        clearInterval(intervalRef.current);
+        setSimulacionTerminada(true);
+        setResetRequerido(true);
+    };
 
-	const reanudarSimulacion = () => {
-		setSimulacionActiva(true);
-		iniciarSimulacionInterval();
-	};
+    const resetearSimulacion = () => {
+        tramoIndexRef.current = rutas.map(() => 0);
+        progresoTramoRef.current = rutas.map(() => 0);
+        setCurrentPositions(
+            rutas.reduce((acc, ruta) => {
+                const { codigo } = ruta.camion;
+                acc[codigo] = {
+                    latitud: ruta.tramos[0].origen.latitud,
+                    longitud: ruta.tramos[0].origen.longitud
+                };
+                return acc;
+            }, {})
+        );
+    };
 
-	const pararSimulacion = () => {
-		setSimulacionIniciada(false);
-		setSimulacionActiva(false);
-		setSimulacionTerminada(false);
-		setResetRequerido(false);
-		clearInterval(intervalRef.current);
-		resetearSimulacion();
-	};
+    const acelerarSimulacion = () => {
+        setVelocidad((prev) => {
+            const nuevaVelocidad = Math.min(prev * 2, 16);
+            iniciarSimulacionInterval();
+            return nuevaVelocidad;
+        });
+    };
 
-	const detenerSimulacion = () => {
-		setSimulacionActiva(false);
-		clearInterval(intervalRef.current);
-		setSimulacionTerminada(true);
-		setResetRequerido(true);
-	};
+    const reducirSimulacion = () => {
+        setVelocidad((prev) => {
+            const nuevaVelocidad = Math.max(prev / 2, 0.25);
+            iniciarSimulacionInterval();
+            return nuevaVelocidad;
+        });
+    };
 
-	const resetearSimulacion = () => {
-		tramoIndexRef.current = rutas.map(() => 0);
-		progresoTramoRef.current = rutas.map(() => 0);
-		setCurrentPositions(
-			rutas.reduce((acc, ruta) => {
-				const { codigo } = ruta.camion;
-				acc[codigo] = {
-					latitud: ruta.tramos[0].origen.latitud,
-					longitud: ruta.tramos[0].origen.longitud
-				};
-				return acc;
-			}, {})
-		);
-	};
+    const moverCamiones = () => {
+        let allFinished = true;
 
-	const acelerarSimulacion = () => {
-		setVelocidad((prev) => {
-			const nuevaVelocidad = Math.min(prev * 2, 16);
-			iniciarSimulacionInterval();
-			return nuevaVelocidad;
-		});
-	};
+        rutas.forEach((ruta, rutaIndex) => {
+            const { codigo } = ruta.camion;
+            const tramoIndex = tramoIndexRef.current[rutaIndex];
+            const tramoActual = ruta.tramos[tramoIndex];
 
-	const reducirSimulacion = () => {
-		setVelocidad((prev) => {
-			const nuevaVelocidad = Math.max(prev / 2, 0.25);
-			iniciarSimulacionInterval();
-			return nuevaVelocidad;
-		});
-	};
+            if (!tramoActual) return;
 
-	const moverCamiones = () => {
-		let allFinished = true;
+            const { distancia, velocidad: velocidadTramo, origen, destino } = tramoActual;
+            const tiempoTramo = ((distancia / velocidadTramo) * 1000) / velocidad;
+            const progreso = progresoTramoRef.current[rutaIndex];
 
-		rutas.forEach((ruta, rutaIndex) => {
-			const { codigo } = ruta.camion;
-			const tramoIndex = tramoIndexRef.current[rutaIndex];
-			const tramoActual = ruta.tramos[tramoIndex];
+            const nuevaPosicion = {
+                latitud: origen.latitud + (destino.latitud - origen.latitud) * progreso,
+                longitud: origen.longitud + (destino.longitud - origen.longitud) * progreso
+            };
 
-			if (!tramoActual) return;
+            setCurrentPositions((prev) => ({ ...prev, [codigo]: nuevaPosicion }));
 
-			const {
-				distancia,
-				velocidad: velocidadTramo,
-				origen,
-				destino
-			} = tramoActual;
-			const tiempoTramo = ((distancia / velocidadTramo) * 1000) / velocidad;
-			const progreso = progresoTramoRef.current[rutaIndex];
+            progresoTramoRef.current[rutaIndex] += (1 / tiempoTramo) * velocidad;
 
-			const nuevaPosicion = {
-				latitud: origen.latitud + (destino.latitud - origen.latitud) * progreso,
-				longitud:
-					origen.longitud + (destino.longitud - origen.longitud) * progreso
-			};
+            if (progresoTramoRef.current[rutaIndex] >= 1) {
+                tramoIndexRef.current[rutaIndex]++;
+                progresoTramoRef.current[rutaIndex] = 0.01;
 
-			setCurrentPositions((prev) => ({
-				...prev,
-				[codigo]: nuevaPosicion
-			}));
+                if (tramoIndexRef.current[rutaIndex] >= ruta.tramos.length) {
+                    setCurrentPositions((prev) => {
+                        const updated = { ...prev };
+                        delete updated[codigo];
+                        return updated;
+                    });
+                    tramoIndexRef.current[rutaIndex] = -1;
+                } else allFinished = false;
+            } else allFinished = false;
+        });
 
-			progresoTramoRef.current[rutaIndex] += (1 / tiempoTramo) * velocidad;
+        if (allFinished) detenerSimulacion();
+    };
 
-			if (progresoTramoRef.current[rutaIndex] >= 1) {
-				tramoIndexRef.current[rutaIndex]++;
-				progresoTramoRef.current[rutaIndex] = 0.01;
+    return (
+        <div className="h-full flex flex-col md:flex-row p-2 space-y-4 md:space-y-0 md:space-x-4">
+            <div className="w-full md:w-1/3 lg:w-1/4 mb-4 md:mb-0">
+                <h1 className="text-lg font-medium mb-4">Simulación Semanal</h1>
+                <CardLeyenda numCamiones={numCamiones} numRutas={numRutas} className="mb-6"/>
+                <TablaSimulacion data={rutas} />
+            </div>
 
-				if (tramoIndexRef.current[rutaIndex] >= ruta.tramos.length) {
-					setCurrentPositions((prev) => {
-						const updated = { ...prev };
-						delete updated[codigo];
-						return updated;
-					});
-					tramoIndexRef.current[rutaIndex] = -1; // Marcar el camión como terminado
-				} else allFinished = false;
-			} else allFinished = false;
-		});
-		if (allFinished) detenerSimulacion();
-	};
-
-	return (
-		<div className="h-fit flex p-2">
-			<div className="w-2/6">
-				<TablaSimulacion data={rutas} />
-			</div>
-
-			<div className="relative w-4/6 h-[92vh] m-auto border border-gray-300 shadow-lg rounded-lg">
+            <div className="relative w-full md:w-2/3 lg:w-3/4 h-[70vh] md:h-[85vh] border-2 border-gray-300 rounded-lg">
 				<MapaSimulacion
 					simulacionActiva={simulacionActiva}
 					simulacionIniciada={simulacionIniciada}
@@ -246,39 +226,9 @@ const Simulador = () => {
 						velocidad={velocidad}
 					/>
 				</div>
-			</div>
-
-			{/* Modal de Simulación Terminada */}
-			<Modal
-				title="La simulacion ha terminado"
-				open={simulacionTerminada}
-				closable={false}
-				maskClosable={false}
-				footer={[
-					<Button
-						key="ver"
-						onClick={() => {
-							verSimulacionTerminada();
-						}}
-					>
-						Ver rutas
-					</Button>,
-					<Button
-						key="reiniciar"
-						type="primary"
-						onClick={() => {
-							pararSimulacion();
-							setSimulacionTerminada(false);
-						}}
-					>
-						Reiniciar simulación
-					</Button>
-				]}
-			>
-				<p>Puedes ver las rutas recorridas o reiniciar la simulación.</p>
-			</Modal>
-		</div>
-	);
+            </div>
+        </div>
+    );
 };
 
 export default Simulador;

@@ -32,6 +32,7 @@ const TablaPedidos = ({data, columns}) => {
             className="pt-4"
             dataSource={formattedData}
             columns={columnasPedidos}
+            scroll={{ x: 100 }}
         />
     );
 }
