@@ -1,8 +1,8 @@
 import { Button, DatePicker, Row, Col } from "antd";
 import { useEffect, useState } from "react";
 import CardLeyenda from "../../cards/CardLeyenda";
-import MapaPeruSimulacion from "../../components/MapaPeruSimulacion";
-import TablaFlota from "../../components/TableFlota";
+import MapaSimulacion from "../../components/MapaSimulacion.jsx";
+import TablaFlota from "../../components/TablaFlota.jsx";
 
 const SimuSemanal = () => {
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
@@ -116,4 +116,15 @@ export default SimuSemanal;
                                 </div>
                             )}
                         </div>
-                        */}
+
+                    </Col>
+                    <Col xs={24} md={16}>
+                        <MapaSimulacion onUpdateStats={handleUpdateStats} />
+                    </Col>
+                </Row>
+            </div>
+        </div>
+    );
+};
+
+export default SimuSemanal;
