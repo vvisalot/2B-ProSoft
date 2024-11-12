@@ -127,4 +127,4 @@ export default SimuSemanal;
     );
 };
 
-export default SimuSemanal;
+export default SimuSemanal*/}
