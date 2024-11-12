@@ -26,12 +26,29 @@ const Simulador = () => {
     const progresoTramoRef = useRef([]);
     const [currentPositions, setCurrentPositions] = useState({});
 
+	const [tiempoSimulacion, setTiempoSimulacion] = useState(0); // Tiempo simulado acelerado (en segundos)
+	const [tiempoReal, setTiempoReal] = useState(0); // Tiempo real transcurrido (en segundos)
+	const [realElapsedTime, setRealElapsedTime] = useState(0); // Tiempo real en segundos
+    const [simElapsedTime, setSimElapsedTime] = useState(0); // Tiempo simulado en segundos
+
+
     useEffect(() => {
         const timer = setInterval(() => {
             setCurrentTime(new Date().toLocaleTimeString());
         }, 1000);
         return () => clearInterval(timer);
     }, []);
+
+	// Cronómetro para el tiempo real
+    useEffect(() => {
+        let realInterval;
+        if (simulacionIniciada && !simulacionTerminada) {
+            realInterval = setInterval(() => {
+                setRealElapsedTime((prev) => prev + 1);
+            }, 1000);
+        }
+        return () => clearInterval(realInterval);
+    }, [simulacionIniciada, simulacionTerminada]);
 
     useEffect(() => {
         handleUpdateStats(rutaData.length, rutaData.reduce((acc, ruta) => acc + ruta.tramos.length, 0));
@@ -118,21 +135,35 @@ const Simulador = () => {
         clearInterval(intervalRef.current);
         setSimulacionTerminada(true);
         setResetRequerido(true);
-    };
+        //alert(`Simulación finalizada. Tiempo total en tiempo real: ${formatTime(realElapsedTime)}`);
+		Modal.info({
+			title: "Simulación Terminada",
+			content: (
+				<p>
+					La simulación ha terminado. <br />
+					Tiempo total de simulación: {formatTime(realElapsedTime)}.
+				</p>
+			),
+		});
+	};
 
     const resetearSimulacion = () => {
+		setRealElapsedTime(0); // Reiniciar tiempo real
+        setSimElapsedTime(0); // Reiniciar tiempo de simulación
         tramoIndexRef.current = rutas.map(() => 0);
-        progresoTramoRef.current = rutas.map(() => 0);
-        setCurrentPositions(
-            rutas.reduce((acc, ruta) => {
-                const { codigo } = ruta.camion;
-                acc[codigo] = {
-                    latitud: ruta.tramos[0].origen.latitud,
-                    longitud: ruta.tramos[0].origen.longitud
-                };
-                return acc;
-            }, {})
-        );
+		progresoTramoRef.current = rutas.map(() => 0);
+		setTiempoSimulacion(0);
+		setTiempoReal(0);
+		setCurrentPositions(
+			rutas.reduce((acc, ruta) => {
+				const { codigo } = ruta.camion;
+				acc[codigo] = {
+					latitud: ruta.tramos[0].origen.latitud,
+					longitud: ruta.tramos[0].origen.longitud
+				};
+				return acc;
+			}, {})
+		);
     };
 
     const acelerarSimulacion = () => {
@@ -152,6 +183,7 @@ const Simulador = () => {
     };
 
     const moverCamiones = () => {
+		setSimElapsedTime((prev) => prev + 1); // Incrementar tiempo simulado
         let allFinished = true;
 
         rutas.forEach((ruta, rutaIndex) => {
@@ -192,15 +224,27 @@ const Simulador = () => {
         if (allFinished) detenerSimulacion();
     };
 
+	// Función para formatear el tiempo en horas, minutos y segundos
+    const formatTime = (totalSeconds) => {
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    };
+
     return (
-        <div className="h-full flex flex-col md:flex-row p-2 space-y-4 md:space-y-0 md:space-x-4">
-            <div className="w-full md:w-1/3 lg:w-1/4 mb-4 md:mb-0">
+        <div className="h-full flex flex-col md:flex-row p-5 space-y-4 md:space-y-0 md:space-x-4">
+            <div className="relative w-full md:w-2/5 lg:w-2/5 mb-4 md:mb-0">
                 <h1 className="text-lg font-medium mb-4">Simulación Semanal</h1>
                 <CardLeyenda numCamiones={numCamiones} numRutas={numRutas} className="mb-6"/>
                 <TablaSimulacion data={rutas} />
             </div>
 
             <div className="relative w-full md:w-2/3 lg:w-3/4 h-[70vh] md:h-[85vh] border-2 border-gray-300 rounded-lg">
+				<div className="absolute top-4 left-4 z-10 bg-white p-2 rounded-lg shadow-lg">
+					<h2 className="text-lg font-bold">Tiempo real transcurrido: {formatTime(realElapsedTime)}</h2>
+					<h2 className="text-lg font-bold">Tiempo simulado transcurrido: {formatTime(simElapsedTime)}</h2>
+				</div>
 				<MapaSimulacion
 					simulacionActiva={simulacionActiva}
 					simulacionIniciada={simulacionIniciada}
@@ -212,7 +256,8 @@ const Simulador = () => {
 					tramoIndexRef={tramoIndexRef}
 					progresoTramoRef={progresoTramoRef}
 					onUpdateStats={handleUpdateStats}
-				/>
+				>
+				</MapaSimulacion>
 				<div className="absolute bottom-4 right-4 z-10 bg-white p-4 rounded-lg shadow-lg">
 					<ControlesSimulacion
 						simulacionActiva={simulacionActiva}
