@@ -66,22 +66,24 @@ const Simulador = () => {
 	};
 
 	useEffect(() => {
-		// Ruta al archivo CSV de oficinas
 		cargarCSV("/src/assets/data/oficinas.csv");
-		for (const ruta of rutaData) {
-			const fix = { ...ruta.tramos[0] };
-			fix.destino = { ...fix.origen };
-			fix.distancia = 0;
-			fix.tiempoLlegada = fix.tiempoSalida;
-			fix.tiempoEspera = 0;
-			ruta.tramos.unshift(fix);
-		}
-		setRutas(rutaData);
-		tramoIndexRef.current = rutaData.map(() => 0);
-		progresoTramoRef.current = rutaData.map(() => 0.01);
-
-		return () => clearInterval(intervalRef.current);
 	});
+
+	useEffect(() => {
+		if (rutas.length > 0) {
+			for (const ruta of rutaData) {
+				const fix = { ...ruta.tramos[0] };
+				fix.destino = { ...fix.origen };
+				fix.distancia = 0;
+				fix.tiempoLlegada = fix.tiempoSalida;
+				fix.tiempoEspera = 0;
+				ruta.tramos.unshift(fix);
+			}
+			tramoIndexRef.current = rutaData.map(() => 0);
+			progresoTramoRef.current = rutaData.map(() => 0.01);
+		}
+		return () => clearInterval(intervalRef.current);
+	}, [rutas]);
 
 	// Función para actualizar los estados de camiones y rutas
 	const handleUpdateStats = (camiones, rutas) => {
@@ -225,7 +227,6 @@ const Simulador = () => {
 		const file = event.target.files[0];
 		if (file) {
 			setSelectedFile(file);
-			handleSubmit();
 		}
 	};
 	// Función para manejar el envío del archivo
@@ -251,7 +252,7 @@ const Simulador = () => {
 			message.success("Archivo cargado exitosamente");
 			console.log("Respuesta del servidor:", response.data);
 			// Guardar las soluciones en el estado
-			setSoluciones(response.data);
+			setRutas(response.data);
 		} catch (error) {
 			message.error("Error al cargar el archivo.");
 			console.error("Error en la solicitud:", error);
