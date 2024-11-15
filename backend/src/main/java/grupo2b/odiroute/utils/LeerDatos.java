@@ -1,5 +1,7 @@
 package grupo2b.odiroute.utils;
 
+import org.springframework.web.multipart.MultipartFile;
+import java.io.InputStreamReader;
 import grupo2b.odiroute.algorithm.GrafoTramos;
 import grupo2b.odiroute.model.Bloqueo;
 import grupo2b.odiroute.model.Camion;
@@ -226,15 +228,19 @@ public class LeerDatos {
         }
     }
 
-    public static List<Venta> leerVentasDesdeArchivo(String archivo, Map<String, Oficina> mapaOficinas) {
+    public static List<Venta> leerVentasDesdeArchivo(MultipartFile archivo, Map<String, Oficina> mapaOficinas) throws IOException {
         List<Venta> ventas = new ArrayList<>();
 
-        String nombreArchivo = archivo.substring(archivo.lastIndexOf("/") + 1);
+        String nombreArchivo = archivo.getOriginalFilename();
+        if (nombreArchivo == null || nombreArchivo.length() < 12) {
+            throw new IllegalArgumentException("El nombre del archivo no contiene el formato esperado.");
+        }
+
         int anio = Integer.parseInt(nombreArchivo.substring(6, 10));
         int mes = Integer.parseInt(nombreArchivo.substring(10, 12));
 
 //        System.out.println("Año: " + anio + ", Mes: " + mes);
-        try (BufferedReader br = new BufferedReader(new FileReader(archivo))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(archivo.getInputStream()))) {
             String linea;
             while ((linea = br.readLine()) != null) {
                 String[] partes = linea.split(",\\s+");
@@ -278,6 +284,7 @@ public class LeerDatos {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            throw e;
         }
 
         return ventas;

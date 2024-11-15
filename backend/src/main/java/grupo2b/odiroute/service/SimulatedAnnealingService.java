@@ -13,6 +13,7 @@ import grupo2b.odiroute.utils.LeerDatos;
 import grupo2b.odiroute.utils.RelojSimulado;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -30,46 +31,67 @@ public class SimulatedAnnealingService {
         soluciones = new ArrayList<>();
     }
 
-    public void runSimulatedAnnealing() throws IOException {
-        // Lectura de datos
+    // Lectura de datos
+    public Map<String, Oficina> cargarOficinas() throws IOException {
         String archivoOficinas = "src/main/resources/data/oficinas.txt";
-        Map<String, Oficina> mapaOficinas = LeerDatos.leerOficinasDesdeArchivo(archivoOficinas);
+        return LeerDatos.leerOficinasDesdeArchivo(archivoOficinas);
+    }
 
-        // Filtrar almacenes principales
-        List<Oficina> almacenesPrincipales = mapaOficinas.values().stream()
+    public List<Oficina> obtenerAlmacenesPrincipales(Map<String, Oficina> mapaOficinas) {
+        return mapaOficinas.values().stream()
                 .filter(oficina -> oficina.getCodigo().equals("150101")  // Lima
                         || oficina.getCodigo().equals("130101")  // Trujillo
                         || oficina.getCodigo().equals("040101")) // Arequipa
                 .toList();
+    }
 
-        // Leer bloqueos
+    public Map<Tramo, List<Bloqueo>> cargarBloqueos() throws IOException {
         var mapaBloqueos = new HashMap<Tramo, List<Bloqueo>>();
         for (int i = 1; i <= 12; i++) {
             String filePathBloqueos = String.format("src/main/resources/data/bloqueos/bloqueo%02d.txt", i);
             LeerDatos.leerBloqueos(filePathBloqueos, mapaBloqueos);
         }
+        return mapaBloqueos;
+    }
 
+    public GrafoTramos cargarTramos(Map<String, Oficina> mapaOficinas, Map<Tramo, List<Bloqueo>> mapaBloqueos) throws IOException {
         GrafoTramos grafoTramos = GrafoTramos.getInstance();
         String filePathTramos = "src/main/resources/data/tramos.txt";
         var datosTramos = LeerDatos.leerTramosDesdeArchivo(filePathTramos, mapaOficinas, mapaBloqueos);
         List<Tramo> listaTramos = datosTramos.first();
         var mapaTramos = datosTramos.second();
 
-        // Agregar los tramos al grafo
         for (Tramo tramo : listaTramos) {
             grafoTramos.agregarArista(tramo, mapaTramos.get(tramo.getDestino().getCodigo()));
         }
 
-        // Lectura de ventas
-        String archivoVentas = "src/main/resources/data/ventas.historico.proyectado/ventas200001.txt";
-        List<Venta> ventas = LeerDatos.leerVentasDesdeArchivo(archivoVentas, mapaOficinas);
+        return grafoTramos;
+    }
 
+    public List<Venta> cargarVentas(MultipartFile archivoVentas, Map<String, Oficina> mapaOficinas) throws IOException {
+        return LeerDatos.leerVentasDesdeArchivo(archivoVentas, mapaOficinas);
+    }
+
+    public Map<Camion, List<LocalDateTime>> cargarMantenimientos() throws IOException {
         String archivoMantenimientos = "src/main/resources/data/mantenimientos.txt";
         var mapaMantenimientos = new HashMap<Camion, List<LocalDateTime>>();
         LeerDatos.leerMantenimientos(archivoMantenimientos, mapaMantenimientos);
+        return mapaMantenimientos;
+    }
 
-        // Inicialización de camiones
-        List<Camion> camiones = Camion.inicializarCamiones(almacenesPrincipales.get(2), almacenesPrincipales.get(0), almacenesPrincipales.get(1), mapaMantenimientos);
+    public List<Camion> inicializarCamiones(List<Oficina> almacenesPrincipales, Map<Camion, List<LocalDateTime>> mapaMantenimientos) {
+        return Camion.inicializarCamiones(almacenesPrincipales.get(2), almacenesPrincipales.get(0), almacenesPrincipales.get(1), mapaMantenimientos);
+    }
+
+    public void runSimulatedAnnealing(MultipartFile archivoVentas) throws IOException {
+
+        Map<String, Oficina> mapaOficinas = cargarOficinas();
+        List<Oficina> almacenesPrincipales = obtenerAlmacenesPrincipales(mapaOficinas);
+        Map<Tramo, List<Bloqueo>> mapaBloqueos = cargarBloqueos();
+        GrafoTramos grafoTramos = cargarTramos(mapaOficinas, mapaBloqueos);
+        List<Venta> ventas = cargarVentas(archivoVentas, mapaOficinas);
+        Map<Camion, List<LocalDateTime>> mapaMantenimientos = cargarMantenimientos();
+        List<Camion> camiones = inicializarCamiones(almacenesPrincipales, mapaMantenimientos);
 
 
         var reloj = RelojSimulado.getInstance();
