@@ -9,7 +9,8 @@ import camionIcon from "/src/assets/icons/camion.png";
 import oficinaIcon from "/src/assets/icons/oficina.png";
 import almacenPrincipalIcon from "/src/assets/icons/storage.png";
 
-import { useState } from "react";
+import {useEffect, useState} from "react";
+import Papa from "papaparse";
 
 const MapaSimulacion = ({
 	simulacionActiva,
@@ -17,7 +18,6 @@ const MapaSimulacion = ({
 	resetRequerido,
 	velocidad,
 	rutas,
-	puntos,
 	currentPositions,
 	tramoIndexRef,
 	progresoTramoRef,
@@ -33,6 +33,29 @@ const MapaSimulacion = ({
 		[-90.0, -21.0], // Southwest coordinates, para incluir Tacna y la región sur
 		[-65.0, 3.0] // Northeast coordinates, para cubrir el norte y noreste
 	];
+
+
+	const [puntos, setPuntos] = useState([]);
+	const almacenesPrincipales = ["150101", "130101", "040101"];
+
+	// Cargar el CSV de oficinas
+	const cargarCSV = (file) => {
+		Papa.parse(file, {
+			header: true,
+			download: true,
+			complete: (result) => {
+				const data = result.data.map((oficina) => ({
+					...oficina,
+					almacenPrincipal: almacenesPrincipales.includes(oficina.id)
+				}));
+				setPuntos(data);
+			}
+		});
+	};
+
+	useEffect(() => {
+		cargarCSV("/src/assets/data/oficinas.csv");
+	});
 
 	return (
 		<MapContainer

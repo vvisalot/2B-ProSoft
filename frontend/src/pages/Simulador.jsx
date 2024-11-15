@@ -11,7 +11,6 @@ import ControlesSimulacion from "../components/Simulador/ControlesSimulacion.jsx
 import TablaSimulacion from "../components/Simulador/TablaSimulacion.jsx"; // Asegúrate de importar Papa Parse
 
 const Simulador = () => {
-	const almacenesPrincipales = ["150101", "130101", "040101"];
 	const [currentTime, setCurrentTime] = useState(
 		new Date().toLocaleTimeString()
 	);
@@ -28,7 +27,6 @@ const Simulador = () => {
 
 	// Estado para almacenar rutas y puntos de oficinas
 	const [rutas, setRutas] = useState(rutaData);
-	const [puntos, setPuntos] = useState([]);
 
 	// Referencias para el estado de cada camión en movimiento
 	const tramoIndexRef = useRef([]);
@@ -50,24 +48,7 @@ const Simulador = () => {
 		);
 	}, []);
 
-	// Cargar el CSV de oficinas
-	const cargarCSV = (file) => {
-		Papa.parse(file, {
-			header: true,
-			download: true,
-			complete: (result) => {
-				const data = result.data.map((oficina) => ({
-					...oficina,
-					almacenPrincipal: almacenesPrincipales.includes(oficina.id)
-				}));
-				setPuntos(data);
-			}
-		});
-	};
 
-	useEffect(() => {
-		cargarCSV("/src/assets/data/oficinas.csv");
-	});
 
 	useEffect(() => {
 		if (rutas.length > 0) {
@@ -287,7 +268,6 @@ const Simulador = () => {
 					resetRequerido={resetRequerido}
 					velocidad={velocidad}
 					rutas={rutas}
-					puntos={puntos} // Pasamos los puntos al mapa
 					currentPositions={currentPositions}
 					tramoIndexRef={tramoIndexRef}
 					progresoTramoRef={progresoTramoRef}
