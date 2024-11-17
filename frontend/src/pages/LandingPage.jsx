@@ -1,7 +1,7 @@
 // src/pages/LandingPage.js
 import React from "react";
 import logo from "../assets/odipark.svg"; // Asegúrate de que la ruta sea correcta
-import imagen from "../assets/optimizacion-de-rutas-de-transporte.png";
+import imagen from "../assets/icons/optimizacion-de-rutas-de-transporte.png";
 
 const LandingPage = ({ onEnter }) => {
 	return (

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import MapContainer, { Marker, Popup, NavigationControl, Source, Layer } from "react-map-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import Papa from "papaparse";
-import camionIcon from "/src/assets/camion.png"; 
+import camionIcon from "/src/assets/icons/camion.png";
 import rutaData from "/src/assets/data/Data.json";
 
 const MapaPeru = () => {
