@@ -1,249 +1,60 @@
-import { UploadOutlined } from "@ant-design/icons";
-import { Button, Input, Modal } from "antd";
-import { Upload } from "antd";
+import {Button, Input, Modal} from "antd";
 
-import axios from "axios";
-import Papa from "papaparse";
-import { useEffect, useRef, useState } from "react";
-import CardLeyenda from "/src/cards/CardLeyenda";
+import {useEffect, useRef, useState} from "react";
 import rutaData from "/src/assets/data/Data.json";
-import MapaSimulacion from "/src/components/MapaSimulacion";
-import ControlesSimulacion from "../components/ControlesSimulacion.jsx";
-import TablaSimulacion from "../components/TablaSimulacion.jsx"; 
+import MapaSimulacion from "/src/components/Simulador/MapaSimulacion";
+import ControlesSimulacion from "../components/Simulador/ControlesSimulacion.jsx";
+import TablaSimulacion from "../components/Simulador/TablaSimulacion.jsx";
+import log from "eslint-plugin-react/lib/util/log.js";
+import InformacionSimulacion from "../components/Simulador/InformacionSimulacion.jsx"; // Asegúrate de importar Papa Parse
 
 const Simulador = () => {
-    const almacenesPrincipales = ["150101", "130101", "040101"];
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
     const [numCamiones, setNumCamiones] = useState(0);
     const [numRutas, setNumRutas] = useState(0);
-    const [simulacionActiva, setSimulacionActiva] = useState(false);
-    const [simulacionIniciada, setSimulacionIniciada] = useState(false);
-    const [simulacionTerminada, setSimulacionTerminada] = useState(false);
-    const [resetRequerido, setResetRequerido] = useState(false); 
-    const [velocidad, setVelocidad] = useState(1); 
-    const intervalRef = useRef(null);
 
     const [rutas, setRutas] = useState(rutaData);
-    const [puntos, setPuntos] = useState([]);
 
     const tramoIndexRef = useRef([]);
     const progresoTramoRef = useRef([]);
     const [currentPositions, setCurrentPositions] = useState({});
 
-	const [tiempoSimulacion, setTiempoSimulacion] = useState(0); // Tiempo simulado acelerado (en segundos)
-	const [tiempoReal, setTiempoReal] = useState(0); // Tiempo real transcurrido (en segundos)
-	const [realElapsedTime, setRealElapsedTime] = useState(0); // Tiempo real en segundos
-    const [simElapsedTime, setSimElapsedTime] = useState(0); // Tiempo simulado en segundos
+    const [simulacionActiva, setSimulacionActiva] = useState(false);
+    const [simulacionIniciada, setSimulacionIniciada] = useState(false);
+    const [resetRequerido, setResetRequerido] = useState(false); // Nuevo estado
+    const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
 
 
-    useEffect(() => {
-        const timer = setInterval(() => {
-            setCurrentTime(new Date().toLocaleTimeString());
-        }, 1000);
-        return () => clearInterval(timer);
-    }, []);
-
-	// Cronómetro para el tiempo real
-    useEffect(() => {
-        let realInterval;
-        if (simulacionIniciada && !simulacionTerminada) {
-            realInterval = setInterval(() => {
-                setRealElapsedTime((prev) => prev + 1);
-            }, 1000);
-        }
-        return () => clearInterval(realInterval);
-    }, [simulacionIniciada, simulacionTerminada]);
-
-    useEffect(() => {
-        handleUpdateStats(rutaData.length, rutaData.reduce((acc, ruta) => acc + ruta.tramos.length, 0));
-    }, []);
-
-    const cargarCSV = (file) => {
-        Papa.parse(file, {
-            header: true,
-            download: true,
-            complete: (result) => {
-                const data = result.data.map((oficina) => ({
-                    ...oficina,
-                    almacenPrincipal: almacenesPrincipales.includes(oficina.id)
-                }));
-                setPuntos(data);
-            }
-        });
-    };
-
-	useEffect(() => {
-		cargarCSV("/src/assets/data/oficinas.csv");
-	});
-
-	useEffect(() => {
-		if (rutas.length > 0) {
-			for (const ruta of rutaData) {
-				const fix = { ...ruta.tramos[0] };
-				fix.destino = { ...fix.origen };
-				fix.distancia = 0;
-				fix.tiempoLlegada = fix.tiempoSalida;
-				fix.tiempoEspera = 0;
-				ruta.tramos.unshift(fix);
-			}
-			tramoIndexRef.current = rutaData.map(() => 0);
-			progresoTramoRef.current = rutaData.map(() => 0.01);
-		}
-		return () => clearInterval(intervalRef.current);
-	}, [rutas]);
-
-	// Función para actualizar los estados de camiones y rutas
-	const handleUpdateStats = (camiones, rutas) => {
-		setNumCamiones(camiones);
-		setNumRutas(rutas);
-    };
-
-    // Función para manejar la selección de archivo
-    const handleFileChange = (event) => {
-        setSelectedFile(event.target.files[0]);
-    };
-
-    // Función para manejar el envío del archivo
-    const handleSubmit = async () => {
-        if (!selectedFile) {
-            message.error("Por favor selecciona un archivo antes de enviar.");
-            return;
-        }
-        
-        const formData = new FormData();
-        formData.append("archivo", selectedFile);
-
-        try {
-            const response = await axios.post("http://localhost:8080/api/simulated-annealing/soluciones", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
-            });
-            
-            message.success("Archivo cargado exitosamente");
-            console.log("Respuesta del servidor:", response.data);
-            // Guardar las soluciones en el estado
-            setSoluciones(response.data);
-        } catch (error) {
-            message.error("Error al cargar el archivo.");
-            console.error("Error en la solicitud:", error);
-        }
-	};   
-
-    const verSimulacionTerminada = () => {
-        setSimulacionIniciada(false);
-        setSimulacionTerminada(false);
-        setResetRequerido(true);
-    };
-
-    const iniciarSimulacion = () => {
-        if (resetRequerido) {
-            pararSimulacion();
-            setResetRequerido(false);
-        }
-        setSimulacionTerminada(false);
-        setSimulacionActiva(true);
-        setSimulacionIniciada(true);
-        iniciarSimulacionInterval();
-    };
-
-    const iniciarSimulacionInterval = () => {
-        if (intervalRef.current) clearInterval(intervalRef.current);
-        intervalRef.current = setInterval(moverCamiones, 1000 / velocidad);
-    };
-
-    const pausarSimulacion = () => {
-        setSimulacionActiva(false);
-        clearInterval(intervalRef.current);
-    };
-
-    const reanudarSimulacion = () => {
-        setSimulacionActiva(true);
-        iniciarSimulacionInterval();
-    };
-
-    const pararSimulacion = () => {
-        setSimulacionIniciada(false);
-        setSimulacionActiva(false);
-        setSimulacionTerminada(false);
-        setResetRequerido(false);
-        clearInterval(intervalRef.current);
-        resetearSimulacion();
-    };
-
-    const detenerSimulacion = () => {
-        setSimulacionActiva(false);
-        clearInterval(intervalRef.current);
-        setSimulacionTerminada(true);
-        setResetRequerido(true);
-        //alert(`Simulación finalizada. Tiempo total en tiempo real: ${formatTime(realElapsedTime)}`);
-		Modal.info({
-			title: "Simulación Terminada",
-			content: (
-				<p>
-					La simulación ha terminado. <br />
-					Tiempo total de simulación: {formatTime(realElapsedTime)}.
-				</p>
-			),
-		});
-	};
-
-    const resetearSimulacion = () => {
-		setRealElapsedTime(0); // Reiniciar tiempo real
-        setSimElapsedTime(0); // Reiniciar tiempo de simulación
-        tramoIndexRef.current = rutas.map(() => 0);
-		progresoTramoRef.current = rutas.map(() => 0);
-		setTiempoSimulacion(0);
-		setTiempoReal(0);
-		setCurrentPositions(
-			rutas.reduce((acc, ruta) => {
-				const { codigo } = ruta.camion;
-				acc[codigo] = {
-					latitud: ruta.tramos[0].origen.latitud,
-					longitud: ruta.tramos[0].origen.longitud
-				};
-				return acc;
-			}, {})
-		);
-    };
-
-    const acelerarSimulacion = () => {
-        setVelocidad((prev) => {
-            const nuevaVelocidad = Math.min(prev * 2, 16);
-            iniciarSimulacionInterval();
-            return nuevaVelocidad;
-        });
-    };
-
-    const reducirSimulacion = () => {
-        setVelocidad((prev) => {
-            const nuevaVelocidad = Math.max(prev / 2, 0.25);
-            iniciarSimulacionInterval();
-            return nuevaVelocidad;
-        });
-    };
-
-    const moverCamiones = () => {
-		setSimElapsedTime((prev) => prev + 1); // Incrementar tiempo simulado
+    const moverCamiones = (velocidad, onSimulacionTerminada) => {
         let allFinished = true;
 
         rutas.forEach((ruta, rutaIndex) => {
-            const { codigo } = ruta.camion;
+            const {codigo} = ruta.camion;
             const tramoIndex = tramoIndexRef.current[rutaIndex];
             const tramoActual = ruta.tramos[tramoIndex];
 
             if (!tramoActual) return;
-
-            const { distancia, velocidad: velocidadTramo, origen, destino } = tramoActual;
+            const {
+                distancia,
+                velocidad: velocidadTramo,
+                origen,
+                destino
+            } = tramoActual;
             const tiempoTramo = ((distancia / velocidadTramo) * 1000) / velocidad;
             const progreso = progresoTramoRef.current[rutaIndex];
 
             const nuevaPosicion = {
                 latitud: origen.latitud + (destino.latitud - origen.latitud) * progreso,
-                longitud: origen.longitud + (destino.longitud - origen.longitud) * progreso
+                longitud:
+                    origen.longitud + (destino.longitud - origen.longitud) * progreso
             };
 
-            setCurrentPositions((prev) => ({ ...prev, [codigo]: nuevaPosicion }));
+            setCurrentPositions((prev) => {
+                return {
+                    ...prev,
+                    [codigo]: nuevaPosicion
+                };
+            });
 
             progresoTramoRef.current[rutaIndex] += (1 / tiempoTramo) * velocidad;
 
@@ -251,105 +62,109 @@ const Simulador = () => {
                 tramoIndexRef.current[rutaIndex]++;
                 progresoTramoRef.current[rutaIndex] = 0.01;
 
-				if (tramoIndexRef.current[rutaIndex] >= ruta.tramos.length) {
-					setCurrentPositions((prev) => {
-						const updated = { ...prev };
-						delete updated[codigo];
-						return updated;
-					});
-					tramoIndexRef.current[rutaIndex] = -1; // Marcar el camión como terminado
-				} else allFinished = false;
-			} else allFinished = false;
-		});
-		if (allFinished) detenerSimulacion();
-	};
+                if (tramoIndexRef.current[rutaIndex] >= ruta.tramos.length) {
+                    setCurrentPositions((prev) => {
+                        const updated = {...prev};
+                        delete updated[codigo];
+                        return updated;
+                    });
+                    tramoIndexRef.current[rutaIndex] = -1; // Marcar el camión como terminado
+                } else allFinished = false;
+            } else allFinished = false;
+        });
+        if (allFinished) {
+            console.log("Simulación terminada");
+            onSimulacionTerminada();
+        }
+    };
 
-	// PARA SUBIR UN ARCHIVO
-	const [selectedFile, setSelectedFile] = useState(null);
 
-	const handleFileChange = (event) => {
-		const file = event.target.files[0];
-		if (file) {
-			setSelectedFile(file);
-		}
-	};
-	// Función para manejar el envío del archivo
-	const handleSubmit = async () => {
-		if (!selectedFile) {
-			message.error("Por favor selecciona un archivo antes de enviar.");
-			return;
-		}
-		const formData = new FormData();
-		formData.append("archivo", selectedFile);
+    const resetearSimulacion = () => {
+        tramoIndexRef.current = rutas.map(() => 0);
+        progresoTramoRef.current = rutas.map(() => 0);
+        setCurrentPositions(
+            rutas.reduce((acc, ruta) => {
+                const {codigo} = ruta.camion;
+                acc[codigo] = {
+                    latitud: ruta.tramos[0].origen.latitud,
+                    longitud: ruta.tramos[0].origen.longitud
+                };
+                return acc;
+            }, {})
+        );
+    };
 
-		try {
-			const response = await axios.post(
-				"http://localhost:8080/api/simulated-annealing/soluciones",
-				formData,
-				{
-					headers: {
-						"Content-Type": "multipart/form-data"
-					}
-				}
-			);
+    // useEffect(() => {
+    //     const timer = setInterval(() => {
+    //         setCurrentTime(new Date().toLocaleTimeString());
+    //     }, 1000);
+    //     return () => clearInterval(timer);
+    // }, []);
 
-			message.success("Archivo cargado exitosamente");
-			console.log("Respuesta del servidor:", response.data);
-			// Guardar las soluciones en el estado
-			setRutas(response.data);
-		} catch (error) {
-			message.error("Error al cargar el archivo.");
-			console.error("Error en la solicitud:", error);
-		}
-	};
+    useEffect(() => {
+        handleUpdateStats(
+            rutaData.length,
+            rutaData.reduce((acc, ruta) => acc + ruta.tramos.length, 0)
+        );
+    }, []);
 
-	// Función para formatear el tiempo en horas, minutos y segundos
-    const formatTime = (totalSeconds) => {
-        const hours = Math.floor(totalSeconds / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    //Se cargan los datos de la solucion del algoritmo.
+    useEffect(() => {
+        if (rutas.length > 0) {
+            for (const ruta of rutaData) {
+                const fix = {...ruta.tramos[0]};
+                fix.destino = {...fix.origen};
+                fix.distancia = 0;
+                fix.tiempoLlegada = fix.tiempoSalida;
+                fix.tiempoEspera = 0;
+                ruta.tramos.unshift(fix);
+            }
+            setRutas(rutas);
+            tramoIndexRef.current = rutaData.map(() => 0);
+            progresoTramoRef.current = rutaData.map(() => 0.01);
+        }
+    }, [rutas]);
+
+    // Función para actualizar los estados de camiones y rutas
+    const handleUpdateStats = (camiones, rutas) => {
+        setNumCamiones(camiones);
+        setNumRutas(rutas);
     };
 
     return (
-        <div className="h-full flex flex-col md:flex-row p-5 space-y-4 md:space-y-0 md:space-x-4">
-            <div className="relative w-full md:w-2/5 lg:w-2/5 mb-4 md:mb-0">
-                <h1 className="text-lg font-medium mb-4">Simulación Semanal</h1>
-                <CardLeyenda numCamiones={numCamiones} numRutas={numRutas} className="mb-6"/>
-                <TablaSimulacion data={rutas} />
+        <div className="h-fit flex p-2">
+            <div className="w-5/12">
+                <TablaSimulacion data={rutas}/>
+                <InformacionSimulacion/>
             </div>
 
-            <div className="relative w-full md:w-2/3 lg:w-3/4 h-[70vh] md:h-[85vh] border-2 border-gray-300 rounded-lg">
-				<div className="absolute top-4 left-4 z-10 bg-white p-2 rounded-lg shadow-lg">
-					<h2 className="text-lg font-bold">Tiempo real transcurrido: {formatTime(realElapsedTime)}</h2>
-					<h2 className="text-lg font-bold">Tiempo simulado transcurrido: {formatTime(simElapsedTime)}</h2>
-				</div>
-				<MapaSimulacion
-					simulacionActiva={simulacionActiva}
-					simulacionIniciada={simulacionIniciada}
-					resetRequerido={resetRequerido}
-					velocidad={velocidad}
-					rutas={rutas}
-					puntos={puntos} // Pasamos los puntos al mapa
-					currentPositions={currentPositions}
-					tramoIndexRef={tramoIndexRef}
-					progresoTramoRef={progresoTramoRef}
-					onUpdateStats={handleUpdateStats}
-				>
-				</MapaSimulacion>
-				<div className="absolute bottom-4 right-4 z-10 bg-white p-4 rounded-lg shadow-lg">
-					<ControlesSimulacion
-						simulacionActiva={simulacionActiva}
-						simulacionIniciada={simulacionIniciada}
-						pausarSimulacion={pausarSimulacion}
-						iniciarSimulacion={iniciarSimulacion}
-						reanudarSimulacion={reanudarSimulacion}
-						pararSimulacion={pararSimulacion}
-						acelerarSimulacion={acelerarSimulacion}
-						reducirSimulacion={reducirSimulacion}
-						velocidad={velocidad}
-					/>
-				</div>
+            <div className="relative w-7/12 h-100 border border-gray-300 shadow-lg rounded-lg">
+                <MapaSimulacion
+                    rutas={rutas}
+                    currentPositions={currentPositions}
+                    tramoIndexRef={tramoIndexRef}
+                    progresoTramoRef={progresoTramoRef}
+                    onUpdateStats={handleUpdateStats}
+                    simulacionActiva={simulacionActiva}
+                    simulacionIniciada={simulacionIniciada}
+                    resetRequerido={resetRequerido}
+                    velocidad={velocidad}
+                />
+                <div className="absolute bottom-4 right-4 z-10 bg-white p-4 rounded-lg shadow-lg">
+                    <ControlesSimulacion
+                        rutas={rutas}
+                        moverCamiones={moverCamiones}
+                        resetearSimulacion={resetearSimulacion}
+                        onSimulacionStateChange={(state) => {
+                            setSimulacionActiva(state.simulacionActiva);
+                            setSimulacionIniciada(state.simulacionIniciada);
+                            setResetRequerido(state.resetRequerido);
+                            setVelocidad(state.velocidad);
+                        }}
+                    />
+                </div>
+
+
             </div>
         </div>
     );

@@ -1,14 +1,30 @@
-const ControlesSimulacion = ({
-                                 simulacionActiva,
-                                 simulacionIniciada, // Nuevo estado para verificar si ya inició
-                                 pausarSimulacion,
-                                 reanudarSimulacion,
-                                 iniciarSimulacion, // Nueva función para iniciar la simulación
-                                 pararSimulacion, // Nueva función para parar la simulación
-                                 acelerarSimulacion,
-                                 reducirSimulacion,
-                                 velocidad,
-                             }) => {
+import {useControlesSimulacion} from "../../hooks/useControlesSimulacion.jsx";
+import {useEffect} from "react";
+
+const ControlesSimulacion = ({ rutas, moverCamiones, resetearSimulacion, onSimulacionStateChange }) => {
+    const {
+        simulacionActiva,
+        simulacionIniciada,
+        simulacionTerminada,
+        resetRequerido,
+        velocidad,
+        iniciarSimulacion,
+        pausarSimulacion,
+        reanudarSimulacion,
+        pararSimulacion,
+        acelerarSimulacion,
+        reducirSimulacion
+    } = useControlesSimulacion(rutas, moverCamiones, resetearSimulacion);
+
+    useEffect(() => {
+        onSimulacionStateChange({
+            simulacionActiva,
+            simulacionIniciada,
+            resetRequerido,
+            velocidad
+        });
+    }, [simulacionActiva, simulacionIniciada, resetRequerido, velocidad]);
+
     return (
         <div>
             <div className="flex space-x-2">
