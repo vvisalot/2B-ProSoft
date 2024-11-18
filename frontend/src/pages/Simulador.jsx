@@ -1,12 +1,15 @@
-import {Button, Input, Modal} from "antd";
-
-import {useEffect, useRef, useState} from "react";
+import {React, useEffect, useRef, useState} from "react";
+import {Button, Input, Modal, DatePicker, TimePicker, Space, Dropdown, Typography} from "antd";
+import { DownOutlined } from '@ant-design/icons';
 import rutaData from "/src/assets/data/Data.json";
 import MapaSimulacion from "/src/components/Simulador/MapaSimulacion";
 import ControlesSimulacion from "../components/Simulador/ControlesSimulacion.jsx";
 import TablaSimulacion from "../components/Simulador/TablaSimulacion.jsx";
 import log from "eslint-plugin-react/lib/util/log.js";
 import InformacionSimulacion from "../components/Simulador/InformacionSimulacion.jsx"; // Asegúrate de importar Papa Parse
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+dayjs.extend(customParseFormat);
 
 const Simulador = () => {
     const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
@@ -23,7 +26,29 @@ const Simulador = () => {
     const [simulacionIniciada, setSimulacionIniciada] = useState(false);
     const [resetRequerido, setResetRequerido] = useState(false); // Nuevo estado
     const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
+    
+    const [selectedItem, setSelectedItem] = useState('Simulación');
+    const items = [
+        {
+          key: '1',
+          label: 'Semanal',
+          onClick: () => setSelectedItem('Semanal'),
+        },
+        {
+          key: '2',
+          label: 'Colapso',
+          onClick: () => setSelectedItem('Colapso'),
+          disabled: true, //por ahora para solo tener semanal
+        },
+      ];
 
+    const onChangeDate = (date, dateString) => {
+        console.log("Selected Date:", date);
+        console.log("Formatted Date String:", dateString);
+    };
+    const onChangeTime = (time, timeString) => {
+      console.log(time, timeString);
+    };
 
     const moverCamiones = (velocidad, onSimulacionTerminada) => {
         let allFinished = true;
@@ -139,6 +164,34 @@ const Simulador = () => {
             </div>
 
             <div className="relative w-7/12 h-100 border border-gray-300 shadow-lg rounded-lg">
+                <div className="w-full flex justify-left items-center" style={{height: "5vh", marginTop: "1vh", marginBottom: "1vh"}}>
+                    <h1 style={{fontSize: "1rem", fontWeight: '400', marginLeft: "1vh", marginRight: "1.5vh"}}
+                        >Eliga el tipo de simulación: 
+                    </h1>
+                    <Dropdown
+                        menu={{
+                        items,
+                        selectable: true,
+                        defaultSelectedKeys: ['2'],
+                        }}
+                    >
+                        <Typography.Link>
+                        <Space>
+                            {selectedItem}
+                            <DownOutlined />
+                        </Space>
+                        </Typography.Link>
+                    </Dropdown>
+                    
+                    <Space direction="vertical" style={{marginLeft: "5vh"}}>
+                        <DatePicker onChangeDate={onChangeDate} />
+                    </Space>
+                    <TimePicker style={{marginLeft: "2vh"}}
+                        onChangeTime={onChangeTime} defaultOpenValue={dayjs('00:00:00', 'HH:mm:ss')} 
+                    />
+
+                </div>
+            
                 <MapaSimulacion
                     rutas={rutas}
                     currentPositions={currentPositions}
