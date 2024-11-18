@@ -47,4 +47,4 @@ const Tabla = () => {
 	);
 };
 
-export default TablaFlota ;
+export default Tabla;
