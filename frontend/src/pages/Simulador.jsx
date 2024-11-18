@@ -5,65 +5,72 @@ import { Upload } from "antd";
 import axios from "axios";
 import Papa from "papaparse";
 import { useEffect, useRef, useState } from "react";
+import CardLeyenda from "/src/cards/CardLeyenda";
 import rutaData from "/src/assets/data/Data.json";
-import MapaSimulacion from "/src/components/Simulador/MapaSimulacion";
-import ControlesSimulacion from "../components/Simulador/ControlesSimulacion.jsx";
-import TablaSimulacion from "../components/Simulador/TablaSimulacion.jsx"; // Asegúrate de importar Papa Parse
+import MapaSimulacion from "/src/components/MapaSimulacion";
+import ControlesSimulacion from "../components/ControlesSimulacion.jsx";
+import TablaSimulacion from "../components/TablaSimulacion.jsx"; 
 
 const Simulador = () => {
-	const almacenesPrincipales = ["150101", "130101", "040101"];
-	const [currentTime, setCurrentTime] = useState(
-		new Date().toLocaleTimeString()
-	);
-	const [numCamiones, setNumCamiones] = useState(0);
-	const [numRutas, setNumRutas] = useState(0);
+    const almacenesPrincipales = ["150101", "130101", "040101"];
+    const [currentTime, setCurrentTime] = useState(new Date().toLocaleTimeString());
+    const [numCamiones, setNumCamiones] = useState(0);
+    const [numRutas, setNumRutas] = useState(0);
+    const [simulacionActiva, setSimulacionActiva] = useState(false);
+    const [simulacionIniciada, setSimulacionIniciada] = useState(false);
+    const [simulacionTerminada, setSimulacionTerminada] = useState(false);
+    const [resetRequerido, setResetRequerido] = useState(false); 
+    const [velocidad, setVelocidad] = useState(1); 
+    const intervalRef = useRef(null);
 
-	const [simulacionActiva, setSimulacionActiva] = useState(false);
-	const [simulacionIniciada, setSimulacionIniciada] = useState(false);
-	const [simulacionTerminada, setSimulacionTerminada] = useState(false);
-	const [resetRequerido, setResetRequerido] = useState(false); // Nuevo estado
+    const [rutas, setRutas] = useState(rutaData);
+    const [puntos, setPuntos] = useState([]);
 
-	const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
-	const intervalRef = useRef(null);
+    const tramoIndexRef = useRef([]);
+    const progresoTramoRef = useRef([]);
+    const [currentPositions, setCurrentPositions] = useState({});
 
-	// Estado para almacenar rutas y puntos de oficinas
-	const [rutas, setRutas] = useState(rutaData);
-	const [puntos, setPuntos] = useState([]);
+	const [tiempoSimulacion, setTiempoSimulacion] = useState(0); // Tiempo simulado acelerado (en segundos)
+	const [tiempoReal, setTiempoReal] = useState(0); // Tiempo real transcurrido (en segundos)
+	const [realElapsedTime, setRealElapsedTime] = useState(0); // Tiempo real en segundos
+    const [simElapsedTime, setSimElapsedTime] = useState(0); // Tiempo simulado en segundos
 
-	// Referencias para el estado de cada camión en movimiento
-	const tramoIndexRef = useRef([]);
-	const progresoTramoRef = useRef([]);
-	const [currentPositions, setCurrentPositions] = useState({});
 
-	useEffect(() => {
-		// Actualizar la hora cada segundo
-		const timer = setInterval(() => {
-			setCurrentTime(new Date().toLocaleTimeString());
-		}, 1000);
-		return () => clearInterval(timer);
-	}, []);
+    useEffect(() => {
+        const timer = setInterval(() => {
+            setCurrentTime(new Date().toLocaleTimeString());
+        }, 1000);
+        return () => clearInterval(timer);
+    }, []);
 
-	useEffect(() => {
-		handleUpdateStats(
-			rutaData.length,
-			rutaData.reduce((acc, ruta) => acc + ruta.tramos.length, 0)
-		);
-	}, []);
+	// Cronómetro para el tiempo real
+    useEffect(() => {
+        let realInterval;
+        if (simulacionIniciada && !simulacionTerminada) {
+            realInterval = setInterval(() => {
+                setRealElapsedTime((prev) => prev + 1);
+            }, 1000);
+        }
+        return () => clearInterval(realInterval);
+    }, [simulacionIniciada, simulacionTerminada]);
 
-	// Cargar el CSV de oficinas
-	const cargarCSV = (file) => {
-		Papa.parse(file, {
-			header: true,
-			download: true,
-			complete: (result) => {
-				const data = result.data.map((oficina) => ({
-					...oficina,
-					almacenPrincipal: almacenesPrincipales.includes(oficina.id)
-				}));
-				setPuntos(data);
-			}
-		});
-	};
+    useEffect(() => {
+        handleUpdateStats(rutaData.length, rutaData.reduce((acc, ruta) => acc + ruta.tramos.length, 0));
+    }, []);
+
+    const cargarCSV = (file) => {
+        Papa.parse(file, {
+            header: true,
+            download: true,
+            complete: (result) => {
+                const data = result.data.map((oficina) => ({
+                    ...oficina,
+                    almacenPrincipal: almacenesPrincipales.includes(oficina.id)
+                }));
+                setPuntos(data);
+            }
+        });
+    };
 
 	useEffect(() => {
 		cargarCSV("/src/assets/data/oficinas.csv");
@@ -123,58 +130,71 @@ const Simulador = () => {
         }
 	};   
 
-	// Función para cerrar el modal y ver la simulación terminada
-	const verSimulacionTerminada = () => {
-		setSimulacionIniciada(false);
-		setSimulacionTerminada(false);
-		setResetRequerido(true);
+    const verSimulacionTerminada = () => {
+        setSimulacionIniciada(false);
+        setSimulacionTerminada(false);
+        setResetRequerido(true);
+    };
+
+    const iniciarSimulacion = () => {
+        if (resetRequerido) {
+            pararSimulacion();
+            setResetRequerido(false);
+        }
+        setSimulacionTerminada(false);
+        setSimulacionActiva(true);
+        setSimulacionIniciada(true);
+        iniciarSimulacionInterval();
+    };
+
+    const iniciarSimulacionInterval = () => {
+        if (intervalRef.current) clearInterval(intervalRef.current);
+        intervalRef.current = setInterval(moverCamiones, 1000 / velocidad);
+    };
+
+    const pausarSimulacion = () => {
+        setSimulacionActiva(false);
+        clearInterval(intervalRef.current);
+    };
+
+    const reanudarSimulacion = () => {
+        setSimulacionActiva(true);
+        iniciarSimulacionInterval();
+    };
+
+    const pararSimulacion = () => {
+        setSimulacionIniciada(false);
+        setSimulacionActiva(false);
+        setSimulacionTerminada(false);
+        setResetRequerido(false);
+        clearInterval(intervalRef.current);
+        resetearSimulacion();
+    };
+
+    const detenerSimulacion = () => {
+        setSimulacionActiva(false);
+        clearInterval(intervalRef.current);
+        setSimulacionTerminada(true);
+        setResetRequerido(true);
+        //alert(`Simulación finalizada. Tiempo total en tiempo real: ${formatTime(realElapsedTime)}`);
+		Modal.info({
+			title: "Simulación Terminada",
+			content: (
+				<p>
+					La simulación ha terminado. <br />
+					Tiempo total de simulación: {formatTime(realElapsedTime)}.
+				</p>
+			),
+		});
 	};
 
-	const iniciarSimulacion = () => {
-		if (resetRequerido) {
-			pararSimulacion();
-			setResetRequerido(false);
-		}
-		setSimulacionTerminada(false);
-		setSimulacionActiva(true);
-		setSimulacionIniciada(true);
-		iniciarSimulacionInterval();
-	};
-
-	const iniciarSimulacionInterval = () => {
-		if (intervalRef.current) clearInterval(intervalRef.current);
-		intervalRef.current = setInterval(moverCamiones, 1000 / velocidad);
-	};
-
-	const pausarSimulacion = () => {
-		setSimulacionActiva(false);
-		clearInterval(intervalRef.current);
-	};
-
-	const reanudarSimulacion = () => {
-		setSimulacionActiva(true);
-		iniciarSimulacionInterval();
-	};
-
-	const pararSimulacion = () => {
-		setSimulacionIniciada(false);
-		setSimulacionActiva(false);
-		setSimulacionTerminada(false);
-		setResetRequerido(false);
-		clearInterval(intervalRef.current);
-		resetearSimulacion();
-	};
-
-	const detenerSimulacion = () => {
-		setSimulacionActiva(false);
-		clearInterval(intervalRef.current);
-		setSimulacionTerminada(true);
-		setResetRequerido(true);
-	};
-
-	const resetearSimulacion = () => {
-		tramoIndexRef.current = rutas.map(() => 0);
+    const resetearSimulacion = () => {
+		setRealElapsedTime(0); // Reiniciar tiempo real
+        setSimElapsedTime(0); // Reiniciar tiempo de simulación
+        tramoIndexRef.current = rutas.map(() => 0);
 		progresoTramoRef.current = rutas.map(() => 0);
+		setTiempoSimulacion(0);
+		setTiempoReal(0);
 		setCurrentPositions(
 			rutas.reduce((acc, ruta) => {
 				const { codigo } = ruta.camion;
@@ -185,59 +205,51 @@ const Simulador = () => {
 				return acc;
 			}, {})
 		);
-	};
+    };
 
-	const acelerarSimulacion = () => {
-		setVelocidad((prev) => {
-			const nuevaVelocidad = Math.min(prev * 2, 16);
-			iniciarSimulacionInterval();
-			return nuevaVelocidad;
-		});
-	};
+    const acelerarSimulacion = () => {
+        setVelocidad((prev) => {
+            const nuevaVelocidad = Math.min(prev * 2, 16);
+            iniciarSimulacionInterval();
+            return nuevaVelocidad;
+        });
+    };
 
-	const reducirSimulacion = () => {
-		setVelocidad((prev) => {
-			const nuevaVelocidad = Math.max(prev / 2, 0.25);
-			iniciarSimulacionInterval();
-			return nuevaVelocidad;
-		});
-	};
+    const reducirSimulacion = () => {
+        setVelocidad((prev) => {
+            const nuevaVelocidad = Math.max(prev / 2, 0.25);
+            iniciarSimulacionInterval();
+            return nuevaVelocidad;
+        });
+    };
 
-	const moverCamiones = () => {
-		let allFinished = true;
+    const moverCamiones = () => {
+		setSimElapsedTime((prev) => prev + 1); // Incrementar tiempo simulado
+        let allFinished = true;
 
-		rutas.forEach((ruta, rutaIndex) => {
-			const { codigo } = ruta.camion;
-			const tramoIndex = tramoIndexRef.current[rutaIndex];
-			const tramoActual = ruta.tramos[tramoIndex];
+        rutas.forEach((ruta, rutaIndex) => {
+            const { codigo } = ruta.camion;
+            const tramoIndex = tramoIndexRef.current[rutaIndex];
+            const tramoActual = ruta.tramos[tramoIndex];
 
-			if (!tramoActual) return;
+            if (!tramoActual) return;
 
-			const {
-				distancia,
-				velocidad: velocidadTramo,
-				origen,
-				destino
-			} = tramoActual;
-			const tiempoTramo = ((distancia / velocidadTramo) * 1000) / velocidad;
-			const progreso = progresoTramoRef.current[rutaIndex];
+            const { distancia, velocidad: velocidadTramo, origen, destino } = tramoActual;
+            const tiempoTramo = ((distancia / velocidadTramo) * 1000) / velocidad;
+            const progreso = progresoTramoRef.current[rutaIndex];
 
-			const nuevaPosicion = {
-				latitud: origen.latitud + (destino.latitud - origen.latitud) * progreso,
-				longitud:
-					origen.longitud + (destino.longitud - origen.longitud) * progreso
-			};
+            const nuevaPosicion = {
+                latitud: origen.latitud + (destino.latitud - origen.latitud) * progreso,
+                longitud: origen.longitud + (destino.longitud - origen.longitud) * progreso
+            };
 
-			setCurrentPositions((prev) => ({
-				...prev,
-				[codigo]: nuevaPosicion
-			}));
+            setCurrentPositions((prev) => ({ ...prev, [codigo]: nuevaPosicion }));
 
-			progresoTramoRef.current[rutaIndex] += (1 / tiempoTramo) * velocidad;
+            progresoTramoRef.current[rutaIndex] += (1 / tiempoTramo) * velocidad;
 
-			if (progresoTramoRef.current[rutaIndex] >= 1) {
-				tramoIndexRef.current[rutaIndex]++;
-				progresoTramoRef.current[rutaIndex] = 0.01;
+            if (progresoTramoRef.current[rutaIndex] >= 1) {
+                tramoIndexRef.current[rutaIndex]++;
+                progresoTramoRef.current[rutaIndex] = 0.01;
 
 				if (tramoIndexRef.current[rutaIndex] >= ruta.tramos.length) {
 					setCurrentPositions((prev) => {
@@ -291,28 +303,27 @@ const Simulador = () => {
 		}
 	};
 
-	return (
-		<div className="h-fit flex p-2">
-			<div className="w-2/6">
-				<Upload
-					type="file"
-					style={{
-						width: "80%",
-						marginBottom: "20px",
-						padding: "20px"
-					}}
-					onChange={handleFileChange}
-					accept=".txt"
-				>
-					<Button icon={<UploadOutlined />}>Subir archivo</Button>
-				</Upload>
+	// Función para formatear el tiempo en horas, minutos y segundos
+    const formatTime = (totalSeconds) => {
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    };
 
-				<div className="mt-4">
-					<TablaSimulacion data={rutas} />
+    return (
+        <div className="h-full flex flex-col md:flex-row p-5 space-y-4 md:space-y-0 md:space-x-4">
+            <div className="relative w-full md:w-2/5 lg:w-2/5 mb-4 md:mb-0">
+                <h1 className="text-lg font-medium mb-4">Simulación Semanal</h1>
+                <CardLeyenda numCamiones={numCamiones} numRutas={numRutas} className="mb-6"/>
+                <TablaSimulacion data={rutas} />
+            </div>
+
+            <div className="relative w-full md:w-2/3 lg:w-3/4 h-[70vh] md:h-[85vh] border-2 border-gray-300 rounded-lg">
+				<div className="absolute top-4 left-4 z-10 bg-white p-2 rounded-lg shadow-lg">
+					<h2 className="text-lg font-bold">Tiempo real transcurrido: {formatTime(realElapsedTime)}</h2>
+					<h2 className="text-lg font-bold">Tiempo simulado transcurrido: {formatTime(simElapsedTime)}</h2>
 				</div>
-			</div>
-
-			<div className="relative w-4/6 h-[92vh] m-auto border border-gray-300 shadow-lg rounded-lg">
 				<MapaSimulacion
 					simulacionActiva={simulacionActiva}
 					simulacionIniciada={simulacionIniciada}
@@ -324,7 +335,8 @@ const Simulador = () => {
 					tramoIndexRef={tramoIndexRef}
 					progresoTramoRef={progresoTramoRef}
 					onUpdateStats={handleUpdateStats}
-				/>
+				>
+				</MapaSimulacion>
 				<div className="absolute bottom-4 right-4 z-10 bg-white p-4 rounded-lg shadow-lg">
 					<ControlesSimulacion
 						simulacionActiva={simulacionActiva}
@@ -338,39 +350,9 @@ const Simulador = () => {
 						velocidad={velocidad}
 					/>
 				</div>
-			</div>
-
-			{/* Modal de Simulación Terminada */}
-			<Modal
-				title="La simulacion ha terminado"
-				open={simulacionTerminada}
-				closable={false}
-				maskClosable={false}
-				footer={[
-					<Button
-						key="ver"
-						onClick={() => {
-							verSimulacionTerminada();
-						}}
-					>
-						Ver rutas
-					</Button>,
-					<Button
-						key="reiniciar"
-						type="primary"
-						onClick={() => {
-							pararSimulacion();
-							setSimulacionTerminada(false);
-						}}
-					>
-						Reiniciar simulación
-					</Button>
-				]}
-			>
-				<p>Puedes ver las rutas recorridas o reiniciar la simulación.</p>
-			</Modal>
-		</div>
-	);
+            </div>
+        </div>
+    );
 };
 
 export default Simulador;
