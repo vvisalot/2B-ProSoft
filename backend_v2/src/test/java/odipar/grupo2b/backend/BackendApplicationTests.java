@@ -1,10 +1,10 @@
-package com.grupo2b.odiroute;
+package odipar.grupo2b.backend;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class OdirouteApplicationTests {
+class BackendApplicationTests {
 
 	@Test
 	void contextLoads() {

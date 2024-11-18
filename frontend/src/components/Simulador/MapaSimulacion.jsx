@@ -55,7 +55,7 @@ const MapaSimulacion = ({
 
 	useEffect(() => {
 		cargarCSV("/src/assets/data/oficinas.csv");
-	});
+	},[]);
 
 	return (
 		<MapContainer
