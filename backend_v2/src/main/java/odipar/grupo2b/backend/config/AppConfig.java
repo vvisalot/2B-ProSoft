@@ -52,7 +52,7 @@ public class AppConfig {
         }
 
         //Lectura de ventas
-        String archivoVentas = "ventas.historico.proyectado/ventas200001.txt";
+        String archivoVentas = "ventas.historico.proyectado/ventas202403.txt";
         List<Venta> ventas = LeerDatos.leerVentasDesdeArchivo(archivoVentas, mapaOficinas);
 
         String archivoMantenimientos = "mantenimientos.txt";
