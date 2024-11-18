@@ -41,7 +41,16 @@ const Simulador = () => {
           disabled: true, //por ahora para solo tener semanal
         },
       ];
+    
+    
+    //Validación para solo tomar rango de marzo 2024 a mayo 2025
+    const startDate = dayjs('2024-03-01');
+    const endDate = dayjs('2025-05-01');
+    const disabledDate = (current) => {
+        return current && (current < startDate || current > endDate);
+    };
 
+    //Constantes para variables de fecha y tiempo
     const onChangeDate = (date, dateString) => {
         console.log("Selected Date:", date);
         console.log("Formatted Date String:", dateString);
@@ -184,7 +193,7 @@ const Simulador = () => {
                     </Dropdown>
                     
                     <Space direction="vertical" style={{marginLeft: "5vh"}}>
-                        <DatePicker onChangeDate={onChangeDate} />
+                        <DatePicker onChangeDate={onChangeDate} disabledDate={disabledDate}/>
                     </Space>
                     <TimePicker style={{marginLeft: "2vh"}}
                         onChangeTime={onChangeTime} defaultOpenValue={dayjs('00:00:00', 'HH:mm:ss')} 
