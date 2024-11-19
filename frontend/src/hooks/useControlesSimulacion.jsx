@@ -6,12 +6,14 @@ export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearS
     const [simulacionIniciada, setSimulacionIniciada] = useState(false);
     const [simulacionTerminada, setSimulacionTerminada] = useState(false);
     const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
-    //const [currentTime, setCurrentTime] = useState("2024-03-14T00:00:00"); // Fecha inicial hardcodeada
-    //const [simulatedClock, setSimulatedClock] = useState(new Date(currentTime));
+    const [currentTime2, setCurrentTime2] = useState("2024-03-14T00:00:00"); // Fecha inicial hardcodeada
+    const [simulatedClock2, setSimulatedClock2] = useState(new Date(currentTime));
 
     const [resetRequerido, setResetRequerido] = useState(false); // Nuevo estado
 
     const intervalRef = useRef(null);
+    const primeraSimulacionRef = useRef(true);
+    const simulatedClockRef = useRef(new Date(currentTime))
 
     const moverCamionesVelocidad = () => {
         console.log("Mover camiones con velocidad", velocidad);
@@ -31,23 +33,21 @@ export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearS
         }
     };
 
+    
     const avanzarSimulacion = async () => {
         try {
             let nuevaHora;
-
-            if (primeraSimulacion) {
+            if (primeraSimulacionRef.current) {
                 // En la primera simulación, usar la fecha inicial directamente
-                nuevaHora = new Date(currentTime);
-                console.log(`Hora inicial es: ${nuevaHora.toISOString()}`);
-                setPrimeraSimulacion(false); // Cambiar el estado después de la primera iteración
-                console.log(primeraSimulacion)
+                nuevaHora = new Date(simulatedClock);
+                nuevaHora.setHours(0, 0, 0, 0);
+                primeraSimulacionRef.current = false; // Cambiar referencia
             } else {
-                nuevaHora = new Date(simulatedClock.getTime() + 6 * 60 * 60 * 1000);
+                nuevaHora = new Date(simulatedClockRef.current.getTime() + 6 * 60 * 60 * 1000);
             }
-
-            setSimulatedClock(nuevaHora);
-            console.log(`Avanzando el reloj simulado a: ${nuevaHora.toISOString()}`);
-            await actualizarReloj(nuevaHora.toISOString());
+            simulatedClockRef.current = nuevaHora;
+            const fechaFormateada = nuevaHora.toISOString().split('T')[0] + 'T00:00:00';
+            await actualizarReloj(fechaFormateada);
 
             // Obtener nuevas soluciones del backend
             const response = await getSimulacion();
@@ -97,6 +97,7 @@ export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearS
 
     const iniciarSimulacionInterval = () => {
         console.log("Configurando intervalo");
+        avanzarSimulacion()
         if (intervalRef.current) clearInterval(intervalRef.current);
         intervalRef.current = setInterval(avanzarSimulacion, 60000); // Cada 1 minuto se llamará al algoritmo
     };
