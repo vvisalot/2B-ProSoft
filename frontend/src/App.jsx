@@ -1,10 +1,11 @@
-import React from "react";
-import {Layout, Button} from "antd";
+import {Button, Layout } from "antd";
 import {Content, Header} from "antd/es/layout/layout";
+import React from "react";
+import {Link, Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import logo from "./assets/odipark.svg";
 import Planificador from "./pages/Planificador";
 import Simulador from "./pages/Simulador.jsx";
-import logo from "./assets/odipark.svg";
-import {BrowserRouter as Router, Routes, Route, Link} from "react-router-dom";
+import SimuladorOriginal from "./pages/SimuladorOriginal.jsx";
 
 const App = () => {
     return (
@@ -31,7 +32,7 @@ const App = () => {
             <Content className="bg-white">
                     <Routes>
                         <Route path="/Planificador" element={<Planificador/>}/>
-                        <Route path="/Simulador" element={<Simulador/>}/>
+                        <Route path="/Simulador" element={<SimuladorOriginal/>}/>
                         {/* Ruta por defecto */}
                         <Route path="/" element={<Simulador/>}/>
                     </Routes>

@@ -1,11 +1,13 @@
 import {useRef, useState} from "react";
-import {getSimulacion} from "../service/simulacion.js";
+import {actualizarReloj,getSimulacion} from "../service/simulacion.js";
 
-export const useControlesSimulacion = (rutas, moverCamiones, resetearSimulacion) => {
+export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearSimulacion,currentTime,setCurrentTime, simulatedClock, setSimulatedClock,primeraSimulacion,setPrimeraSimulacion) => {
     const [simulacionActiva, setSimulacionActiva] = useState(false);
     const [simulacionIniciada, setSimulacionIniciada] = useState(false);
     const [simulacionTerminada, setSimulacionTerminada] = useState(false);
     const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
+    //const [currentTime, setCurrentTime] = useState("2024-03-14T00:00:00"); // Fecha inicial hardcodeada
+    //const [simulatedClock, setSimulatedClock] = useState(new Date(currentTime));
 
     const [resetRequerido, setResetRequerido] = useState(false); // Nuevo estado
 
@@ -15,23 +17,78 @@ export const useControlesSimulacion = (rutas, moverCamiones, resetearSimulacion)
         console.log("Mover camiones con velocidad", velocidad);
         moverCamiones(velocidad, detenerSimulacion)
     }
-
+    
     const fetchSimulacion = async () => {
         try {
+            // Actualizar el reloj simulado con la fecha inicial
+            await actualizarReloj(currentTime);
+            // Obtener las soluciones iniciales
             const response = await getSimulacion();
-            console.log(response.data);
+            console.log(response.data)
             //TODO: Reemplazar esto por un setRutas.Validar que se tenga que anexar las rutas, no reemplazar las que se tengan.
         } catch (error) {
-            console.error('Error fetching simulacion:', error);
+            console.error("Error al iniciar la simulación:", error);
+        }
+    };
+
+    const avanzarSimulacion = async () => {
+        try {
+            let nuevaHora;
+
+            if (primeraSimulacion) {
+                // En la primera simulación, usar la fecha inicial directamente
+                nuevaHora = new Date(currentTime);
+                console.log(`Hora inicial es: ${nuevaHora.toISOString()}`);
+                setPrimeraSimulacion(false); // Cambiar el estado después de la primera iteración
+                console.log(primeraSimulacion)
+            } else {
+                nuevaHora = new Date(simulatedClock.getTime() + 6 * 60 * 60 * 1000);
+            }
+
+            setSimulatedClock(nuevaHora);
+            console.log(`Avanzando el reloj simulado a: ${nuevaHora.toISOString()}`);
+            await actualizarReloj(nuevaHora.toISOString());
+
+            // Obtener nuevas soluciones del backend
+            const response = await getSimulacion();
+
+            // Anexar nuevas soluciones a las rutas actuales
+            setRutas((prevRutas) => {
+                const nuevasRutas = response.data;
+
+                // Crear un mapa con las rutas actuales indexadas por el código del camión
+                const rutasMap = new Map(prevRutas.map((ruta) => [ruta.camion.codigo, ruta]));
+
+                nuevasRutas.forEach((nuevaRuta) => {
+                    const codigoCamion = nuevaRuta.camion.codigo;
+                    if (rutasMap.has(codigoCamion)) {
+                        // Si el camión ya existe, reemplazamos su ruta completa
+                        rutasMap.set(codigoCamion, nuevaRuta);
+                    } else {
+                        // Si el camión no existe, lo añadimos al mapa
+                        rutasMap.set(codigoCamion, nuevaRuta);
+                    }
+                });
+
+                // Convertimos el mapa de nuevo a un arreglo de rutas
+                return Array.from(rutasMap.values());
+            });
+
+            moverCamionesVelocidad();
+        } catch (error) {
+            console.error("Error al avanzar la simulación:", error);
         }
     };
 
     const iniciarSimulacion = () => {
-        fetchSimulacion();
+        console.log("Iniciando simulación");
+
         if (resetRequerido) {
             pararSimulacion();
             setResetRequerido(false);
         }
+
+        setPrimeraSimulacion(true); // Reiniciar la lógica de primera simulación
         setSimulacionTerminada(false);
         setSimulacionActiva(true);
         setSimulacionIniciada(true);
@@ -41,7 +98,7 @@ export const useControlesSimulacion = (rutas, moverCamiones, resetearSimulacion)
     const iniciarSimulacionInterval = () => {
         console.log("Configurando intervalo");
         if (intervalRef.current) clearInterval(intervalRef.current);
-        intervalRef.current = setInterval(moverCamionesVelocidad, 1000 / velocidad);
+        intervalRef.current = setInterval(avanzarSimulacion, 60000); // Cada 1 minuto se llamará al algoritmo
     };
 
     const pausarSimulacion = () => {

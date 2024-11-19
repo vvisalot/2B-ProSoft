@@ -8,7 +8,7 @@ import ControlesSimulacion from "../components/Simulador/ControlesSimulacion.jsx
 import InformacionSimulacion from "../components/Simulador/InformacionSimulacion.jsx"; // Asegúrate de importar Papa Parse
 import TablaSimulacion from "../components/Simulador/TablaSimulacion.jsx";
 
-const Simulador = () => {
+const SimuladorOriginal = () => {
 
     const [numCamiones, setNumCamiones] = useState(0);
     const [numRutas, setNumRutas] = useState(0);
@@ -23,9 +23,7 @@ const Simulador = () => {
     const [simulacionIniciada, setSimulacionIniciada] = useState(false);
     const [resetRequerido, setResetRequerido] = useState(false); // Nuevo estado
     const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
-    const [currentTime, setCurrentTime] = useState("2024-03-14T00:00:00"); // Fecha inicial hardcodeada
-    const [simulatedClock, setSimulatedClock] = useState(new Date(currentTime));
-    const [primeraSimulacion, setPrimeraSimulacion] = useState(true); // Indica si es la primera simulación
+
 
     const moverCamiones = (velocidad, onSimulacionTerminada) => {
         let allFinished = true;
@@ -159,12 +157,6 @@ const Simulador = () => {
                         setRutas={setRutas}
                         moverCamiones={moverCamiones}
                         resetearSimulacion={resetearSimulacion}
-                        currentTime={currentTime}
-                        setCurrentTime={setCurrentTime}
-                        simulatedClock={simulatedClock}
-                        setSimulatedClock={setSimulatedClock}
-                        primeraSimulacion={primeraSimulacion}
-                        setPrimeraSimulacion={setPrimeraSimulacion}
                         onSimulacionStateChange={(state) => {
                             setSimulacionActiva(state.simulacionActiva);
                             setSimulacionIniciada(state.simulacionIniciada);
@@ -180,4 +172,4 @@ const Simulador = () => {
     );
 };
 
-export default Simulador;
+export default SimuladorOriginal;
