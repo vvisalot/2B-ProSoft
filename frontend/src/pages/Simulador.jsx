@@ -24,15 +24,9 @@ const Simulador = () => {
     const [simulacionIniciada, setSimulacionIniciada] = useState(false);
     const [resetRequerido, setResetRequerido] = useState(false); // Nuevo estado
     const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
-    const [currentTime, setCurrentTime] = useState("2024-03-14T00:00:00-05:00");
-	const [simulatedClock, setSimulatedClock] = useState(() => {
-		const date = new Date("2024-03-14T05:00:00.000Z");
-		date.setHours(0, 0, 0, 0);
-		return date;
-	});
-    const [primeraSimulacion, setPrimeraSimulacion] = useState(true); // Indica si es la primera simulación
-
-
+    const [currentTime, setCurrentTime] = useState("2024-03-14T00:00:00");
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [selectedTime, setSelectedTime] = useState(null);
     const [selectedItem, setSelectedItem] = useState('Simulación');
     const items = [
         {
@@ -56,14 +50,47 @@ const Simulador = () => {
         return current && (current < startDate || current > endDate);
     };
 
+    /*
     //Constantes para variables de fecha y tiempo
     const onChangeDate = (date, dateString) => {
-        console.log("Selected Date:", date);
-        console.log("Formatted Date String:", dateString);
+        if (date) {
+            const isoDate = date.toISOString().split('T')[0]; // Solo la fecha en formato YYYY-MM-DD
+            setCurrentTime(`${isoDate}T00:00:00`); // Combinar con tiempo inicial predeterminado
+            console.log("Fecha seleccionada (ISO):", `${isoDate}T00:00:00`);
+        } else {
+            console.error("No se seleccionó ninguna fecha.");
+        }
     };
     const onChangeTime = (time, timeString) => {
-      console.log(time, timeString);
+        if (time) {
+            const isoDate = currentTime.split('T')[0]; // Extraer la fecha actual
+            setCurrentTime(`${isoDate}T${timeString}`); // Combinar con la hora seleccionada
+            console.log("Fecha y hora seleccionada (ISO):", `${isoDate}T${timeString}`);
+        } else {
+            console.error("No se seleccionó ningún tiempo.");
+        }
     };
+
+    */
+
+    const onChangeDate = (date) => {
+        if (date) {
+            setSelectedDate(date.format("YYYY-MM-DD"));
+        }
+    };
+    
+    const onChangeTime = (time) => {
+        if (time) {
+            setSelectedTime(time.format("HH:mm:ss"));
+        }
+    };
+
+    useEffect(() => {
+        if (selectedDate && selectedTime) {
+            setCurrentTime(`${selectedDate}T${selectedTime}`);
+            console.log("Fecha y hora combinadas:", `${selectedDate}T${selectedTime}`);
+        }
+    }, [selectedDate, selectedTime]);
 
 const moverCamiones = (velocidad, onSimulacionTerminada) => {
     let allFinished = true;
@@ -197,16 +224,17 @@ const moverCamiones = (velocidad, onSimulacionTerminada) => {
                     </Dropdown>
                     
                     <Space direction="vertical" style={{marginLeft: "5vh"}}>
-                        <DatePicker onChangeDate={onChangeDate} disabledDate={disabledDate}/>
+                        <DatePicker onChange={onChangeDate} disabledDate={disabledDate}/>
                     </Space>
                     <TimePicker style={{marginLeft: "2vh"}}
-                        onChangeTime={onChangeTime} defaultOpenValue={dayjs('00:00:00', 'HH:mm:ss')} 
+                        onChange={onChangeTime} defaultOpenValue={dayjs('00:00:00', 'HH:mm:ss')} 
                     />
 
                 </div>
             
                 <MapaSimulacion
                     rutas={rutas}
+                    setRutas={setRutas}
                     currentPositions={currentPositions}
                     tramoIndexRef={tramoIndexRef}
                     progresoTramoRef={progresoTramoRef}
@@ -219,8 +247,11 @@ const moverCamiones = (velocidad, onSimulacionTerminada) => {
                 <div className="absolute bottom-4 right-4 z-10 bg-white p-4 rounded-lg shadow-lg">
                     <ControlesSimulacion
                         rutas={rutas}
+                        setRutas={setRutas}
                         moverCamiones={moverCamiones}
                         resetearSimulacion={resetearSimulacion}
+                        currentTime = {currentTime}
+                        setCurrentTime = {setCurrentTime}
                         onSimulacionStateChange={(state) => {
                             setSimulacionActiva(state.simulacionActiva);
                             setSimulacionIniciada(state.simulacionIniciada);

@@ -32,7 +32,7 @@ const App = () => {
             <Content className="bg-white">
                     <Routes>
                         <Route path="/Planificador" element={<Planificador/>}/>
-                        <Route path="/Simulador" element={<SimuladorOriginal/>}/>
+                        <Route path="/Simulador" element={<Simulador/>}/>
                         {/* Ruta por defecto */}
                         <Route path="/" element={<Simulador/>}/>
                     </Routes>

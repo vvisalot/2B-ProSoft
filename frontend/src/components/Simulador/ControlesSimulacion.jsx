@@ -1,7 +1,7 @@
 import {useEffect} from "react";
 import {useControlesSimulacion} from "../../hooks/useControlesSimulacion.jsx";
 
-const ControlesSimulacion = ({ rutas, setRutas, moverCamiones,currentTime,setCurrentTime, simulatedClock, setSimulatedClock,primeraSimulacion,setPrimeraSimulacion, resetearSimulacion, onSimulacionStateChange }) => {
+const ControlesSimulacion = ({ rutas, setRutas, moverCamiones,currentTime,setCurrentTime,resetearSimulacion, onSimulacionStateChange }) => {
     const {
         simulacionActiva,
         simulacionIniciada,
@@ -14,7 +14,7 @@ const ControlesSimulacion = ({ rutas, setRutas, moverCamiones,currentTime,setCur
         pararSimulacion,
         acelerarSimulacion,
         reducirSimulacion
-    } = useControlesSimulacion(rutas,setRutas, moverCamiones, resetearSimulacion,currentTime,setCurrentTime, simulatedClock, setSimulatedClock,primeraSimulacion,setPrimeraSimulacion);
+    } = useControlesSimulacion(rutas,setRutas, moverCamiones, resetearSimulacion,currentTime,setCurrentTime);
 
     useEffect(() => {
         onSimulacionStateChange({
