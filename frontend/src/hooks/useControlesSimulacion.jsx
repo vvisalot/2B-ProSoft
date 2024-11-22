@@ -1,13 +1,11 @@
 import {useRef, useState} from "react";
 import {actualizarReloj,getSimulacion} from "../service/simulacion.js";
 
-export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearSimulacion,currentTime,setCurrentTime, simulatedClock, setSimulatedClock,primeraSimulacion,setPrimeraSimulacion) => {
+export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearSimulacion,currentTime,setCurrentTime) => {
     const [simulacionActiva, setSimulacionActiva] = useState(false);
     const [simulacionIniciada, setSimulacionIniciada] = useState(false);
     const [simulacionTerminada, setSimulacionTerminada] = useState(false);
     const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
-    const [currentTime2, setCurrentTime2] = useState("2024-03-14T00:00:00"); // Fecha inicial hardcodeada
-    const [simulatedClock2, setSimulatedClock2] = useState(new Date(currentTime));
 
     const [resetRequerido, setResetRequerido] = useState(false); // Nuevo estado
 
@@ -39,14 +37,16 @@ export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearS
             let nuevaHora;
             if (primeraSimulacionRef.current) {
                 // En la primera simulación, usar la fecha inicial directamente
-                nuevaHora = new Date(simulatedClock);
-                nuevaHora.setHours(0, 0, 0, 0);
+                nuevaHora = new Date(currentTime);
                 primeraSimulacionRef.current = false; // Cambiar referencia
+                console.log("Primera simulación, hora inicial:", nuevaHora.toISOString().split(".")[0]);
             } else {
                 nuevaHora = new Date(simulatedClockRef.current.getTime() + 6 * 60 * 60 * 1000);
             }
             simulatedClockRef.current = nuevaHora;
-            const fechaFormateada = nuevaHora.toISOString().split('T')[0] + 'T00:00:00';
+            console.log("Avanzando el reloj simulado a:", nuevaHora.toISOString().split(".")[0])
+
+            const fechaFormateada = nuevaHora.toISOString().split(".")[0];
             await actualizarReloj(fechaFormateada);
 
             // Obtener nuevas soluciones del backend
@@ -88,7 +88,6 @@ export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearS
             setResetRequerido(false);
         }
 
-        setPrimeraSimulacion(true); // Reiniciar la lógica de primera simulación
         setSimulacionTerminada(false);
         setSimulacionActiva(true);
         setSimulacionIniciada(true);
@@ -99,7 +98,7 @@ export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearS
         console.log("Configurando intervalo");
         avanzarSimulacion()
         if (intervalRef.current) clearInterval(intervalRef.current);
-        intervalRef.current = setInterval(avanzarSimulacion, 60000); // Cada 1 minuto se llamará al algoritmo
+        intervalRef.current = setInterval(avanzarSimulacion, 90000); // Cada 1 minuto se llamará al algoritmo
     };
 
     const pausarSimulacion = () => {

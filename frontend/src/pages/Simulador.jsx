@@ -1,12 +1,14 @@
-import { Button, Input, Modal } from "antd";
-
-import log from "eslint-plugin-react/lib/util/log.js";
-import { useEffect, useRef, useState } from "react";
+import { DownOutlined } from '@ant-design/icons';
+import {Button, DatePicker, Dropdown, Input, Modal, Space, TimePicker, Typography} from "antd";
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import {React, useEffect, useRef, useState} from "react";
 import rutaData from "/src/assets/data/Data.json";
 import MapaSimulacion from "/src/components/Simulador/MapaSimulacion";
 import ControlesSimulacion from "../components/Simulador/ControlesSimulacion.jsx";
 import InformacionSimulacion from "../components/Simulador/InformacionSimulacion.jsx"; // Asegúrate de importar Papa Parse
 import TablaSimulacion from "../components/Simulador/TablaSimulacion.jsx";
+dayjs.extend(customParseFormat);
 
 const Simulador = () => {
 	const [numCamiones, setNumCamiones] = useState(0);
@@ -18,21 +20,80 @@ const Simulador = () => {
 	const progresoTramoRef = useRef([]);
 	const [currentPositions, setCurrentPositions] = useState({});
 
-	const [simulacionActiva, setSimulacionActiva] = useState(false);
-	const [simulacionIniciada, setSimulacionIniciada] = useState(false);
-	const [resetRequerido, setResetRequerido] = useState(false); // Nuevo estado
-	const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
-	const [currentTime, setCurrentTime] = useState("2024-03-14T00:00:00-05:00");
-	const [simulatedClock, setSimulatedClock] = useState(() => {
-		const date = new Date("2024-03-14T05:00:00.000Z");
-		date.setHours(0, 0, 0, 0);
-		return date;
-	});
-	const [primeraSimulacion, setPrimeraSimulacion] = useState(true); // Indica si es la primera simulación
+    const [simulacionActiva, setSimulacionActiva] = useState(false);
+    const [simulacionIniciada, setSimulacionIniciada] = useState(false);
+    const [resetRequerido, setResetRequerido] = useState(false); // Nuevo estado
+    const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
+    const [currentTime, setCurrentTime] = useState("2024-03-14T00:00:00");
+    const [selectedDate, setSelectedDate] = useState(null);
+    const [selectedTime, setSelectedTime] = useState(null);
+    const [selectedItem, setSelectedItem] = useState('Simulación');
+    const items = [
+        {
+          key: '1',
+          label: 'Semanal',
+          onClick: () => setSelectedItem('Semanal'),
+        },
+        {
+          key: '2',
+          label: 'Colapso',
+          onClick: () => setSelectedItem('Colapso'),
+          disabled: true, //por ahora para solo tener semanal
+        },
+      ];
+    
+    
+    //Validación para solo tomar rango de marzo 2024 a mayo 2025
+    const startDate = dayjs('2024-03-01');
+    const endDate = dayjs('2025-05-01');
+    const disabledDate = (current) => {
+        return current && (current < startDate || current > endDate);
+    };
 
-	const moverCamiones = (velocidad, onSimulacionTerminada) => {
-		let allFinished = true;
+    /*
+    //Constantes para variables de fecha y tiempo
+    const onChangeDate = (date, dateString) => {
+        if (date) {
+            const isoDate = date.toISOString().split('T')[0]; // Solo la fecha en formato YYYY-MM-DD
+            setCurrentTime(`${isoDate}T00:00:00`); // Combinar con tiempo inicial predeterminado
+            console.log("Fecha seleccionada (ISO):", `${isoDate}T00:00:00`);
+        } else {
+            console.error("No se seleccionó ninguna fecha.");
+        }
+    };
+    const onChangeTime = (time, timeString) => {
+        if (time) {
+            const isoDate = currentTime.split('T')[0]; // Extraer la fecha actual
+            setCurrentTime(`${isoDate}T${timeString}`); // Combinar con la hora seleccionada
+            console.log("Fecha y hora seleccionada (ISO):", `${isoDate}T${timeString}`);
+        } else {
+            console.error("No se seleccionó ningún tiempo.");
+        }
+    };
 
+    */
+
+    const onChangeDate = (date) => {
+        if (date) {
+            setSelectedDate(date.format("YYYY-MM-DD"));
+        }
+    };
+    
+    const onChangeTime = (time) => {
+        if (time) {
+            setSelectedTime(time.format("HH:mm:ss"));
+        }
+    };
+
+    useEffect(() => {
+        if (selectedDate && selectedTime) {
+            setCurrentTime(`${selectedDate}T${selectedTime}`);
+            console.log("Fecha y hora combinadas:", `${selectedDate}T${selectedTime}`);
+        }
+    }, [selectedDate, selectedTime]);
+
+const moverCamiones = (velocidad, onSimulacionTerminada) => {
+    let allFinished = true;
 		rutas.forEach((ruta, rutaIndex) => {
 			const { codigo } = ruta.camion;
 			const tramoIndex = tramoIndexRef.current[rutaIndex];
@@ -129,54 +190,81 @@ const Simulador = () => {
 		}
 	}, [rutas]);
 
-	// Función para actualizar los estados de camiones y rutas
-	const handleUpdateStats = (camiones, rutas) => {
-		setNumCamiones(camiones);
-		setNumRutas(rutas);
-	};
+    // Función para actualizar los estados de camiones y rutas
+    const handleUpdateStats = (camiones, rutas) => {
+        setNumCamiones(camiones);
+        setNumRutas(rutas);
+    };
 
-	return (
-		<div className="h-fit flex p-2">
-			<div className="w-5/12">
-				<TablaSimulacion data={rutas} />
-				<InformacionSimulacion />
-			</div>
+    return (
+        <div className="h-fit flex p-2">
+            <div className="w-5/12">
+                <TablaSimulacion data={rutas}/>
+                <InformacionSimulacion/>
+            </div>
 
-			<div className="relative w-7/12 h-100 border border-gray-300 shadow-lg rounded-lg">
-				<MapaSimulacion
-					rutas={rutas}
-					currentPositions={currentPositions}
-					tramoIndexRef={tramoIndexRef}
-					progresoTramoRef={progresoTramoRef}
-					onUpdateStats={handleUpdateStats}
-					simulacionActiva={simulacionActiva}
-					simulacionIniciada={simulacionIniciada}
-					resetRequerido={resetRequerido}
-					velocidad={velocidad}
-				/>
-				<div className="absolute bottom-4 right-4 z-10 bg-white p-4 rounded-lg shadow-lg">
-					<ControlesSimulacion
-						rutas={rutas}
-						setRutas={setRutas}
-						moverCamiones={moverCamiones}
-						resetearSimulacion={resetearSimulacion}
-						currentTime={currentTime}
-						setCurrentTime={setCurrentTime}
-						simulatedClock={simulatedClock}
-						setSimulatedClock={setSimulatedClock}
-						primeraSimulacion={primeraSimulacion}
-						setPrimeraSimulacion={setPrimeraSimulacion}
-						onSimulacionStateChange={(state) => {
-							setSimulacionActiva(state.simulacionActiva);
-							setSimulacionIniciada(state.simulacionIniciada);
-							setResetRequerido(state.resetRequerido);
-							setVelocidad(state.velocidad);
-						}}
-					/>
-				</div>
-			</div>
-		</div>
-	);
+            <div className="relative w-7/12 h-100 border border-gray-300 shadow-lg rounded-lg">
+                <div className="w-full flex justify-left items-center" style={{height: "5vh", marginTop: "1vh", marginBottom: "1vh"}}>
+                    <h1 style={{fontSize: "1rem", fontWeight: '400', marginLeft: "1vh", marginRight: "1.5vh"}}
+                        >Eliga el tipo de simulación: 
+                    </h1>
+                    <Dropdown
+                        menu={{
+                        items,
+                        selectable: true,
+                        defaultSelectedKeys: ['2'],
+                        }}
+                    >
+                        <Typography.Link>
+                        <Space>
+                            {selectedItem}
+                            <DownOutlined />
+                        </Space>
+                        </Typography.Link>
+                    </Dropdown>
+                    
+                    <Space direction="vertical" style={{marginLeft: "5vh"}}>
+                        <DatePicker onChange={onChangeDate} disabledDate={disabledDate}/>
+                    </Space>
+                    <TimePicker style={{marginLeft: "2vh"}}
+                        onChange={onChangeTime} defaultOpenValue={dayjs('00:00:00', 'HH:mm:ss')} 
+                    />
+
+                </div>
+            
+                <MapaSimulacion
+                    rutas={rutas}
+                    setRutas={setRutas}
+                    currentPositions={currentPositions}
+                    tramoIndexRef={tramoIndexRef}
+                    progresoTramoRef={progresoTramoRef}
+                    onUpdateStats={handleUpdateStats}
+                    simulacionActiva={simulacionActiva}
+                    simulacionIniciada={simulacionIniciada}
+                    resetRequerido={resetRequerido}
+                    velocidad={velocidad}
+                />
+                <div className="absolute bottom-4 right-4 z-10 bg-white p-4 rounded-lg shadow-lg">
+                    <ControlesSimulacion
+                        rutas={rutas}
+                        setRutas={setRutas}
+                        moverCamiones={moverCamiones}
+                        resetearSimulacion={resetearSimulacion}
+                        currentTime = {currentTime}
+                        setCurrentTime = {setCurrentTime}
+                        onSimulacionStateChange={(state) => {
+                            setSimulacionActiva(state.simulacionActiva);
+                            setSimulacionIniciada(state.simulacionIniciada);
+                            setResetRequerido(state.resetRequerido);
+                            setVelocidad(state.velocidad);
+                        }}
+                    />
+                </div>
+
+
+            </div>
+        </div>
+    );
 };
 
 export default Simulador;
