@@ -1,11 +1,21 @@
 package odipar.grupo2b.backend.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class RutaManager {
     private static List<Paquete> paquetesAEntregar = new ArrayList<>();
+    public static Map<String, Integer> prioridadRegion;
+
+    static {        
+        prioridadRegion = new HashMap<>();
+        prioridadRegion.put("COSTA", 1);
+        prioridadRegion.put("SIERRA", 2);
+        prioridadRegion.put("SELVA", 3);
+    }
 
     public static void agregarPaquete(Paquete paquete){
         paquetesAEntregar.add(paquete);
@@ -13,6 +23,10 @@ public class RutaManager {
 
     public static Paquete obtenerPaquete(int index){
         return paquetesAEntregar.get(index);
+    }
+
+    public static List<Paquete> obtenerPaquetes(){
+        return paquetesAEntregar;
     }
 
     public static int cantidadPaquetes(){

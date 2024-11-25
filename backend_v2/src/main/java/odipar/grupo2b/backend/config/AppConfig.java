@@ -1,6 +1,7 @@
 package odipar.grupo2b.backend.config;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,8 +53,28 @@ public class AppConfig {
         }
 
         //Lectura de ventas
-        String archivoVentas = "ventas.historico.proyectado/ventas202403.txt";
-        List<Venta> ventas = LeerDatos.leerVentasDesdeArchivo(archivoVentas, mapaOficinas);
+        var archivosVenta = new String[]{
+            "ventas.historico.proyectado/ventas202403.txt",
+            "ventas.historico.proyectado/ventas202404.txt",
+            "ventas.historico.proyectado/ventas202405.txt",
+            "ventas.historico.proyectado/ventas202406.txt",
+            "ventas.historico.proyectado/ventas202407.txt",
+            "ventas.historico.proyectado/ventas202408.txt",
+            "ventas.historico.proyectado/ventas202409.txt",
+            "ventas.historico.proyectado/ventas202410.txt",
+            "ventas.historico.proyectado/ventas202411.txt",
+            "ventas.historico.proyectado/ventas202412.txt",
+            "ventas.historico.proyectado/ventas202501.txt",
+            "ventas.historico.proyectado/ventas202502.txt",
+            "ventas.historico.proyectado/ventas202503.txt",
+            "ventas.historico.proyectado/ventas202504.txt",
+            "ventas.historico.proyectado/ventas202505.txt"
+        };
+        var ventas = new ArrayList<Venta>();
+        for(String archivoVentas : archivosVenta){
+            List<Venta> ventasAux = LeerDatos.leerVentasDesdeArchivo(archivoVentas, mapaOficinas);
+            ventas.addAll(ventasAux);
+        }
 
         String archivoMantenimientos = "mantenimientos.txt";
         var mapaMantenimientos = new HashMap<Camion, List<LocalDateTime>>();
