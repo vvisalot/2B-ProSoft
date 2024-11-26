@@ -13,12 +13,18 @@ dayjs.extend(customParseFormat);
 const Simulador = () => {
 	const [numCamiones, setNumCamiones] = useState(0);
 	const [numRutas, setNumRutas] = useState(0);
+    const [numCamiones, setNumCamiones] = useState(0);
+    const [numRutas, setNumRutas] = useState(0);
 
 	const [rutas, setRutas] = useState(rutaData);
+    const [rutas, setRutas] = useState(rutaData);
 
 	const tramoIndexRef = useRef([]);
 	const progresoTramoRef = useRef([]);
 	const [currentPositions, setCurrentPositions] = useState({});
+    const tramoIndexRef = useRef([]);
+    const progresoTramoRef = useRef([]);
+    const [currentPositions, setCurrentPositions] = useState({});
 
     const [simulacionActiva, setSimulacionActiva] = useState(false);
     const [simulacionIniciada, setSimulacionIniciada] = useState(false);
@@ -33,16 +39,26 @@ const Simulador = () => {
           key: '1',
           label: 'Semanal',
           onClick: () => setSelectedItem('Semanal'),
+            key: '1',
+            label: 'Semanal',
+            onClick: () => setSelectedItem('Semanal'),
         },
         {
           key: '2',
           label: 'Colapso',
           onClick: () => setSelectedItem('Colapso'),
           disabled: true, //por ahora para solo tener semanal
+            key: '2',
+            label: 'Colapso',
+            onClick: () => setSelectedItem('Colapso'),
+            disabled: true, //por ahora para solo tener semanal
         },
       ];
     
     
+    ];
+
+
     //Validación para solo tomar rango de marzo 2024 a mayo 2025
     const startDate = dayjs('2024-03-01');
     const endDate = dayjs('2025-05-01');
@@ -79,6 +95,7 @@ const Simulador = () => {
         }
     };
     
+
     const onChangeTime = (time) => {
         if (time) {
             setSelectedTime(time.format("HH:mm:ss"));
@@ -189,6 +206,163 @@ const moverCamiones = (velocidad, onSimulacionTerminada) => {
 			progresoTramoRef.current = rutaData.map(() => 0.01);
 		}
 	}, [rutas]);
+    const moverCamiones = (velocidad, onSimulacionTerminada) => {
+        let allFinished = true;
+
+        rutas.forEach((ruta, rutaIndex) => {
+            const { codigo } = ruta.camion;
+            const tramoIndex = tramoIndexRef.current[rutaIndex];
+            const tramoActual = ruta.tramos[tramoIndex];
+
+            if (!tramoActual) return; // Si no hay tramos restantes, salta esta ruta
+            const { distancia, velocidad: velocidadTramo, origen, destino } = tramoActual;
+
+            // Tiempo en milisegundos para completar el tramo
+            const tiempoTramo = ((distancia / velocidadTramo) * 1000) / velocidad;
+            const progreso = progresoTramoRef.current[rutaIndex];
+
+            // Calcula la nueva posición del camión
+            const nuevaPosicion = {
+                latitud: origen.latitud + (destino.latitud - origen.latitud) * progreso,
+                longitud: origen.longitud + (destino.longitud - origen.longitud) * progreso,
+            };
+
+            // Actualiza la posición actual del camión
+            setCurrentPositions((prev) => ({
+                ...prev,
+                [codigo]: nuevaPosicion,
+            }));
+
+            // Avanza el progreso en el tramo actual
+            progresoTramoRef.current[rutaIndex] += (1 / tiempoTramo) * velocidad;
+
+            if (progresoTramoRef.current[rutaIndex] >= 1) {
+                // Si se completa el tramo, pasa al siguiente
+                tramoIndexRef.current[rutaIndex]++;
+                progresoTramoRef.current[rutaIndex] = 0.01;
+
+                // Si ya no hay más tramos, marca el camión como terminado
+                if (tramoIndexRef.current[rutaIndex] >= ruta.tramos.length) {
+                    setCurrentPositions((prev) => {
+                        const updated = { ...prev };
+                        delete updated[codigo];
+                        return updated;
+                    });
+                    tramoIndexRef.current[rutaIndex] = -1; // Indica que terminó la ruta
+                } else {
+                    allFinished = false;
+                }
+            } else {
+                allFinished = false;
+            }
+        });
+
+        if (allFinished) {
+            console.log("Simulación terminada");
+            onSimulacionTerminada();
+        }
+    };
+
+    useEffect(() => {
+        if (rutas.length > 0) {
+            // Establecer el progreso y el índice de los tramos
+            console.log("Iniciando camiones...");
+            tramoIndexRef.current = rutas.map(() => 0); // Índices iniciales de los tramos
+            progresoTramoRef.current = rutas.map(() => 0.01); // Progreso inicial por tramo
+
+            // Establece las posiciones iniciales de los camiones
+            setCurrentPositions(
+                rutas.reduce((acc, ruta) => {
+                    const { codigo } = ruta.camion;
+                    if (ruta.tramos.length > 0) {
+                        acc[codigo] = {
+                            latitud: ruta.tramos[0].origen.latitud,
+                            longitud: ruta.tramos[0].origen.longitud,
+                        };
+                    }
+                    return acc;
+                }, {})
+            );
+            console.log("Posiciones iniciales:", currentPositions);
+        }
+    }, [rutas]);
+
+
+    useEffect(() => {
+        if (simulacionActiva) {
+            const interval = setInterval(() => {
+                moverCamiones(velocidad, () => {
+                    console.log("Simulación detenida desde moverCamiones.");
+                    setSimulacionActiva(false);
+                });
+            }, 1000);
+
+            return () => clearInterval(interval);
+        }
+    }, [simulacionActiva, velocidad, rutas]);
+
+
+    const resetearSimulacion = () => {
+        tramoIndexRef.current = rutas.map(() => 0);
+        progresoTramoRef.current = rutas.map(() => 0.01);
+        setCurrentPositions(
+            rutas.reduce((acc, ruta) => {
+                const { codigo } = ruta.camion;
+                acc[codigo] = {
+                    latitud: ruta.tramos[0].origen.latitud,
+                    longitud: ruta.tramos[0].origen.longitud,
+                };
+                return acc;
+            }, {}),
+        );
+    };
+
+    // useEffect(() => {
+    //     const timer = setInterval(() => {
+    //         setCurrentTime(new Date().toLocaleTimeString());
+    //     }, 1000);
+    //     return () => clearInterval(timer);
+    // }, []);
+
+    useEffect(() => {
+        handleUpdateStats(
+            rutaData.length,
+            rutaData.reduce((acc, ruta) => acc + ruta.tramos.length, 0),
+        );
+    }, []);
+
+    // useEffect(() => {
+    //     //imprimir en consola los tramos de cada ruta
+    //     console.log("Tramos de cada ruta:");
+    //     rutas.forEach((ruta, index) => {
+    //         console.log(`Ruta ${index} tiene ${ruta.tramos.length} tramos`);
+    //         console.log(ruta.tramos);
+    //     });
+    // }, [rutas]);
+
+
+    //Se cargan los datos de la solucion del algoritmo.
+    useEffect(() => {
+        if (rutas.length > 0) {
+            rutas.forEach((ruta, index) => {
+                console.log(`Ruta ${index} tiene ${ruta.tramos.length} tramos:`);
+                console.log(ruta.tramos); // el último tramo se pinta?
+            });
+
+            tramoIndexRef.current = rutas.map(() => 0); // Índices iniciales de los tramos
+            progresoTramoRef.current = rutas.map(() => 0.01); // Progreso inicial por tramo
+            setCurrentPositions(
+                rutas.reduce((acc, ruta) => {
+                    const { codigo } = ruta.camion;
+                    acc[codigo] = {
+                        latitud: ruta.tramos[0].origen.latitud,
+                        longitud: ruta.tramos[0].origen.longitud,
+                    };
+                    return acc;
+                }, {})
+            );
+        }
+    }, [rutas]); // Se asegura que se actualice cada vez que cambien las rutas
 
     // Función para actualizar los estados de camiones y rutas
     const handleUpdateStats = (camiones, rutas) => {
@@ -207,12 +381,16 @@ const moverCamiones = (velocidad, onSimulacionTerminada) => {
                 <div className="w-full flex justify-left items-center" style={{height: "5vh", marginTop: "1vh", marginBottom: "1vh"}}>
                     <h1 style={{fontSize: "1rem", fontWeight: '400', marginLeft: "1vh", marginRight: "1.5vh"}}
                         >Eliga el tipo de simulación: 
+                    >Elija el tipo de simulación:
                     </h1>
                     <Dropdown
                         menu={{
                         items,
                         selectable: true,
                         defaultSelectedKeys: ['2'],
+                            items,
+                            selectable: true,
+                            defaultSelectedKeys: ['2'],
                         }}
                     >
                         <Typography.Link>
@@ -220,18 +398,25 @@ const moverCamiones = (velocidad, onSimulacionTerminada) => {
                             {selectedItem}
                             <DownOutlined />
                         </Space>
+                            <Space>
+                                {selectedItem}
+                                <DownOutlined />
+                            </Space>
                         </Typography.Link>
                     </Dropdown>
                     
+
                     <Space direction="vertical" style={{marginLeft: "5vh"}}>
                         <DatePicker onChange={onChangeDate} disabledDate={disabledDate}/>
                     </Space>
                     <TimePicker style={{marginLeft: "2vh"}}
                         onChange={onChangeTime} defaultOpenValue={dayjs('00:00:00', 'HH:mm:ss')} 
+                                onChange={onChangeTime} defaultOpenValue={dayjs('00:00:00', 'HH:mm:ss')}
                     />
 
                 </div>
             
+
                 <MapaSimulacion
                     rutas={rutas}
                     setRutas={setRutas}

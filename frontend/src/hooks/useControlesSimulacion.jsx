@@ -6,6 +6,7 @@ export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearS
     const [simulacionIniciada, setSimulacionIniciada] = useState(false);
     const [simulacionTerminada, setSimulacionTerminada] = useState(false);
     const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
+    const [velocidad, setVelocidad] = useState(10); // Multiplicador de velocidad
 
     const [resetRequerido, setResetRequerido] = useState(false); // Nuevo estado
 
@@ -18,6 +19,7 @@ export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearS
         moverCamiones(velocidad, detenerSimulacion)
     }
     
+
     const fetchSimulacion = async () => {
         try {
             // Actualizar el reloj simulado con la fecha inicial
@@ -32,6 +34,7 @@ export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearS
     };
 
     
+
     const avanzarSimulacion = async () => {
         try {
             let nuevaHora;
