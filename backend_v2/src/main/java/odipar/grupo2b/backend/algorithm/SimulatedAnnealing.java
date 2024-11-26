@@ -26,62 +26,77 @@ public class SimulatedAnnealing {
         double coolingRate = 0.003;
         Ruta currentSolution;
         Ruta best;
-        double time;
-        do {
-            currentSolution = new Ruta(camion.getPosicionFinal());
-            currentSolution.generateIndividual();
-//        System.out.println("Total time of initial solution: " + currentSolution.getTiempoTotal());
- //       System.out.println("Ruta: " + currentSolution);
+        double bestTime;
 
-            best = new Ruta(currentSolution.getPaquetesEntregados(), camion.getPosicionFinal());
-            time = best.getTiempoTotal();
-        } while (esRutaInvalida(best, time));
+        currentSolution = new Ruta(camion.getPosicionFinal());
+        currentSolution.generateIndividualGreedy();
 
-        double bestTime = time;
-        while (temp > 1) {
-            // Crea una nueva solución vecina
-            Ruta newSolution = new Ruta(currentSolution.getPaquetesEntregados(), camion.getPosicionFinal());
-            if (newSolution.cantidadPaquetes() <= 2) {
-                break;
-            }
-            // Escoge dos posiciones aleatorias en la ruta, excluyendo la posicion inicial del camion
-            int rutaPos1 = randomInt(1, newSolution.cantidadPaquetes());
-            int rutaPos2 = randomInt(1, newSolution.cantidadPaquetes());
+        best = new Ruta(currentSolution.getPaquetesEntregados(), camion.getPosicionFinal());
+        bestTime = best.getTiempoTotal();
 
-            // Nos aseguramos de que las posiciones sean diferentes
-            while (rutaPos1 == rutaPos2) {
-                rutaPos2 = randomInt(1, newSolution.cantidadPaquetes());
-            }
-
-            // Consigue los paquetes en las posiciones seleccionadas
-            Paquete paqueteACambiar1 = newSolution.getPaquete(rutaPos1);
-            Paquete paqueteACambiar2 = newSolution.getPaquete(rutaPos2);
-
-            // Intercambia los paquetes
-            newSolution.setPaquete(rutaPos2, paqueteACambiar1);
-            newSolution.setPaquete(rutaPos1, paqueteACambiar2);
-
-            // Consigue la energía de las soluciones actuales y nuevas
-            double currentTime = currentSolution.getTiempoTotal();
-            double neighbourTime = newSolution.getTiempoTotal();
-
-            if (esRutaInvalida(newSolution, neighbourTime)) {
-                temp *= 1 - coolingRate;
-                continue;
-            }
-            // Decidimos si aceptamos la nueva solución
-            double rand = randomDouble();
-            if (acceptanceProbability(currentTime, neighbourTime, temp) > rand) {
-                currentSolution = new Ruta(newSolution.getPaquetesEntregados(), camion.getPosicionFinal());
-            }
-
-            //  Guardamos la mejor solución
-            if (currentSolution.getTiempoTotal() < best.getTiempoTotal()) {
-                best = new Ruta(currentSolution.getPaquetesEntregados(), camion.getPosicionFinal());
-                bestTime = currentSolution.getTiempoTotal();
-            }
-            temp *= 1 - coolingRate;
+        if(esRutaInvalida(best, bestTime)){
+            var solucion = new Solucion(
+                true,
+                null,
+                null,
+                null
+        ); 
         }
+//         do {
+//             currentSolution = new Ruta(camion.getPosicionFinal());
+//             currentSolution.generateIndividualGreedy();
+// //        System.out.println("Total time of initial solution: " + currentSolution.getTiempoTotal());
+//  //       System.out.println("Ruta: " + currentSolution);
+
+//             best = new Ruta(currentSolution.getPaquetesEntregados(), camion.getPosicionFinal());
+//             time = best.getTiempoTotal();
+//         } while (esRutaInvalida(best, time));
+
+//         double bestTime = time;
+//         while (temp > 1) {
+//             // Crea una nueva solución vecina
+//             Ruta newSolution = new Ruta(currentSolution.getPaquetesEntregados(), camion.getPosicionFinal());
+//             if (newSolution.cantidadPaquetes() <= 2) {
+//                 break;
+//             }
+//             // Escoge dos posiciones aleatorias en la ruta, excluyendo la posicion inicial del camion
+//             int rutaPos1 = randomInt(1, newSolution.cantidadPaquetes());
+//             int rutaPos2 = randomInt(1, newSolution.cantidadPaquetes());
+
+//             // Nos aseguramos de que las posiciones sean diferentes
+//             while (rutaPos1 == rutaPos2) {
+//                 rutaPos2 = randomInt(1, newSolution.cantidadPaquetes());
+//             }
+
+//             // Consigue los paquetes en las posiciones seleccionadas
+//             Paquete paqueteACambiar1 = newSolution.getPaquete(rutaPos1);
+//             Paquete paqueteACambiar2 = newSolution.getPaquete(rutaPos2);
+
+//             // Intercambia los paquetes
+//             newSolution.setPaquete(rutaPos2, paqueteACambiar1);
+//             newSolution.setPaquete(rutaPos1, paqueteACambiar2);
+
+//             // Consigue la energía de las soluciones actuales y nuevas
+//             double currentTime = currentSolution.getTiempoTotal();
+//             double neighbourTime = newSolution.getTiempoTotal();
+
+//             if (esRutaInvalida(newSolution, neighbourTime)) {
+//                 temp *= 1 - coolingRate;
+//                 continue;
+//             }
+//             // Decidimos si aceptamos la nueva solución
+//             double rand = randomDouble();
+//             if (acceptanceProbability(currentTime, neighbourTime, temp) > rand) {
+//                 currentSolution = new Ruta(newSolution.getPaquetesEntregados(), camion.getPosicionFinal());
+//             }
+
+//             //  Guardamos la mejor solución
+//             if (currentSolution.getTiempoTotal() < best.getTiempoTotal()) {
+//                 best = new Ruta(currentSolution.getPaquetesEntregados(), camion.getPosicionFinal());
+//                 bestTime = currentSolution.getTiempoTotal();
+//             }
+//             temp *= 1 - coolingRate;
+//         }
         best.construirRutaMarcada();
         var posicionFinal = best.getPaquetesEntregados().get(best.getPaquetesEntregados().size() - 1).getVenta().getDestino();
         camion.setPosicionFinal(posicionFinal);
@@ -169,16 +184,12 @@ public class SimulatedAnnealing {
         minutes = (long) ((hoursToAdd - wholeHours) * 60);
         camion.setRegresoAlmacen(reloj.getTiempo().plusHours(wholeHours).plusMinutes(minutes));
 
-        var solucion = new Solucion(
-                camionSolucion,
-                tramosSolucion,
-                hoursToAdd
+        return new Solucion(
+            false,
+            camionSolucion,
+            tramosSolucion,
+            hoursToAdd
         );
-
-
-//        System.out.println("Tiempo Final solución: " + best.getTiempoTotal());
-        // System.out.println("Ruta: " + best);
-        return solucion;
     }
 
     public static double acceptanceProbability(double currentTime, double newTime, double temperature) {

@@ -2,7 +2,8 @@ package odipar.grupo2b.backend.dto;
 
 import java.util.List;
 
-public record Solucion(Camion camion,
+public record Solucion(boolean colapso,
+                        Camion camion,
                        List<Tramo> tramos,
-                       double tiempoTotal) {
+                       Double tiempoTotal) {
 }

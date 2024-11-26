@@ -4,6 +4,7 @@ import odipar.grupo2b.backend.algorithm.GrafoTramos;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Ruta {
@@ -58,6 +59,29 @@ public class Ruta {
         var puntoInicial = new Paquete(ventaVacia,0);
         paquetesEntregados.add(0,puntoInicial);
         RutaManager.agregarPuntoInicial(puntoInicial);
+    }
+
+    public void generateIndividualGreedy() {
+        var paquetes = RutaManager.obtenerPaquetes();
+        var customComparator = Comparator
+            .<Paquete>comparingInt(paquete -> RutaManager.prioridadRegion.getOrDefault(paquete.getVenta().getDestino().getRegion(), Integer.MAX_VALUE))
+             .thenComparingDouble(paquete -> this.compararDistancias(paquete, puntoPartida));
+
+        paquetes.sort(customComparator);
+
+        for (int paqueteIndex = 0; paqueteIndex < RutaManager.cantidadPaquetes(); paqueteIndex++) {
+            setPaquete(paqueteIndex, RutaManager.obtenerPaquete(paqueteIndex));
+        }
+        var ventaVacia = new Venta();
+        ventaVacia.setDestino(puntoPartida);
+        var puntoInicial = new Paquete(ventaVacia,0);
+        paquetesEntregados.add(0,puntoInicial);
+        RutaManager.agregarPuntoInicial(puntoInicial);
+    }
+
+    public double compararDistancias(Paquete paquete, Oficina puntoPartida){
+        var mejorRuta = grafoTramos.obtenerRutaMasCorta(puntoPartida, paquete.getVenta().getDestino());
+        return calcularTiempoRuta(mejorRuta);
     }
 
     public Paquete getPaquete(int index) {
