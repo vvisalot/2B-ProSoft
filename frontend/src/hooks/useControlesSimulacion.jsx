@@ -40,14 +40,10 @@ export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearS
                 nuevaHora = new Date(currentTime);
                 primeraSimulacionRef.current = false; // Cambiar referencia
                 console.log("Primera simulación, hora inicial:", nuevaHora.toISOString().split(".")[0]);
-            } else {
-                nuevaHora = new Date(simulatedClockRef.current.getTime() + 6 * 60 * 60 * 1000);
-            }
-            simulatedClockRef.current = nuevaHora;
-            console.log("Avanzando el reloj simulado a:", nuevaHora.toISOString().split(".")[0])
-
-            const fechaFormateada = nuevaHora.toISOString().split(".")[0];
-            await actualizarReloj(fechaFormateada);
+                simulatedClockRef.current = nuevaHora;
+                const fechaFormateada = nuevaHora.toISOString().split(".")[0];
+                await actualizarReloj(fechaFormateada);
+            } 
 
             // Obtener nuevas soluciones del backend
             const response = await getSimulacion();
