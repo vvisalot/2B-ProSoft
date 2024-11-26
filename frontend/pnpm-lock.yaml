@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@ant-design/icons':
+        specifier: ^5.5.1
+        version: 5.5.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@shadcn/ui':
         specifier: ^0.0.4
         version: 0.0.4
@@ -6900,8 +6903,10 @@ snapshots:
 
   frontend@file:(react-native@0.76.1(@babel/core@7.26.0)(@babel/preset-env@7.26.0(@babel/core@7.26.0))(@types/react@18.3.12)(react@18.3.1)):
     dependencies:
+      '@ant-design/icons': 5.5.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@shadcn/ui': 0.0.4
       antd: 5.22.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      axios: 1.7.7
       lucide-react: 0.454.0(react@18.3.1)
       mapbox-gl: 3.8.0
       maplibre-gl: 4.7.1
@@ -6913,6 +6918,7 @@ snapshots:
       react-router-dom: 6.28.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
       - date-fns
+      - debug
       - luxon
       - moment
       - react-native
