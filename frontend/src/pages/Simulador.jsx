@@ -200,7 +200,11 @@ const moverCamiones = (velocidad, onSimulacionTerminada) => {
         <div className="h-fit flex p-2">
             <div className="w-5/12">
                 <TablaSimulacion data={rutas}/>
-                <InformacionSimulacion/>
+                <InformacionSimulacion
+                    currentTime={currentTime}
+                    simulacionActiva={simulacionActiva}
+                    velocidad={velocidad}
+                />
             </div>
 
             <div className="relative w-7/12 h-100 border border-gray-300 shadow-lg rounded-lg">

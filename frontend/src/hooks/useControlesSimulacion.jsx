@@ -96,7 +96,7 @@ export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearS
 
     const iniciarSimulacionInterval = () => {
         console.log("Configurando intervalo");
-        avanzarSimulacion()
+        //avanzarSimulacion()
         if (intervalRef.current) clearInterval(intervalRef.current);
         intervalRef.current = setInterval(avanzarSimulacion, 90000); // Cada 1 minuto se llamará al algoritmo
     };
