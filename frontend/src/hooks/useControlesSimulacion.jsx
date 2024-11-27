@@ -6,7 +6,7 @@ export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearS
     const [simulacionIniciada, setSimulacionIniciada] = useState(false);
     const [simulacionTerminada, setSimulacionTerminada] = useState(false);
     const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
-    const [velocidad, setVelocidad] = useState(10); // Multiplicador de velocidad
+    //const [velocidad, setVelocidad] = useState(10); // Multiplicador de velocidad
 
     const [resetRequerido, setResetRequerido] = useState(false); // Nuevo estado
 
@@ -95,7 +95,7 @@ export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearS
 
     const iniciarSimulacionInterval = () => {
         console.log("Configurando intervalo");
-        //avanzarSimulacion()
+        avanzarSimulacion()
         if (intervalRef.current) clearInterval(intervalRef.current);
         intervalRef.current = setInterval(avanzarSimulacion, 90000); // Cada 1 minuto se llamará al algoritmo
     };

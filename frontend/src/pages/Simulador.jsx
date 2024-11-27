@@ -11,20 +11,16 @@ import TablaSimulacion from "../components/Simulador/TablaSimulacion.jsx";
 dayjs.extend(customParseFormat);
 
 const Simulador = () => {
-	const [numCamiones, setNumCamiones] = useState(0);
-	const [numRutas, setNumRutas] = useState(0);
+
     const [numCamiones, setNumCamiones] = useState(0);
     const [numRutas, setNumRutas] = useState(0);
 
-	const [rutas, setRutas] = useState(rutaData);
-    const [rutas, setRutas] = useState(rutaData);
+	const [rutas, setRutas] = useState([]);
 
 	const tramoIndexRef = useRef([]);
 	const progresoTramoRef = useRef([]);
 	const [currentPositions, setCurrentPositions] = useState({});
-    const tramoIndexRef = useRef([]);
-    const progresoTramoRef = useRef([]);
-    const [currentPositions, setCurrentPositions] = useState({});
+
 
     const [simulacionActiva, setSimulacionActiva] = useState(false);
     const [simulacionIniciada, setSimulacionIniciada] = useState(false);
@@ -39,24 +35,16 @@ const Simulador = () => {
           key: '1',
           label: 'Semanal',
           onClick: () => setSelectedItem('Semanal'),
-            key: '1',
-            label: 'Semanal',
-            onClick: () => setSelectedItem('Semanal'),
         },
         {
           key: '2',
           label: 'Colapso',
           onClick: () => setSelectedItem('Colapso'),
           disabled: true, //por ahora para solo tener semanal
-            key: '2',
-            label: 'Colapso',
-            onClick: () => setSelectedItem('Colapso'),
-            disabled: true, //por ahora para solo tener semanal
         },
       ];
     
-    
-    ];
+
 
 
     //Validación para solo tomar rango de marzo 2024 a mayo 2025
@@ -109,72 +97,7 @@ const Simulador = () => {
         }
     }, [selectedDate, selectedTime]);
 
-const moverCamiones = (velocidad, onSimulacionTerminada) => {
-    let allFinished = true;
-		rutas.forEach((ruta, rutaIndex) => {
-			const { codigo } = ruta.camion;
-			const tramoIndex = tramoIndexRef.current[rutaIndex];
-			const tramoActual = ruta.tramos[tramoIndex];
 
-			if (!tramoActual) return;
-			const {
-				distancia,
-				velocidad: velocidadTramo,
-				origen,
-				destino,
-			} = tramoActual;
-			const tiempoTramo = ((distancia / velocidadTramo) * 1000) / velocidad;
-			const progreso = progresoTramoRef.current[rutaIndex];
-
-			const nuevaPosicion = {
-				latitud: origen.latitud + (destino.latitud - origen.latitud) * progreso,
-				longitud:
-					origen.longitud + (destino.longitud - origen.longitud) * progreso,
-			};
-
-			setCurrentPositions((prev) => {
-				return {
-					...prev,
-					[codigo]: nuevaPosicion,
-				};
-			});
-
-			progresoTramoRef.current[rutaIndex] += (1 / tiempoTramo) * velocidad;
-
-			if (progresoTramoRef.current[rutaIndex] >= 1) {
-				tramoIndexRef.current[rutaIndex]++;
-				progresoTramoRef.current[rutaIndex] = 0.01;
-
-				if (tramoIndexRef.current[rutaIndex] >= ruta.tramos.length) {
-					setCurrentPositions((prev) => {
-						const updated = { ...prev };
-						delete updated[codigo];
-						return updated;
-					});
-					tramoIndexRef.current[rutaIndex] = -1; // Marcar el camión como terminado
-				} else allFinished = false;
-			} else allFinished = false;
-		});
-		if (allFinished) {
-			console.log("Simulación terminada");
-			onSimulacionTerminada();
-		}
-	};
-
-	const resetearSimulacion = () => {
-		tramoIndexRef.current = rutas.map(() => 0);
-		progresoTramoRef.current = rutas.map(() => 0);
-		setCurrentPositions(
-			rutas.reduce((acc, ruta) => {
-				const { codigo } = ruta.camion;
-				acc[codigo] = {
-					latitud: ruta.tramos[0].origen.latitud,
-					longitud: ruta.tramos[0].origen.longitud,
-				};
-				return acc;
-			}, {}),
-		);
-	};
 
 	// useEffect(() => {
 	//     const timer = setInterval(() => {
@@ -206,6 +129,7 @@ const moverCamiones = (velocidad, onSimulacionTerminada) => {
 			progresoTramoRef.current = rutaData.map(() => 0.01);
 		}
 	}, [rutas]);
+    
     const moverCamiones = (velocidad, onSimulacionTerminada) => {
         let allFinished = true;
 
@@ -234,7 +158,7 @@ const moverCamiones = (velocidad, onSimulacionTerminada) => {
             }));
 
             // Avanza el progreso en el tramo actual
-            progresoTramoRef.current[rutaIndex] += (1 / tiempoTramo) * velocidad;
+            progresoTramoRef.current[rutaIndex] += (1 / tiempoTramo) *(6 / 60)* velocidad;
 
             if (progresoTramoRef.current[rutaIndex] >= 1) {
                 // Si se completa el tramo, pasa al siguiente
@@ -262,6 +186,7 @@ const moverCamiones = (velocidad, onSimulacionTerminada) => {
             onSimulacionTerminada();
         }
     };
+
 
     useEffect(() => {
         if (rutas.length > 0) {
@@ -373,28 +298,24 @@ const moverCamiones = (velocidad, onSimulacionTerminada) => {
     return (
         <div className="h-fit flex p-2">
             <div className="w-5/12">
-                <TablaSimulacion data={rutas}/>
                 <InformacionSimulacion
                     currentTime={currentTime}
                     simulacionActiva={simulacionActiva}
                     velocidad={velocidad}
                 />
+                <TablaSimulacion data={rutas}/>
             </div>
 
             <div className="relative w-7/12 h-100 border border-gray-300 shadow-lg rounded-lg">
                 <div className="w-full flex justify-left items-center" style={{height: "5vh", marginTop: "1vh", marginBottom: "1vh"}}>
                     <h1 style={{fontSize: "1rem", fontWeight: '400', marginLeft: "1vh", marginRight: "1.5vh"}}
                         >Eliga el tipo de simulación: 
-                    >Elija el tipo de simulación:
                     </h1>
                     <Dropdown
                         menu={{
                         items,
                         selectable: true,
                         defaultSelectedKeys: ['2'],
-                            items,
-                            selectable: true,
-                            defaultSelectedKeys: ['2'],
                         }}
                     >
                         <Typography.Link>
@@ -402,10 +323,6 @@ const moverCamiones = (velocidad, onSimulacionTerminada) => {
                             {selectedItem}
                             <DownOutlined />
                         </Space>
-                            <Space>
-                                {selectedItem}
-                                <DownOutlined />
-                            </Space>
                         </Typography.Link>
                     </Dropdown>
                     
@@ -415,7 +332,6 @@ const moverCamiones = (velocidad, onSimulacionTerminada) => {
                     </Space>
                     <TimePicker style={{marginLeft: "2vh"}}
                         onChange={onChangeTime} defaultOpenValue={dayjs('00:00:00', 'HH:mm:ss')} 
-                                onChange={onChangeTime} defaultOpenValue={dayjs('00:00:00', 'HH:mm:ss')}
                     />
 
                 </div>
