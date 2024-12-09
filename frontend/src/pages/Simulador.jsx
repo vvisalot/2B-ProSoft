@@ -328,7 +328,7 @@ const Simulador = () => {
                     
 
                     <Space direction="vertical" style={{marginLeft: "5vh"}}>
-                        <DatePicker onChange={onChangeDate} disabledDate={disabledDate}/>
+                        <DatePicker onChange={onChangeDate} disabledDate={disabledDate} defaultValue={dayjs('2024-03-14', 'YYYY-MM-DD')} />
                     </Space>
                     <TimePicker style={{marginLeft: "2vh"}}
                         onChange={onChangeTime} defaultOpenValue={dayjs('00:00:00', 'HH:mm:ss')} 

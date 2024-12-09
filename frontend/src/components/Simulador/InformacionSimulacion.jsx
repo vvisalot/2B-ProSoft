@@ -1,10 +1,11 @@
 import {Card} from "antd";
+import dayjs from "dayjs";
 import {useEffect, useRef, useState } from "react";
 
 const InformacionSimulacion = ({ currentTime, simulacionActiva, velocidad }) => {
     const [enMantenimiento, setEnMantenimiento] = useState(0);
     const [enMovimiento, setEnMovimiento] = useState(0);
-    const [simulatedTime, setSimulatedTime] = useState(new Date(currentTime));
+    const [simulatedTime, setSimulatedTime] = useState(dayjs(currentTime));
     const [timeElapsed, setTimeElapsed] = useState(0); // En horas simuladas
     const startTimeRef = useRef(null); // Hora de inicio en tiempo real
     const animationFrameRef = useRef(null);
@@ -17,9 +18,7 @@ const InformacionSimulacion = ({ currentTime, simulacionActiva, velocidad }) => 
         // Aquí ajustamos la relación: 1 hora simulada = 10 segundos reales
         const elapsedSimulatedTime = elapsedRealTime * (6 / 60) * velocidad; // Horas simuladas (1 hora simulada por cada 10 segundos reales)
     
-        const newSimulatedTime = new Date(
-          new Date(currentTime).getTime() + elapsedSimulatedTime * 60 * 60 * 1000
-        );
+        const newSimulatedTime = dayjs(currentTime).add(elapsedSimulatedTime, 'hour'); // Sumar las horas simuladas
     
         setSimulatedTime(newSimulatedTime);
         setTimeElapsed(elapsedSimulatedTime);
@@ -47,7 +46,7 @@ const InformacionSimulacion = ({ currentTime, simulacionActiva, velocidad }) => 
                         width: '50%',
                         height: '10%',
                     }}>
-                    <p>Fecha: {simulatedTime.toISOString().split("T")[0]}</p>
+                    <p>Fecha: {simulatedTime.format('YYYY-MM-DD')}</p>
                 </Card.Grid>
                 <Card.Grid
                     hoverable={false}
@@ -55,7 +54,7 @@ const InformacionSimulacion = ({ currentTime, simulacionActiva, velocidad }) => 
                         width: '50%',
                         height: '10%',
                     }}>
-                    <p>Hora: {simulatedTime.toISOString().split("T")[1].split(".")[0]}</p>
+                    <p>Hora: {simulatedTime.format('HH:mm:ss')}</p>
                 </Card.Grid>
                 <Card.Grid
                     hoverable={false}

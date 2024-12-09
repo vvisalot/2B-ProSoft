@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import {useRef, useState} from "react";
 import {actualizarReloj,getSimulacion} from "../service/simulacion.js";
 
@@ -39,12 +40,11 @@ export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearS
         try {
             let nuevaHora;
             if (primeraSimulacionRef.current) {
-                // En la primera simulación, usar la fecha inicial directamente
-                nuevaHora = new Date(currentTime);
+                nuevaHora = dayjs(currentTime);
                 primeraSimulacionRef.current = false; // Cambiar referencia
-                console.log("Primera simulación, hora inicial:", nuevaHora.toISOString().split(".")[0]);
-                simulatedClockRef.current = nuevaHora;
-                const fechaFormateada = nuevaHora.toISOString().split(".")[0];
+                console.log("Primera simulación, hora inicial:", nuevaHora.format('YYYY-MM-DDTHH:mm:ss'));
+                simulatedClockRef.current = nuevaHora.toDate();
+                const fechaFormateada = nuevaHora.format('YYYY-MM-DDTHH:mm:ss'); // No usar toISOString
                 await actualizarReloj(fechaFormateada);
             } 
 
