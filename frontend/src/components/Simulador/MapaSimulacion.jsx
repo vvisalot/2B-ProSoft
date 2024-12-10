@@ -90,22 +90,6 @@ const MapaSimulacion = ({
 				</Marker>
 			))}
 
-			{/* Marcadores de camiones */}
-			{simulacionIniciada &&
-				Object.entries(currentPositions).map(([codigo, posicion]) => (
-					
-					<Marker
-						key={codigo}
-						latitude={posicion.latitud}
-						longitude={posicion.longitud}
-					>
-						<img
-							src={camionIcon}
-							alt={`Camión ${codigo}`}
-							style={{ width: "24px", height: "24px" }}
-						/>
-					</Marker>
-				))}
 
 			{/* Marcadores de camiones */}
 			{simulacionIniciada &&

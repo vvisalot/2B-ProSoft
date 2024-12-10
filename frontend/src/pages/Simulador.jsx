@@ -28,6 +28,7 @@ const Simulador = () => {
     const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
     const [currentTime, setCurrentTime] = useState("2024-03-14T00:00:00");
     const [simulatedTime, setSimulatedTime] = useState(dayjs(currentTime))
+    
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
     const [selectedItem, setSelectedItem] = useState('Simulación');
@@ -133,53 +134,55 @@ const Simulador = () => {
     
     const moverCamiones = (velocidad, onSimulacionTerminada, simulatedTime) => {
         let allFinished = true;
-
+    
         rutas.forEach((ruta, rutaIndex) => {
             const { codigo } = ruta.camion;
             const tramoIndex = tramoIndexRef.current[rutaIndex];
             const tramoActual = ruta.tramos[tramoIndex];
-
-            if (!tramoActual) return; // Si no hay tramos restantes, salta esta ruta
+    
+            if (!tramoActual) return; // No hay más tramos para este camión, así que salimos
+    
             const { distancia, velocidad: velocidadTramo, origen, destino, tiempoSalida, tiempoLlegada } = tramoActual;
-
-            // Verificar si la hora de la simulación está dentro del rango de tiempo de salida y llegada del tramo
-            if (new Date(simulatedTime) < new Date(tiempoSalida)) {
-                allFinished = false; // Aún no es hora de que este camión se mueva
+            
+            console.log('Camión:', codigo);
+            console.log('Tiempo de salida del tramo:', dayjs(tiempoSalida).format('YYYY-MM-DD HH:mm:ss'));      
+        
+            if (dayjs(simulatedTime).isBefore(dayjs(tiempoSalida))) {
+                allFinished = false; // Todavía no es hora de que este camión se mueva
+                console.log('Camión todavía no inicia su tramo.');
                 return;
             }
+    
+    
+            //Escalar el tiempo de la simulación (1 hora simulada = 10 segundos reales)
+            const tiempoTramoSimulado = (distancia / velocidadTramo) * 3600; // Tiempo del tramo en segundos simulados
+            const progresoActual = progresoTramoRef.current[rutaIndex];
+            console.log(`Progreso actual del tramo (camión ${codigo}):`, progresoActual);
+            
+            // Ajuste para que el avance sea más rápido y visualmente notable
+            const incrementoAvance = (1 / tiempoTramoSimulado) * velocidad * 0.1; // Multiplicador de 0.1 para hacer el avance más significativo
+            progresoTramoRef.current[rutaIndex] += incrementoAvance;
 
-            if (new Date(simulatedTime) > new Date(tiempoLlegada)) {
-                // Si la hora simulada ya pasó la hora de llegada, pasa al siguiente tramo
-                tramoIndexRef.current[rutaIndex]++;
-                progresoTramoRef.current[rutaIndex] = 0.01;
-                return;
-            }
-
-
-            // Tiempo en milisegundos para completar el tramo
-            const tiempoTramo = ((distancia / velocidadTramo) * 1000) / velocidad;
-            const progreso = progresoTramoRef.current[rutaIndex];
-
+            console.log(`Progreso actualizado del tramo (camión ${codigo}):`, progresoTramoRef.current[rutaIndex]);
+            
+    
+            // Calcula la nueva posición del camión
             // Calcula la nueva posición del camión
             const nuevaPosicion = {
-                latitud: origen.latitud + (destino.latitud - origen.latitud) * progreso,
-                longitud: origen.longitud + (destino.longitud - origen.longitud) * progreso,
+                latitud: origen.latitud + (destino.latitud - origen.latitud) * progresoTramoRef.current[rutaIndex],
+                longitud: origen.longitud + (destino.longitud - origen.longitud) * progresoTramoRef.current[rutaIndex],
             };
-
             // Actualiza la posición actual del camión
             setCurrentPositions((prev) => ({
                 ...prev,
                 [codigo]: nuevaPosicion,
             }));
-
-            // Avanza el progreso en el tramo actual
-            progresoTramoRef.current[rutaIndex] += (1 / tiempoTramo) *(6 / 60)* velocidad;
-
-            if (progresoTramoRef.current[rutaIndex] >= 1) {
+    
+            if (Math.round(progresoTramoRef.current[rutaIndex] * 1000) >= 1000) {
                 // Si se completa el tramo, pasa al siguiente
                 tramoIndexRef.current[rutaIndex]++;
                 progresoTramoRef.current[rutaIndex] = 0.01;
-
+    
                 // Si ya no hay más tramos, marca el camión como terminado
                 if (tramoIndexRef.current[rutaIndex] >= ruta.tramos.length) {
                     setCurrentPositions((prev) => {
@@ -195,12 +198,13 @@ const Simulador = () => {
                 allFinished = false;
             }
         });
-
+    
         if (allFinished) {
             console.log("Simulación terminada");
             onSimulacionTerminada();
         }
     };
+    
 
 
     useEffect(() => {
@@ -227,7 +231,7 @@ const Simulador = () => {
         }
     }, [rutas]);
 
-
+    /*
     useEffect(() => {
         if (simulacionActiva) {
             const interval = setInterval(() => {
@@ -235,11 +239,31 @@ const Simulador = () => {
                     console.log("Simulación detenida desde moverCamiones.");
                     setSimulacionActiva(false);
                 });
-            }, 1000);
+            }, 50);
 
             return () => clearInterval(interval);
         }
-    }, [simulacionActiva, velocidad, rutas]);
+    }, [simulacionActiva, velocidad, rutas,simulatedTime]);
+
+    */
+
+    useEffect(() => {
+        let animationFrameId;
+    
+        const moverCamionesAnimados = () => {
+            moverCamiones(velocidad, onSimulacionTerminada, simulatedTime);
+            animationFrameId = requestAnimationFrame(moverCamionesAnimados);
+        };
+    
+        if (simulacionActiva) {
+            animationFrameId = requestAnimationFrame(moverCamionesAnimados);
+        } else {
+            cancelAnimationFrame(animationFrameId);
+        }
+    
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [simulacionActiva, velocidad, simulatedTime]);
+    
 
 
     const resetearSimulacion = () => {
@@ -274,6 +298,16 @@ const Simulador = () => {
             rutaData.reduce((acc, ruta) => acc + ruta.tramos.length, 0),
         );
     }, []);
+
+    // Debug para asegurarte que `simulatedTime` no sea undefined
+    useEffect(() => {
+        if (simulatedTime) {
+            //console.log("Simulated Time en Simulador actualizado:", simulatedTime.format('YYYY-MM-DD HH:mm:ss'));
+        } else {
+            console.log("Simulated Time aún no está disponible.");
+        }
+    }, [simulatedTime]);
+    
 
     // useEffect(() => {
     //     //imprimir en consola los tramos de cada ruta

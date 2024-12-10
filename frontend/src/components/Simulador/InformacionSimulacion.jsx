@@ -19,6 +19,9 @@ const InformacionSimulacion = ({ currentTime, simulacionActiva, velocidad, setSi
         const elapsedSimulatedTime = elapsedRealTime * (6 / 60) * velocidad; // Horas simuladas (1 hora simulada por cada 10 segundos reales)
     
         const newSimulatedTime = dayjs(currentTime).add(elapsedSimulatedTime, 'hour'); // Sumar las horas simuladas
+
+        //console.log('Tiempo actual (real):', new Date(now).toISOString());
+        //console.log('Tiempo transcurrido (real):', elapsedRealTime, 'segundos');
     
         setLocalSimulatedTime(newSimulatedTime); 
         setSimulatedTime(newSimulatedTime);
