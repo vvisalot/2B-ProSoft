@@ -27,7 +27,6 @@ const Simulador = () => {
     const [resetRequerido, setResetRequerido] = useState(false); // Nuevo estado
     const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
     const [currentTime, setCurrentTime] = useState("2024-03-14T00:00:00");
-    const [simulatedTime, setSimulatedTime] = useState(dayjs(currentTime))
     const [selectedDate, setSelectedDate] = useState(null);
     const [selectedTime, setSelectedTime] = useState(null);
     const [selectedItem, setSelectedItem] = useState('Simulación');
@@ -131,7 +130,7 @@ const Simulador = () => {
 		}
 	}, [rutas]);
     
-    const moverCamiones = (velocidad, onSimulacionTerminada, simulatedTime) => {
+    const moverCamiones = (velocidad, onSimulacionTerminada) => {
         let allFinished = true;
 
         rutas.forEach((ruta, rutaIndex) => {
@@ -140,21 +139,7 @@ const Simulador = () => {
             const tramoActual = ruta.tramos[tramoIndex];
 
             if (!tramoActual) return; // Si no hay tramos restantes, salta esta ruta
-            const { distancia, velocidad: velocidadTramo, origen, destino, tiempoSalida, tiempoLlegada } = tramoActual;
-
-            // Verificar si la hora de la simulación está dentro del rango de tiempo de salida y llegada del tramo
-            if (new Date(simulatedTime) < new Date(tiempoSalida)) {
-                allFinished = false; // Aún no es hora de que este camión se mueva
-                return;
-            }
-
-            if (new Date(simulatedTime) > new Date(tiempoLlegada)) {
-                // Si la hora simulada ya pasó la hora de llegada, pasa al siguiente tramo
-                tramoIndexRef.current[rutaIndex]++;
-                progresoTramoRef.current[rutaIndex] = 0.01;
-                return;
-            }
-
+            const { distancia, velocidad: velocidadTramo, origen, destino } = tramoActual;
 
             // Tiempo en milisegundos para completar el tramo
             const tiempoTramo = ((distancia / velocidadTramo) * 1000) / velocidad;
@@ -248,18 +233,14 @@ const Simulador = () => {
         setCurrentPositions(
             rutas.reduce((acc, ruta) => {
                 const { codigo } = ruta.camion;
-                const primerTramo = ruta.tramos[0];
-                if (new Date(currentTime) >= new Date(primerTramo.tiempoSalida)) {
-                    acc[codigo] = {
-                        latitud: primerTramo.origen.latitud,
-                        longitud: primerTramo.origen.longitud,
-                    };
-                }
+                acc[codigo] = {
+                    latitud: ruta.tramos[0].origen.latitud,
+                    longitud: ruta.tramos[0].origen.longitud,
+                };
                 return acc;
             }, {}),
         );
     };
-    
 
     // useEffect(() => {
     //     const timer = setInterval(() => {
@@ -321,7 +302,6 @@ const Simulador = () => {
                     currentTime={currentTime}
                     simulacionActiva={simulacionActiva}
                     velocidad={velocidad}
-                    setSimulatedTime={setSimulatedTime}
                 />
                 <TablaSimulacion data={rutas}/>
             </div>
@@ -368,7 +348,6 @@ const Simulador = () => {
                     simulacionIniciada={simulacionIniciada}
                     resetRequerido={resetRequerido}
                     velocidad={velocidad}
-                    simulatedTime={simulatedTime}
                 />
                 <div className="absolute bottom-4 right-4 z-10 bg-white p-4 rounded-lg shadow-lg">
                     <ControlesSimulacion

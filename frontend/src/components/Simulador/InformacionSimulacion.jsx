@@ -2,10 +2,10 @@ import {Card} from "antd";
 import dayjs from "dayjs";
 import {useEffect, useRef, useState } from "react";
 
-const InformacionSimulacion = ({ currentTime, simulacionActiva, velocidad }) => {
+const InformacionSimulacion = ({ currentTime, simulacionActiva, velocidad, setSimulatedTime }) => {
     const [enMantenimiento, setEnMantenimiento] = useState(0);
     const [enMovimiento, setEnMovimiento] = useState(0);
-    const [simulatedTime, setSimulatedTime] = useState(dayjs(currentTime));
+    const [simulatedTime, setLocalSimulatedTime] = useState(dayjs(currentTime));
     const [timeElapsed, setTimeElapsed] = useState(0); // En horas simuladas
     const startTimeRef = useRef(null); // Hora de inicio en tiempo real
     const animationFrameRef = useRef(null);
@@ -20,6 +20,7 @@ const InformacionSimulacion = ({ currentTime, simulacionActiva, velocidad }) => 
     
         const newSimulatedTime = dayjs(currentTime).add(elapsedSimulatedTime, 'hour'); // Sumar las horas simuladas
     
+        setLocalSimulatedTime(newSimulatedTime); 
         setSimulatedTime(newSimulatedTime);
         setTimeElapsed(elapsedSimulatedTime);
         animationFrameRef.current = requestAnimationFrame(updateSimulatedTime);
@@ -34,7 +35,7 @@ const InformacionSimulacion = ({ currentTime, simulacionActiva, velocidad }) => 
         }
     
         return () => cancelAnimationFrame(animationFrameRef.current); // Limpiar cuando se desmonte
-    }, [simulacionActiva, velocidad]);
+    }, [simulacionActiva, velocidad, currentTime]);
 
 
     return (

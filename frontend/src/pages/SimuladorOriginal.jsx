@@ -173,3 +173,4 @@ const SimuladorOriginal = () => {
 };
 
 export default SimuladorOriginal;
+

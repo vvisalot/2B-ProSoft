@@ -5,12 +5,12 @@ import MapContainer, {
 	Layer
 } from "react-map-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
+import dayjs from 'dayjs';
+import Papa from "papaparse";
+import {useEffect, useState} from "react";
 import camionIcon from "/src/assets/icons/camion.png";
 import oficinaIcon from "/src/assets/icons/oficina.png";
 import almacenPrincipalIcon from "/src/assets/icons/storage.png";
-
-import {useEffect, useState} from "react";
-import Papa from "papaparse";
 
 const MapaSimulacion = ({
 	simulacionActiva,
@@ -21,6 +21,7 @@ const MapaSimulacion = ({
 	currentPositions,
 	tramoIndexRef,
 	progresoTramoRef,
+	simulatedTime,
 	onUpdateStats
 }) => {
 	const [viewport, setViewport] = useState({
@@ -92,6 +93,7 @@ const MapaSimulacion = ({
 			{/* Marcadores de camiones */}
 			{simulacionIniciada &&
 				Object.entries(currentPositions).map(([codigo, posicion]) => (
+					
 					<Marker
 						key={codigo}
 						latitude={posicion.latitud}
@@ -104,6 +106,31 @@ const MapaSimulacion = ({
 						/>
 					</Marker>
 				))}
+
+			{/* Marcadores de camiones */}
+			{simulacionIniciada &&
+				rutas.map((ruta, rutaIndex) => {
+					const primerTramo = ruta.tramos[0];
+					const horaSalida = dayjs(primerTramo.tiempoSalida);
+					
+					// Mostrar camión solo si la hora de salida ya pasó
+					if (horaSalida.isBefore(simulatedTime) || horaSalida.isSame(simulatedTime)) {
+						return (
+							<Marker
+								key={ruta.camion.codigo}
+								latitude={currentPositions[ruta.camion.codigo]?.latitud || primerTramo.origen.latitud}
+								longitude={currentPositions[ruta.camion.codigo]?.longitud || primerTramo.origen.longitud}
+							>
+								<img
+									src={camionIcon}
+									alt={`Camión ${ruta.camion.codigo}`}
+									style={{ width: "24px", height: "24px" }}
+								/>
+							</Marker>
+						);
+					}
+					return null;
+				})}
 
 			{/* Líneas de rutas y progreso de rutas */}
 			{(resetRequerido || simulacionIniciada) &&
