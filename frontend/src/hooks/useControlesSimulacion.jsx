@@ -6,8 +6,8 @@ export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearS
     const [simulacionActiva, setSimulacionActiva] = useState(false);
     const [simulacionIniciada, setSimulacionIniciada] = useState(false);
     const [simulacionTerminada, setSimulacionTerminada] = useState(false);
-    const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
-    //const [velocidad, setVelocidad] = useState(10); // Multiplicador de velocidad
+    //const [velocidad, setVelocidad] = useState(1); // Multiplicador de velocidad
+    const [velocidad, setVelocidad] = useState(10); // Multiplicador de velocidad
 
     const [resetRequerido, setResetRequerido] = useState(false); // Nuevo estado
 
@@ -19,7 +19,6 @@ export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearS
         console.log("Mover camiones con velocidad", velocidad);
         moverCamiones(velocidad, detenerSimulacion)
     }
-    
 
     const fetchSimulacion = async () => {
         try {
@@ -34,7 +33,6 @@ export const useControlesSimulacion = (rutas, setRutas, moverCamiones, resetearS
         }
     };
 
-    
 
     const avanzarSimulacion = async () => {
         try {
