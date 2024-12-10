@@ -144,16 +144,10 @@ const MapaSimulacion = ({
 								type: "Feature",
 								geometry: {
 									type: "LineString",
-									coordinates: [
-										...ruta.tramos.map((tramo) => [
-											tramo.origen.longitud,
-											tramo.origen.latitud
-										]),
-										[
-											ruta.tramos[ruta.tramos.length - 1].destino.longitud,
-											ruta.tramos[ruta.tramos.length - 1].destino.latitud
-										]
-									]
+									coordinates: ruta.tramos.map((tramo) => [
+										tramo.origen.longitud,
+										tramo.origen.latitud
+									])
 								}
 							}}
 						>
