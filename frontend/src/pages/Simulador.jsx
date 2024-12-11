@@ -132,30 +132,27 @@ const Simulador = () => {
                 duracionTramoMs
             ); // Tiempo transcurrido dentro del tramo
 
-            // Calcular el progreso basado en el tiempo transcurrido
             const progreso = tiempoTranscurridoMs / duracionTramoMs;
+            console.log(`Ruta ${rutaIndex}, Tramo ${tramoIndex}, Progreso: ${progreso}`);
 
             if (progreso >= 1) {
-                // Si se completa el tramo, pasa al siguiente
                 tramoIndexRef.current[rutaIndex]++;
-                progresoTramoRef.current[rutaIndex] = 0.01;
+                progresoTramoRef.current[rutaIndex] = 0;
 
-                // Si ya no hay más tramos, marca el camión como terminado
                 if (tramoIndexRef.current[rutaIndex] >= ruta.tramos.length) {
                     setCurrentPositions((prev) => {
                         const updated = {...prev};
                         delete updated[codigo];
                         return updated;
                     });
-                    tramoIndexRef.current[rutaIndex] = -1; // Indica que terminó la ruta
+                    tramoIndexRef.current[rutaIndex] = -1;
                 } else {
                     allFinished = false;
                 }
             } else {
-                progresoTramoRef.current[rutaIndex] = progreso; // Actualiza el progreso
+                progresoTramoRef.current[rutaIndex] = progreso;
                 allFinished = false;
 
-                // Calcular la nueva posición del camión
                 const nuevaPosicion = {
                     latitud: origen.latitud + (destino.latitud - origen.latitud) * progreso,
                     longitud: origen.longitud + (destino.longitud - origen.longitud) * progreso,
@@ -191,7 +188,7 @@ const Simulador = () => {
 
     const resetearSimulacion = () => {
         tramoIndexRef.current = rutas.map(() => 0);
-        progresoTramoRef.current = rutas.map(() => 0.01);
+        progresoTramoRef.current = rutas.map(() => 0); // Progreso inicial en 0
         setCurrentPositions(
             rutas.reduce((acc, ruta) => {
                 const {codigo} = ruta.camion;
@@ -205,7 +202,15 @@ const Simulador = () => {
                 return acc;
             }, {}),
         );
+
+        // Forzar la actualización inicial del progreso para el primer tramo
+        setTimeout(() => {
+            moverCamiones(velocidad, () => {
+                console.log("Simulación inicializada.");
+            });
+        }, 0);
     };
+
 
     // useEffect(() => {
     //     const timer = setInterval(() => {
