@@ -109,22 +109,31 @@ const Simulador = () => {
 
     const moverCamiones = (velocidad, onSimulacionTerminada) => {
         let allFinished = true;
-
         rutas.forEach((ruta, rutaIndex) => {
             const {codigo} = ruta.camion;
             const tramoIndex = tramoIndexRef.current[rutaIndex];
             const tramoActual = ruta.tramos[tramoIndex];
 
             if (!tramoActual) return; // Si no hay tramos restantes, salta esta ruta
-            const {distancia, origen, destino, tiempoSalida, tiempoLlegada} = tramoActual;
+            const {
+                distancia,
+                velocidad: velocidadTramo,
+                origen,
+                destino,
+                tiempoSalida,
+            } = tramoActual;
+
+            console.log("Comparando tiempos:", {
+                currentTimeRef: dayjs(currentTimeRef.current).format('YYYY-MM-DDTHH:mm:ss'),
+                tiempoSalida: dayjs(tiempoSalida).format('YYYY-MM-DDTHH:mm:ss'),
+                isBefore: dayjs(currentTimeRef.current).isBefore(dayjs(tiempoSalida)),
+            });
 
             const tiempoSimulado = dayjs(currentTimeRef.current);
             const tiempoInicioTramo = dayjs(tiempoSalida);
-            const tiempoFinTramo = dayjs(tiempoLlegada);
-
             if (tiempoSimulado.isBefore(tiempoInicioTramo)) {
                 allFinished = false; // Aún no puede moverse, pero la simulación sigue activa
-                return;
+                return; // Ignorar este camión hasta que llegue su tiempo de salida
             }
     
     
@@ -137,16 +146,34 @@ const Simulador = () => {
             const incrementoAvance = (1 / tiempoTramoSimulado) * velocidad * 0.1; // Multiplicador de 0.1 para hacer el avance más significativo
             progresoTramoRef.current[rutaIndex] += incrementoAvance;
 
-            const duracionTramoMs = tiempoFinTramo.diff(tiempoInicioTramo); // Duración total del tramo en ms
-            const tiempoTranscurridoMs = Math.min(
-                tiempoSimulado.diff(tiempoInicioTramo),
-                duracionTramoMs
-            ); // Tiempo transcurrido dentro del tramo
+            console.log(
+                "Moviendo camión",
+                codigo,
+                "en el tramo",
+                tramoIndex,
+                "de la ruta",
+                rutaIndex, "con velocidad", velocidad
+            );
+            // Tiempo en milisegundos para completar el tramo
+            const tiempoTramo = ((distancia / velocidadTramo) * 1000) / velocidad;
+            const progreso = progresoTramoRef.current[rutaIndex];
 
-            // Calcular el progreso basado en el tiempo transcurrido
-            const progreso = tiempoTranscurridoMs / duracionTramoMs;
+            // Calcula la nueva posición del camión
+            const nuevaPosicion = {
+                latitud: origen.latitud + (destino.latitud - origen.latitud) * progresoTramoRef.current[rutaIndex],
+                longitud: origen.longitud + (destino.longitud - origen.longitud) * progresoTramoRef.current[rutaIndex],
+            };
+            // Actualiza la posición actual del camión
+            setCurrentPositions((prev) => ({
+                ...prev,
+                [codigo]: nuevaPosicion,
+            }));
 
-            if (progreso >= 1) {
+            // Avanza el progreso en el tramo actual
+            progresoTramoRef.current[rutaIndex] +=
+                (1 / tiempoTramo) * (6 / 60) * velocidad;
+
+            if (progresoTramoRef.current[rutaIndex] >= 1) {
                 // Si se completa el tramo, pasa al siguiente
                 tramoIndexRef.current[rutaIndex]++;
                 progresoTramoRef.current[rutaIndex] = 0.01;
@@ -163,19 +190,7 @@ const Simulador = () => {
                     allFinished = false;
                 }
             } else {
-                progresoTramoRef.current[rutaIndex] = progreso; // Actualiza el progreso
                 allFinished = false;
-
-                // Calcular la nueva posición del camión
-                const nuevaPosicion = {
-                    latitud: origen.latitud + (destino.latitud - origen.latitud) * progreso,
-                    longitud: origen.longitud + (destino.longitud - origen.longitud) * progreso,
-                };
-
-                setCurrentPositions((prev) => ({
-                    ...prev,
-                    [codigo]: nuevaPosicion,
-                }));
             }
         });
     
@@ -192,10 +207,10 @@ const Simulador = () => {
     useEffect(() => {
         if (simulacionActiva) {
             const interval = setInterval(() => {
-                moverCamiones(velocidad, () => {
-                    console.log("Simulación terminada.");
+                moverCamiones(60, () => {
+                    //console.log("Simulación detenida desde moverCamiones.");
                 });
-            }, 100); // Intervalos cortos para mayor precisión
+            }, 50);
 
             return () => clearInterval(interval);
         }
